@@ -480,10 +480,11 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
     <div class="modal-body" style="padding:12px;overflow:auto">
       <div class="export-grid">
         <div class="export-card"><label>OUTPUT</label><select id="exportType">
+          <option value="mp4">MP4 Video</option>
+          <option value="webm">WebM Video</option>
           <option value="png">PNG Still</option>
           <option value="jpeg">JPEG Still</option>
           <option value="webp">WebP Still</option>
-          <option value="webm">WebM Video</option>
           <option value="project">CRTiZER Project JSON</option>
         </select></div>
         <div class="export-card"><label>RESOLUTION</label><select id="exportRes">
@@ -493,6 +494,8 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
           <option value="1920x1080">1920 × 1080</option>
           <option value="1280x720">1280 × 720</option>
           <option value="1080x1920">1080 × 1920 Vertical</option>
+          <option value="720x1280">720 × 1280 Vertical</option>
+          <option value="1080x1350">1080 × 1350 Social 4:5</option>
           <option value="1080x1080">1080 × 1080 Square</option>
         </select></div>
         <div class="export-card"><label>FRAME RATE</label><select id="exportFps">
@@ -516,7 +519,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
       <div class="row" style="margin-top:10px">
         <button class="btn accent grow" id="exportNow">Export</button>
       </div>
-      <div class="export-note" id="exportSupportNote">Compatible options are detected from this browser. PNG/JPEG/WebP export the current composited frame. WebM uses MediaRecorder when supported.</div>
+      <div class="export-note" id="exportSupportNote">MP4 is preferred when this browser exposes H.264/HEVC/AV1 recording. Unsupported video containers/codecs are hidden automatically.</div>
     </div>
   </div>
 </div>
@@ -1372,63 +1375,225 @@ function openSheet(tool){
 $$('.tool').forEach(b=>b.onclick=()=>openSheet(b.dataset.tool));
 $('#closeSheet').onclick=()=>{$('#sheet').classList.remove('open');setTimeout(()=>$('#sheet').style.display='none',220)};
 
-function populateExportCodecs(){
-  const sel=$('#exportCodec');if(!sel)return;
-  const codecs=[
-    ['video/webm;codecs=vp9','WebM VP9'],
-    ['video/webm;codecs=vp8','WebM VP8'],
-    ['video/webm','WebM Default']
-  ];
-  sel.innerHTML=codecs.filter(([mime])=>!window.MediaRecorder||MediaRecorder.isTypeSupported(mime)).map(([mime,label])=>`<option value="${mime}">${label}</option>`).join('');
-  if(!sel.options.length)sel.innerHTML='<option value="video/webm">WebM</option>';
+
+const EXPORT_VIDEO_PROFILES = {
+  mp4: [
+    {mime:'video/mp4;codecs=avc1.42E01E', label:'H.264 / AVC Baseline', ext:'mp4'},
+    {mime:'video/mp4;codecs=avc1.4D401F', label:'H.264 / AVC Main', ext:'mp4'},
+    {mime:'video/mp4;codecs=avc1.640028', label:'H.264 / AVC High', ext:'mp4'},
+    {mime:'video/mp4;codecs=h264', label:'H.264', ext:'mp4'},
+    {mime:'video/mp4;codecs=hvc1', label:'HEVC / H.265', ext:'mp4'},
+    {mime:'video/mp4;codecs=hev1', label:'HEVC / H.265 (hev1)', ext:'mp4'},
+    {mime:'video/mp4;codecs=av01', label:'AV1 in MP4', ext:'mp4'},
+    {mime:'video/mp4', label:'MP4 Browser Default', ext:'mp4'}
+  ],
+  webm: [
+    {mime:'video/webm;codecs=vp9', label:'VP9', ext:'webm'},
+    {mime:'video/webm;codecs=vp8', label:'VP8', ext:'webm'},
+    {mime:'video/webm;codecs=av1', label:'AV1', ext:'webm'},
+    {mime:'video/webm', label:'WebM Browser Default', ext:'webm'}
+  ]
+};
+
+function recorderSupports(mime){
+  if(!window.MediaRecorder)return false;
+  if(typeof MediaRecorder.isTypeSupported!=='function')return true;
+  try{return MediaRecorder.isTypeSupported(mime)}catch(e){return false}
 }
-populateExportCodecs();
+function supportedProfiles(type){
+  return (EXPORT_VIDEO_PROFILES[type]||[]).filter(p=>recorderSupports(p.mime));
+}
+function refreshExportTypes(){
+  const type=$('#exportType');
+  const mp4=type.querySelector('option[value="mp4"]');
+  const webm=type.querySelector('option[value="webm"]');
+  const canRecord=!!(window.MediaRecorder&&stage.captureStream);
+  const mp4Profiles=canRecord?supportedProfiles('mp4'):[];
+  const webmProfiles=canRecord?supportedProfiles('webm'):[];
 
-$('#exportNow').onclick=async()=>{
-  const type=$('#exportType').value,res=$('#exportRes').value,q=+$('#exportQuality').value,fps=+$('#exportFps').value;
-  const bitrate=+$('#exportBitrate').value,range=$('#exportRange').value,audioMode=$('#exportAudio').value;
-  let w=stage.width,h=stage.height;if(res!=='source'){[w,h]=res.split('x').map(Number)}
+  if(mp4){mp4.disabled=!mp4Profiles.length;mp4.textContent=mp4Profiles.length?'MP4 Video':'MP4 Video — unsupported here'}
+  if(webm){webm.disabled=!webmProfiles.length;webm.textContent=webmProfiles.length?'WebM Video':'WebM Video — unsupported here'}
 
-  if(type==='project'){
-    const project={version:1,source:{type:state.source.type,name:state.source.name},layers:state.layers.map(({el,...l})=>l),effects:state.effects,synth:state.synth,shader:state.shader,trimStart:state.trimStart,trimEnd:state.trimEnd,splits:state.splits};
-    const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crtizer-project.json';a.click();return;
-  }
+  // Prefer MP4 because it is the mainstream delivery format the user requested.
+  if(mp4Profiles.length)type.value='mp4';
+  else if(webmProfiles.length)type.value='webm';
+  else type.value='png';
 
-  if(['png','jpeg','webp'].includes(type)){
-    const c=document.createElement('canvas');c.width=w;c.height=h;const cc=c.getContext('2d',{willReadFrequently:true});renderTo(cc,w,h);
-    const mime=type==='jpeg'?'image/jpeg':type==='webp'?'image/webp':'image/png';
-    c.toBlob(blob=>{if(!blob)return;const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crtizer.'+(type==='jpeg'?'jpg':type);a.click()},mime,q);
+  populateExportCodecs();
+}
+function populateExportCodecs(){
+  const sel=$('#exportCodec'),type=$('#exportType').value;
+  if(!sel)return;
+
+  if(type!=='mp4'&&type!=='webm'){
+    sel.innerHTML='<option value="">Not used for still/project export</option>';
+    sel.disabled=true;
     return;
   }
 
-  if(type==='webm'){
-    if(!window.MediaRecorder||!stage.captureStream)return toast('WebM recording is not supported by this browser');
-    const mime=$('#exportCodec').value||'video/webm';
-    const stream=stage.captureStream(fps);
+  sel.disabled=false;
+  const profiles=supportedProfiles(type);
+  sel.innerHTML=profiles.map(p=>`<option value="${p.mime}">${p.label}</option>`).join('');
+  if(!profiles.length)sel.innerHTML='<option value="">No supported codecs</option>';
 
-    // Add source audio only when the browser exposes captureStream on the source media element.
-    if(audioMode==='source'&&state.source.video&&typeof state.source.video.captureStream==='function'){
-      try{state.source.video.captureStream().getAudioTracks().forEach(t=>stream.addTrack(t))}catch(e){}
-    }
+  updateExportSupportNote();
+}
+function updateExportSupportNote(){
+  const note=$('#exportSupportNote'),type=$('#exportType').value;
+  if(!note)return;
+  if(type==='mp4'){
+    const n=supportedProfiles('mp4').length;
+    note.textContent=n
+      ? `Native MP4 export available: ${n} compatible codec profile${n===1?'':'s'} detected. Files download directly as .mp4.`
+      : 'This browser does not expose MP4 recording through MediaRecorder. WebM or still-image export remains available.';
+  }else if(type==='webm'){
+    const n=supportedProfiles('webm').length;
+    note.textContent=n
+      ? `Native WebM export available: ${n} compatible codec profile${n===1?'':'s'} detected.`
+      : 'This browser does not expose WebM recording through MediaRecorder.';
+  }else if(type==='project'){
+    note.textContent='Exports an editable CRTiZER project/state file as JSON.';
+  }else{
+    note.textContent=`Exports the current composited frame directly as ${type.toUpperCase()}.`;
+  }
+}
+$('#exportType').addEventListener('change',()=>{populateExportCodecs();updateExportSupportNote()});
+refreshExportTypes();
 
-    let rec;
-    try{rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:bitrate})}
-    catch(e){rec=new MediaRecorder(stream,{videoBitsPerSecond:bitrate})}
+function sourceAudioTracksForExport(){
+  if($('#exportAudio').value!=='source'||!state.source.video)return [];
+  const v=state.source.video;
+  try{
+    if(typeof v.captureStream==='function')return v.captureStream().getAudioTracks();
+    if(typeof v.mozCaptureStream==='function')return v.mozCaptureStream().getAudioTracks();
+  }catch(e){}
+  return [];
+}
+function downloadBlob(blob,filename){
+  const u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(u),2500);
+}
+function exportDurationForRange(range){
+  const d=masterDuration();
+  let start=0,end=3;
+  if(range==='trim'){start=state.trimStart||0;end=state.trimEnd??d}
+  else if(range==='full'){start=0;end=d||3}
+  else{start=masterTime();end=Math.min(d||start+3,start+3)}
+  if(!Number.isFinite(end)||end<=start)end=start+3;
+  return {start,end,duration:Math.max(.25,end-start)};
+}
+async function makeRecorder(stream,mime,bitrate){
+  const candidates=[mime,mime?.split(';')[0],''].filter((v,i,a)=>v!==undefined&&a.indexOf(v)===i);
+  let lastErr=null;
+  for(const candidate of candidates){
+    try{
+      const opts={videoBitsPerSecond:bitrate};
+      if(candidate)opts.mimeType=candidate;
+      return new MediaRecorder(stream,opts);
+    }catch(e){lastErr=e}
+  }
+  throw lastErr||new Error('No recorder configuration available');
+}
 
-    const chunks=[];
-    rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
-    rec.onstop=()=>{const blob=new Blob(chunks,{type:rec.mimeType||'video/webm'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crtizer.webm';a.click()};
+$('#exportNow').onclick=async()=>{
+  const type=$('#exportType').value,res=$('#exportRes').value,q=+$('#exportQuality').value,fps=+$('#exportFps').value;
+  const bitrate=+$('#exportBitrate').value,range=$('#exportRange').value;
+  let w=stage.width,h=stage.height;
+  if(res!=='source')[w,h]=res.split('x').map(Number);
 
-    let start=0,end=3;
-    const d=masterDuration();
-    if(range==='trim'){start=state.trimStart||0;end=state.trimEnd??d}
-    else if(range==='full'){start=0;end=d||3}
-    else{start=masterTime();end=Math.min(d||start+3,start+3)}
+  if(type==='project'){
+    const project={
+      version:2,
+      source:{type:state.source.type,name:state.source.name},
+      layers:state.layers.map(({el,...l})=>l),
+      effects:state.effects,synth:state.synth,shader:state.shader,
+      trimStart:state.trimStart,trimEnd:state.trimEnd,splits:state.splits
+    };
+    downloadBlob(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),'crtizer-project.json');
+    return;
+  }
 
-    if(d)seekAllVideos(start);
-    setAllPlayback(true);
-    rec.start();
-    setTimeout(()=>{rec.stop();setAllPlayback(false)},Math.max(250,(end-start)*1000));
+  if(['png','jpeg','webp'].includes(type)){
+    const c=document.createElement('canvas');c.width=w;c.height=h;
+    const cc=c.getContext('2d',{willReadFrequently:true});
+    renderTo(cc,w,h);
+    const mime=type==='jpeg'?'image/jpeg':type==='webp'?'image/webp':'image/png';
+    c.toBlob(blob=>{
+      if(!blob)return toast(type.toUpperCase()+' export failed');
+      downloadBlob(blob,'crtizer.'+(type==='jpeg'?'jpg':type));
+    },mime,q);
+    return;
+  }
+
+  if(type!=='mp4'&&type!=='webm')return;
+
+  if(!window.MediaRecorder||!stage.captureStream){
+    toast('Video recording is not supported by this browser');
+    return;
+  }
+
+  const selectedMime=$('#exportCodec').value;
+  if(!selectedMime){
+    toast(type.toUpperCase()+' codec unavailable on this device');
+    return;
+  }
+
+  // Render through a dedicated export canvas so selected resolution is real,
+  // rather than merely changing the metadata on the 1280x720 preview canvas.
+  const exportCanvas=document.createElement('canvas');
+  exportCanvas.width=w;exportCanvas.height=h;
+  const ec=exportCanvas.getContext('2d',{willReadFrequently:true});
+  let exportRAF=0,recording=true;
+  const exportFrame=()=>{
+    if(!recording)return;
+    renderTo(ec,w,h);
+    exportRAF=requestAnimationFrame(exportFrame);
+  };
+  exportFrame();
+
+  const stream=exportCanvas.captureStream(fps);
+  sourceAudioTracksForExport().forEach(track=>{
+    try{stream.addTrack(track)}catch(e){}
+  });
+
+  let rec;
+  try{
+    rec=await makeRecorder(stream,selectedMime,bitrate);
+  }catch(e){
+    recording=false;cancelAnimationFrame(exportRAF);
+    toast('Selected codec failed to initialize');
+    return;
+  }
+
+  const chunks=[];
+  rec.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data)};
+  rec.onerror=()=>{
+    recording=false;cancelAnimationFrame(exportRAF);setAllPlayback(false);
+    toast('Video encoder reported an error');
+  };
+  rec.onstop=()=>{
+    recording=false;cancelAnimationFrame(exportRAF);setAllPlayback(false);
+    const finalMime=rec.mimeType||selectedMime||(type==='mp4'?'video/mp4':'video/webm');
+    const ext=finalMime.includes('mp4')?'mp4':'webm';
+    if(!chunks.length)return toast('Encoder produced no video data');
+    downloadBlob(new Blob(chunks,{type:finalMime}),`crtizer.${ext}`);
+    toast(ext.toUpperCase()+' export complete');
+  };
+
+  const {start,duration}=exportDurationForRange(range);
+  if(masterDuration())seekAllVideos(start);
+  setAllPlayback(true);
+
+  try{
+    rec.start(500);
+    toast(`Recording ${type.toUpperCase()}…`);
+    setTimeout(()=>{
+      if(rec.state!=='inactive')rec.stop();
+    },duration*1000);
+  }catch(e){
+    recording=false;cancelAnimationFrame(exportRAF);setAllPlayback(false);
+    toast('Could not start video export');
   }
 }
 
