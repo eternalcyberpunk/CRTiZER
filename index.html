@@ -266,6 +266,122 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="crtizer-mobile-panel-controller-css">
+@media(max-width:900px){
+  #sheet{
+    display:block!important;
+    width:100vw!important;
+    left:0!important;
+    right:0!important;
+    bottom:calc(var(--dock) + env(safe-area-inset-bottom,0px))!important;
+    height:min(46dvh,420px)!important;
+    max-height:min(46dvh,420px)!important;
+    min-height:260px!important;
+    background:#080a0e!important;
+    border:1px solid rgba(255,255,255,.08)!important;
+    border-bottom:0!important;
+    border-radius:18px 18px 0 0!important;
+    box-shadow:0 -22px 55px rgba(0,0,0,.5)!important;
+    z-index:2500!important;
+    transform:translate3d(0,110%,0)!important;
+    transition:transform .22s cubic-bezier(.2,.8,.2,1)!important;
+    visibility:hidden!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    overflow:hidden!important;
+  }
+  #sheet.open{
+    transform:translate3d(0,0,0)!important;
+    visibility:visible!important;
+    opacity:1!important;
+    pointer-events:auto!important;
+  }
+  #sheet .sheet-head{
+    height:46px!important;
+    min-height:46px!important;
+    display:flex!important;
+    align-items:center!important;
+    padding:0 12px!important;
+    background:#0a0d11!important;
+    border-bottom:1px solid rgba(255,255,255,.07)!important;
+  }
+  #sheet .sheet-head b{
+    font-size:10px!important;
+    color:#e5edef!important;
+  }
+  #sheet .sheet-body{
+    display:block!important;
+    height:calc(100% - 46px)!important;
+    min-height:210px!important;
+    padding:12px!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    background:#080a0e!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .mobile-panel-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+  }
+  .mobile-panel-card{
+    min-height:68px;
+    border:1px solid rgba(255,255,255,.07);
+    background:#0d1014;
+    color:#cbd6da;
+    border-radius:10px;
+    padding:10px;
+    text-align:left;
+  }
+  .mobile-panel-card b{
+    display:block;
+    font-size:9px;
+    margin-bottom:4px;
+  }
+  .mobile-panel-card small{
+    display:block;
+    font:6px ui-monospace,monospace;
+    color:#718088;
+    line-height:1.45;
+  }
+  .mobile-panel-section{
+    margin-top:12px;
+    padding-top:10px;
+    border-top:1px solid rgba(255,255,255,.055);
+  }
+  .mobile-panel-section-title{
+    font:7px ui-monospace,monospace;
+    color:#87969d;
+    margin-bottom:8px;
+    letter-spacing:.08em;
+  }
+  .mobile-source-controls{
+    display:grid;
+    grid-template-columns:40px 1fr;
+    gap:8px;
+    align-items:center;
+    margin-top:8px;
+  }
+  .mobile-source-controls .btn{
+    min-height:40px!important;
+  }
+  .mobile-source-time{
+    display:grid;
+    grid-template-columns:auto 1fr auto;
+    gap:7px;
+    align-items:center;
+  }
+  .mobile-source-time span{
+    font:6px ui-monospace,monospace;
+    color:#748188;
+  }
+  .mobile-effects-list .param{
+    padding:10px 0!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1217,6 +1333,160 @@ window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjec
   refreshSheetPosition();
 
   window.CRTIZER_MOBILE_SHEET_FIX={forceOpenSheet};
+})();
+</script>
+
+
+<script id="crtizer-mobile-panel-controller-js">
+(function(){
+  const sheet=document.getElementById('sheet');
+  const body=document.getElementById('sheetBody');
+  const title=document.getElementById('sheetTitle');
+  const close=document.getElementById('closeSheet');
+
+  function closeSheetNow(){
+    sheet.classList.remove('open');
+    document.querySelectorAll('.tool').forEach(b=>b.classList.remove('active'));
+  }
+
+  function showSheet(name, html){
+    document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));
+    title.textContent=name;
+    body.innerHTML=html;
+    sheet.style.display='block';
+    sheet.style.visibility='visible';
+    requestAnimationFrame(()=>sheet.classList.add('open'));
+  }
+
+  function activate(tool){
+    document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
+  }
+
+  function sourcePanel(){
+    activate('source');
+    const isVid=state.source.type==='video' && state.source.video;
+    showSheet('Source', `
+      <div class="mobile-panel-grid">
+        <button class="mobile-panel-card" id="mpTest"><b>Test Pattern</b><small>Built-in CRTiZER source</small></button>
+        <button class="mobile-panel-card" id="mpPhoto"><b>Photo</b><small>Load an image from this device</small></button>
+        <button class="mobile-panel-card" id="mpVideo"><b>Video</b><small>Load a local video clip</small></button>
+        <div class="mobile-panel-card"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type.toUpperCase()}</small></div>
+      </div>
+      <div class="mobile-panel-section">
+        <div class="mobile-panel-section-title">PLAYBACK</div>
+        <div class="mobile-source-time">
+          <span id="mpNow">${fmt(state.masterTime||0)}</span>
+          <input type="range" id="mpSeek" min="0" max="1000" value="${Math.round((state.masterTime||0)/(state.timelineLength||30)*1000)}">
+          <span id="mpDur">${fmt(state.timelineLength||30)}</span>
+        </div>
+        <div class="mobile-source-controls">
+          <button class="btn accent" id="mpPlay">${isVid && !state.source.video.paused?'Ⅱ':'▶'}</button>
+          <button class="btn" id="mpDelete">Remove Source</button>
+        </div>
+      </div>
+    `);
+
+    body.querySelector('#mpTest').onclick=()=>{setSourceTest();sourcePanel()};
+    body.querySelector('#mpPhoto').onclick=()=>document.getElementById('sourceImageInput').click();
+    body.querySelector('#mpVideo').onclick=()=>document.getElementById('sourceVideoInput').click();
+    body.querySelector('#mpPlay').onclick=()=>document.getElementById('playBtn').click();
+    body.querySelector('#mpDelete').onclick=()=>{setSourceTest();sourcePanel()};
+    body.querySelector('#mpSeek').oninput=e=>{
+      state.masterTime=(+e.target.value/1000)*(state.timelineLength||30);
+      if(state.source.video?.duration){
+        state.source.video.currentTime=Math.min(state.source.video.duration,state.masterTime);
+      }
+      document.getElementById('mpNow').textContent=fmt(state.masterTime);
+    };
+  }
+
+  function editPanel(){
+    activate('edit');
+    const layer=selectedLayer?.();
+    showSheet('Edit', `
+      <div class="mobile-panel-grid">
+        <button class="mobile-panel-card" id="mpSplit"><b>Split</b><small>Add a cut marker at the playhead</small></button>
+        <button class="mobile-panel-card" id="mpTrim"><b>Trim</b><small>Set trim start and end points</small></button>
+        <button class="mobile-panel-card" id="mpDeleteClip"><b>Delete Source</b><small>Remove the base source clip</small></button>
+        <button class="mobile-panel-card" id="mpLayers"><b>Edit Layers</b><small>Open the full compositor</small></button>
+      </div>
+      <div class="mobile-panel-section">
+        <div class="mobile-panel-section-title">TIMELINE</div>
+        <div class="source-card">
+          <b>${escapeHtml(state.source.name)}</b>
+          <small>${fmt(state.masterTime||0)} / ${fmt(state.timelineLength||30)}${layer?' • '+escapeHtml(layer.name):''}</small>
+        </div>
+      </div>
+    `);
+    body.querySelector('#mpSplit').onclick=()=>document.getElementById('splitBtn').click();
+    body.querySelector('#mpTrim').onclick=()=>document.getElementById('trimBtn').click();
+    body.querySelector('#mpDeleteClip').onclick=()=>document.getElementById('deleteSourceBtn').click();
+    body.querySelector('#mpLayers').onclick=()=>{closeSheetNow();openModal('layers')};
+  }
+
+  function effectsPanel(){
+    activate('effects');
+    showSheet('Effects', `
+      <div class="mobile-panel-grid">
+        <button class="mobile-panel-card" id="mpDither"><b>Dither</b><small>PunkDither presets and two-color diffusion</small></button>
+        <button class="mobile-panel-card" id="mpShader"><b>Shader</b><small>ShaderGlass-style CRT and display effects</small></button>
+      </div>
+      <div class="mobile-panel-section mobile-effects-list">
+        <div class="mobile-panel-section-title">QUICK ADJUSTMENTS</div>
+        ${quickDefs.map(d=>paramHTML(d[0],d[1],state.effects[d[1]],d[2],d[3],d[4])).join('')}
+      </div>
+    `);
+    body.querySelector('#mpDither').onclick=()=>{closeSheetNow();openModal('synth')};
+    body.querySelector('#mpShader').onclick=()=>{closeSheetNow();openModal('shader')};
+    body.querySelectorAll('[data-fx]').forEach(r=>{
+      r.oninput=()=>{
+        state.effects[r.dataset.fx]=+r.value;
+        r.previousElementSibling.querySelector('b').textContent=(+r.value).toFixed(+r.step<1?2:0);
+      };
+    });
+  }
+
+  function route(tool){
+    if(!window.matchMedia('(max-width:900px)').matches)return;
+
+    if(tool==='source'){sourcePanel();return}
+    if(tool==='edit'){editPanel();return}
+    if(tool==='effects'){effectsPanel();return}
+
+    closeSheetNow();
+    activate(tool);
+    if(tool==='layers')openModal('layers');
+    if(tool==='synth')openModal('synth');
+    if(tool==='shader')openModal('shader');
+    if(tool==='export')openModal('export');
+  }
+
+  // Neutralize the earlier mobile routing by handling pointer/touch before normal click.
+  document.querySelectorAll('.tool').forEach(btn=>{
+    btn.addEventListener('pointerup',e=>{
+      if(!window.matchMedia('(max-width:900px)').matches)return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      route(btn.dataset.tool);
+    },true);
+  });
+
+  close.addEventListener('pointerup',e=>{
+    if(!window.matchMedia('(max-width:900px)').matches)return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    closeSheetNow();
+  },true);
+
+  // Keep source panel fresh after a file is actually selected.
+  document.getElementById('sourceImageInput')?.addEventListener('change',()=>{
+    setTimeout(()=>{if(sheet.classList.contains('open')&&title.textContent==='Source')sourcePanel()},80);
+  });
+  document.getElementById('sourceVideoInput')?.addEventListener('change',()=>{
+    setTimeout(()=>{if(sheet.classList.contains('open')&&title.textContent==='Source')sourcePanel()},120);
+  });
+
+  window.CRTIZER_MOBILE_PANEL_CONTROLLER={route,sourcePanel,editPanel,effectsPanel,closeSheetNow};
 })();
 </script>
 
