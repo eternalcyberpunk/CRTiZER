@@ -376,6 +376,71 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="crtizer-source-plus-layer-tracks-css">
+.multitrack{
+  display:grid;
+  gap:7px;
+}
+.track-row{
+  display:grid;
+  grid-template-columns:104px minmax(460px,1fr);
+  gap:8px;
+}
+.track-row[data-track="source"] .track-dock{
+  border-color:rgba(105,231,255,.28);
+  background:linear-gradient(180deg,rgba(105,231,255,.055),#0a0d11);
+}
+.track-row[data-track="source"] .track-clip{
+  border-color:rgba(105,231,255,.32);
+}
+.track-row:not([data-track="source"]) .track-dock{
+  border-color:rgba(255,101,216,.18);
+}
+.track-source-badge,
+.track-layer-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:38px;
+  height:18px;
+  padding:0 5px;
+  border-radius:999px;
+  font:5px ui-monospace,monospace;
+  margin-bottom:3px;
+}
+.track-source-badge{
+  color:var(--cyan);
+  border:1px solid rgba(105,231,255,.22);
+  background:rgba(105,231,255,.045);
+}
+.track-layer-badge{
+  color:var(--pink);
+  border:1px solid rgba(255,101,216,.2);
+  background:rgba(255,101,216,.04);
+}
+.track-empty{
+  height:48px;
+  border:1px dashed rgba(255,255,255,.07);
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+  color:#596970;
+  font:6px ui-monospace,monospace;
+}
+.timeline-head .track-summary{
+  margin-left:6px;
+  font:6px ui-monospace,monospace;
+  color:#67767d;
+}
+@media(max-width:900px){
+  .track-row{
+    grid-template-columns:86px minmax(360px,1fr);
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -820,12 +885,12 @@ function setSourceTest(){
 function setSourceImage(file){
   const url=URL.createObjectURL(file);objectUrls.add(url);const img=new Image();img.onload=()=>{};img.src=url;
   if(state.source.video)state.source.video.pause();
-  state.source={type:'image',name:file.name,url,image:img,video:null};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets()
+  state.source={type:'image',name:file.name,url,image:img,video:null};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets();toast('Source background updated')
 }
 function setSourceVideo(file){
   const url=URL.createObjectURL(file);objectUrls.add(url);const v=document.createElement('video');v.src=url;v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';
   v.addEventListener('loadedmetadata',()=>{state.trimEnd=v.duration;updateSourceUI();v.play().catch(()=>{});state.playing=true});
-  state.source={type:'video',name:file.name,url,image:null,video:v};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets()
+  state.source={type:'video',name:file.name,url,image:null,video:v};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets();toast('Source background updated')
 }
 function updateSourceUI(){
   $('#currentSourceLabel').textContent=state.source.name;
@@ -890,7 +955,7 @@ function makeLayer(file){
   let el;if(type==='image'){el=new Image();el.src=url}else{el=document.createElement('video');el.src=url;el.muted=true;el.loop=true;el.playsInline=true;el.play().catch(()=>{})}
   const z=state.layers.length?Math.max(...state.layers.map(l=>l.z))+1:1;
   const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z};
-  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack();toast('Layer added')
+  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack();toast('New layer track added')
 }
 $('#layerImageInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
 $('#layerVideoInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
@@ -1075,79 +1140,121 @@ function layerDuration(l){
   return null;
 }
 function renderMultitrack(){
-  const box=$('#multitrack'); if(!box)return;
+  const box=$('#multitrack');
+  if(!box)return;
+
   const rows=[];
 
-  const sourceThumb = state.source.type==='image'
-    ? `<div class="track-clip-thumb"><img src="${state.source.url}"></div>`
-    : state.source.type==='video'
-      ? `<div class="track-clip-thumb"><video src="${state.source.url}" muted playsinline></video></div>`
-      : `<div class="track-clip-thumb" style="display:grid;place-items:center;color:#65747b;font:10px ui-monospace">GEN</div>`;
+  // SOURCE is always its own dedicated background track.
+  const sourceThumb=
+    state.source.type==='image'
+      ? `<div class="track-clip-thumb"><img src="${state.source.url}"></div>`
+      : state.source.type==='video'
+        ? `<div class="track-clip-thumb"><video src="${state.source.url}" muted playsinline></video></div>`
+        : `<div class="track-clip-thumb" style="display:grid;place-items:center;color:#65747b;font:10px ui-monospace">GEN</div>`;
 
   rows.push(`
     <div class="track-row ${state.selectedLayer===null?'selected':''}" data-track="source">
       <div class="track-dock">
         <div class="track-dock-main">
-          <b>SOURCE</b>
+          <span class="track-source-badge">SOURCE</span>
+          <b>Background</b>
           <small>${escapeHtml(state.source.name)}</small>
         </div>
-        <button class="on" data-track-visible="source">◉</button>
       </div>
       <div class="track-lane" data-lane="source">
         <div class="track-clip">
           ${sourceThumb}
           <div class="track-clip-info">
             <b>${escapeHtml(state.source.name)}</b>
-            <small>${state.source.type==='video'?fmt(state.source.video?.duration||0):state.source.type.toUpperCase()}</small>
+            <small>${state.source.type==='video' ? fmt(state.source.video?.duration||0) : state.source.type.toUpperCase()}</small>
           </div>
         </div>
       </div>
     </div>`);
 
-  state.layers.slice().sort((a,b)=>a.z-b.z).forEach(l=>{
+  // Every uploaded layer gets a SEPARATE dock/track underneath Source.
+  const orderedLayers=state.layers.slice().sort((a,b)=>a.z-b.z);
+
+  orderedLayers.forEach((l,index)=>{
     const thumb=l.type==='image'
       ? `<div class="track-clip-thumb"><img src="${l.url}"></div>`
       : `<div class="track-clip-thumb"><video src="${l.url}" muted playsinline></video></div>`;
+
     rows.push(`
       <div class="track-row ${state.selectedLayer===l.id?'selected':''}" data-track="${l.id}">
         <div class="track-dock">
           <div class="track-dock-main">
+            <span class="track-layer-badge">LAYER ${index+1}</span>
             <b>${escapeHtml(l.name)}</b>
             <small>${l.type.toUpperCase()} • Z${l.z}</small>
           </div>
-          <button class="${l.visible?'on':''}" data-track-visible="${l.id}">${l.visible?'◉':'○'}</button>
+          <button class="${l.visible?'on':''}" data-track-visible="${l.id}" title="Toggle layer">${l.visible?'◉':'○'}</button>
         </div>
         <div class="track-lane" data-lane="${l.id}">
           <div class="track-clip layer">
             ${thumb}
             <div class="track-clip-info">
               <b>${escapeHtml(l.name)}</b>
-              <small>${l.type==='video'?fmt(layerDuration(l)||0):'STILL'}</small>
+              <small>${l.type==='video' ? fmt(layerDuration(l)||0) : 'STILL IMAGE'}</small>
             </div>
           </div>
         </div>
       </div>`);
   });
 
+  if(!orderedLayers.length){
+    rows.push(`
+      <div class="track-row" data-track="empty">
+        <div class="track-dock">
+          <div class="track-dock-main">
+            <span class="track-layer-badge">LAYERS</span>
+            <b>No overlay layers</b>
+            <small>Add from Layers tab</small>
+          </div>
+        </div>
+        <div class="track-empty">Uploaded photos/videos will appear here as independent tracks.</div>
+      </div>`);
+  }
+
   box.innerHTML=rows.join('');
 
+  // Summary in timeline header.
+  const timelineHead=document.querySelector('.timeline-head > div:first-child');
+  if(timelineHead){
+    let summary=timelineHead.querySelector('.track-summary');
+    if(!summary){
+      summary=document.createElement('span');
+      summary.className='track-summary';
+      timelineHead.appendChild(summary);
+    }
+    summary.textContent=`1 SOURCE + ${orderedLayers.length} LAYER${orderedLayers.length===1?'':'S'}`;
+  }
+
+  // Selecting a row only selects that exact source/layer.
   $$('[data-track]').forEach(r=>r.onclick=e=>{
     if(e.target.closest('[data-track-visible]'))return;
     const id=r.dataset.track;
+    if(id==='empty')return;
     state.selectedLayer=id==='source'?null:id;
     renderMultitrack();
-    if(id!=='source'){renderLayers();renderLayerInspector()}
+    if(id!=='source'){
+      renderLayers();
+      renderLayerInspector();
+    }
   });
 
+  // Visibility only affects that single layer, never Source.
   $$('[data-track-visible]').forEach(b=>b.onclick=e=>{
     e.stopPropagation();
     const id=b.dataset.trackVisible;
-    if(id==='source'){
-      toast('Source track visibility is fixed');
-      return;
-    }
     const l=state.layers.find(x=>x.id===id);
-    if(l){snapshot();l.visible=!l.visible;renderMultitrack();renderLayers()}
+    if(l){
+      snapshot();
+      l.visible=!l.visible;
+      renderMultitrack();
+      renderLayers();
+    }
   });
 }
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push(state.synth.target==='source'?'Dither: Source':'Dither: Layer');if(state.shader.enabled)a.push(state.shader.target==='source'?'Shader: Source':'Shader: Layer');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader';const p=$('#fxStatusPill');if(p)p.innerHTML='FX: <b>'+(a.length?a.join(' + '):'NONE')+'</b>'}
