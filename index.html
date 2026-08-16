@@ -189,6 +189,141 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
   .statusbar{display:none}
 }
 </style>
+
+<style id="mobile-capcut-overrides">
+@media (max-width:900px){
+  html,body{height:100%;overflow:hidden;background:#030405}
+  body:before{opacity:.08}
+  .app{height:100dvh;min-height:100dvh;display:grid;grid-template-rows:50px 1fr 0}
+  .topbar{
+    position:relative;top:auto;height:50px;grid-template-columns:1fr auto;
+    background:rgba(4,6,9,.92);backdrop-filter:blur(18px);
+    padding:0 10px;border-bottom:1px solid rgba(255,255,255,.06)
+  }
+  .brand{gap:8px}.logoMark{width:28px;height:28px}.brandName{font-size:13px}.tag{font-size:7px}
+  .topActions{gap:5px}.topActions .iconBtn{padding:6px 8px}.topActions .btn{display:none}
+  .workspace{
+    display:block;position:relative;padding:0;height:calc(100dvh - 50px);overflow:hidden
+  }
+  .panel{border:0;box-shadow:none;background:transparent}
+  .panel.left,.panel.right{display:none!important}
+  .viewportPanel{
+    height:100%;min-height:0;display:grid!important;
+    grid-template-rows:1fr 52px;
+    background:#020305
+  }
+  .viewportHead{display:none}
+  .viewportWrap{
+    background:
+      radial-gradient(circle at 50% 42%,rgba(101,231,255,.05),transparent 42%),
+      #020305;
+    padding:10px 8px 4px;
+    min-height:0;
+    align-items:center;
+  }
+  .screenFrame{
+    width:100%;max-width:none;aspect-ratio:auto;height:min(56vh,56dvh);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .screen{
+    position:relative;width:100%;height:100%;inset:auto;
+    border-radius:14px!important;
+    box-shadow:0 14px 40px rgba(0,0,0,.5),0 0 20px rgba(101,231,255,.06)
+  }
+  .viewportControls{
+    height:52px;border-top:1px solid rgba(255,255,255,.06);
+    background:rgba(5,7,10,.96);padding:0 10px;
+    display:flex;justify-content:space-between;gap:8px;overflow:hidden
+  }
+  .transport,.zoom{display:flex;gap:6px;flex:1}
+  .smallBtn{
+    flex:1;border:0;background:rgba(255,255,255,.035);
+    border-radius:8px;padding:8px 6px;font-size:8px;
+  }
+  .smallBtn.active{background:rgba(101,231,255,.1);color:var(--cyan)}
+  .zoom .zoomBtn{display:none}
+  .zoom #beforeBtn{display:block}
+  .mobileTabs{display:none!important}
+
+  .mobile-editor-shell{
+    display:block;position:fixed;left:0;right:0;bottom:0;z-index:40;
+    height:166px;pointer-events:none;
+  }
+  .tool-dock{
+    pointer-events:auto;position:absolute;left:0;right:0;bottom:0;height:74px;
+    padding:7px 8px calc(7px + env(safe-area-inset-bottom));
+    display:flex;gap:4px;align-items:flex-start;overflow-x:auto;
+    background:rgba(6,8,11,.98);border-top:1px solid rgba(255,255,255,.07);
+    backdrop-filter:blur(22px);scrollbar-width:none
+  }
+  .tool-dock::-webkit-scrollbar{display:none}
+  .dock-btn{
+    min-width:68px;height:56px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:5px;border:0;background:transparent;color:#83939a;
+    border-radius:10px;font:8px ui-monospace,monospace;letter-spacing:.08em;
+    cursor:pointer;transition:.15s
+  }
+  .dock-btn .ico{font-size:18px;line-height:1;color:#c6d5db}
+  .dock-btn.active{background:rgba(101,231,255,.08);color:var(--cyan)}
+  .dock-btn.active .ico{color:var(--cyan)}
+
+  .edit-sheet{
+    pointer-events:auto;position:absolute;left:0;right:0;bottom:74px;
+    height:0;background:rgba(8,11,16,.98);border-top:1px solid rgba(255,255,255,.07);
+    border-radius:18px 18px 0 0;overflow:hidden;transition:height .24s cubic-bezier(.2,.8,.2,1);
+    box-shadow:0 -18px 50px rgba(0,0,0,.42)
+  }
+  .edit-sheet.open{height:262px}
+  .sheet-handle{width:38px;height:4px;border-radius:4px;background:rgba(255,255,255,.18);margin:7px auto 4px}
+  .sheet-head{
+    height:40px;padding:0 12px;display:flex;align-items:center;justify-content:space-between;
+    border-bottom:1px solid rgba(255,255,255,.05)
+  }
+  .sheet-title{font:700 10px ui-monospace,monospace;letter-spacing:.12em}
+  .sheet-close{border:0;background:transparent;color:#899aa2;font-size:18px}
+  .sheet-body{height:calc(100% - 51px);overflow:auto;padding:10px 12px 16px}
+  .sheet-chip-row{display:flex;gap:7px;overflow-x:auto;padding-bottom:9px;scrollbar-width:none}
+  .sheet-chip-row::-webkit-scrollbar{display:none}
+  .sheet-chip{
+    white-space:nowrap;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025);
+    color:#9cadb5;padding:7px 10px;border-radius:999px;font:8px ui-monospace,monospace;
+  }
+  .sheet-chip.active{border-color:rgba(101,231,255,.35);color:var(--cyan);background:rgba(101,231,255,.08)}
+  .mobile-param{margin:12px 0}
+  .mobile-param-head{display:flex;justify-content:space-between;margin-bottom:7px}
+  .mobile-param-head span{font:9px ui-monospace,monospace;color:#a8bac2}
+  .mobile-param-head b{font:9px ui-monospace,monospace;color:var(--cyan)}
+  .mobile-param input[type="range"]{height:5px}
+  .quick-preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .quick-preset{
+    min-height:64px;border:1px solid rgba(255,255,255,.07);background:
+      radial-gradient(circle at 30% 20%,rgba(101,231,255,.10),transparent 45%),
+      radial-gradient(circle at 80% 80%,rgba(255,91,215,.10),transparent 44%),
+      #070a0f;border-radius:10px;padding:8px;text-align:left;color:#c7d7de
+  }
+  .quick-preset b{font:8px ui-monospace,monospace;display:block}
+  .quick-preset small{font:7px ui-monospace,monospace;color:#71838b}
+  .sheet-action-row{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .sheet-action{
+    min-height:48px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);
+    color:#b9c9d0;border-radius:9px;font:8px ui-monospace,monospace
+  }
+
+  .signalText{font-size:8px;left:10px;top:9px}
+  .reticle{inset:8%}
+}
+
+@media (max-width:520px){
+  .screenFrame{height:min(50vh,50dvh)}
+  .viewportWrap{align-items:start;padding-top:8px}
+  .edit-sheet.open{height:292px}
+  .mobile-editor-shell{height:190px}
+  .tool-dock{height:78px}
+  .edit-sheet{bottom:78px}
+  .dock-btn{min-width:64px}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -319,6 +454,27 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
     <div>CRTiZER 1.0.0 // EXPERIMENTAL WEB CORE</div>
     <div class="statusRight"><span class="good">SHADER CORE READY</span><span class="cyan">SIGNAL LOCKED</span><span>GPU PIPELINE // BROWSER</span></div>
   </footer>
+</div>
+
+
+<div class="mobile-editor-shell" id="mobileEditorShell">
+  <div class="edit-sheet" id="editSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-title" id="sheetTitle">ADJUST</div>
+      <button class="sheet-close" id="sheetClose">×</button>
+    </div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+
+  <div class="tool-dock" id="toolDock">
+    <button class="dock-btn active" data-tool="adjust"><span class="ico">⌁</span><span>ADJUST</span></button>
+    <button class="dock-btn" data-tool="effects"><span class="ico">✦</span><span>EFFECTS</span></button>
+    <button class="dock-btn" data-tool="presets"><span class="ico">▦</span><span>PRESETS</span></button>
+    <button class="dock-btn" data-tool="source"><span class="ico">▣</span><span>SOURCE</span></button>
+    <button class="dock-btn" data-tool="shader"><span class="ico">⌘</span><span>SHADER</span></button>
+    <button class="dock-btn" data-tool="export"><span class="ico">⇧</span><span>EXPORT</span></button>
+  </div>
 </div>
 
 <div class="mobileTabs">
@@ -585,5 +741,151 @@ window.addEventListener('keydown',e=>{
 
 renderInspector();apply();
 </script>
+
+<script id="mobile-capcut-js">
+(function(){
+  const sheet = document.getElementById('editSheet');
+  const sheetBody = document.getElementById('sheetBody');
+  const sheetTitle = document.getElementById('sheetTitle');
+  const dock = document.getElementById('toolDock');
+  const close = document.getElementById('sheetClose');
+
+  function isMobile(){ return window.matchMedia('(max-width:900px)').matches; }
+
+  function sliderHTML(label, group, key, min, max){
+    const value = state[group][key];
+    const p = ((value-min)/(max-min))*100;
+    return `<div class="mobile-param">
+      <div class="mobile-param-head"><span>${label}</span><b data-val="${group}.${key}">${value}</b></div>
+      <input type="range" min="${min}" max="${max}" value="${value}" data-group="${group}" data-key="${key}" style="--p:${p}%">
+    </div>`;
+  }
+
+  function bindSheetSliders(){
+    sheetBody.querySelectorAll('input[type="range"]').forEach(r=>{
+      r.addEventListener('input',()=>{
+        const g=r.dataset.group,k=r.dataset.key;
+        state[g][k]=+r.value;
+        const out=sheetBody.querySelector(`[data-val="${g}.${k}"]`);
+        if(out) out.textContent=r.value;
+        setRangeFill(r); apply(); renderInspector();
+      });
+    });
+  }
+
+  function setDockActive(tool){
+    dock.querySelectorAll('.dock-btn').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
+  }
+
+  function renderAdjust(){
+    sheetTitle.textContent='ADJUST // QUICK';
+    sheetBody.innerHTML = `
+      <div class="sheet-chip-row">
+        <button class="sheet-chip active" data-groupchip="crt">CRT</button>
+        <button class="sheet-chip" data-groupchip="scan">SCANLINES</button>
+        <button class="sheet-chip" data-groupchip="rgb">RGB SHIFT</button>
+        <button class="sheet-chip" data-groupchip="vhs">VHS</button>
+        <button class="sheet-chip" data-groupchip="glitch">GLITCH</button>
+        <button class="sheet-chip" data-groupchip="color">COLOR</button>
+      </div>
+      <div id="mobileAdjustParams"></div>`;
+    const target=sheetBody.querySelector('#mobileAdjustParams');
+    const renderGroup=(g)=>{
+      target.innerHTML = defs[g].map(([label,key,min,max])=>sliderHTML(label,g,key,min,max)).join('');
+      bindSheetSliders();
+    };
+    renderGroup('crt');
+    sheetBody.querySelectorAll('[data-groupchip]').forEach(c=>c.onclick=()=>{
+      sheetBody.querySelectorAll('[data-groupchip]').forEach(x=>x.classList.remove('active'));
+      c.classList.add('active'); renderGroup(c.dataset.groupchip);
+    });
+  }
+
+  function renderEffects(){
+    sheetTitle.textContent='EFFECTS';
+    sheetBody.innerHTML = `
+      <div class="sheet-chip-row">
+        ${Object.keys(names).map(k=>`<button class="sheet-chip" data-fx="${k}">${names[k]}</button>`).join('')}
+      </div>
+      <div id="effectQuick"></div>`;
+    const q=sheetBody.querySelector('#effectQuick');
+    function renderFx(g){
+      state.active=g; renderInspector();
+      q.innerHTML=defs[g].slice(0,4).map(([label,key,min,max])=>sliderHTML(label,g,key,min,max)).join('');
+      bindSheetSliders();
+    }
+    renderFx('crt');
+    sheetBody.querySelectorAll('[data-fx]').forEach(c=>c.onclick=()=>{
+      sheetBody.querySelectorAll('[data-fx]').forEach(x=>x.classList.remove('active'));
+      c.classList.add('active');renderFx(c.dataset.fx);
+    });
+    const first=sheetBody.querySelector('[data-fx]'); if(first) first.classList.add('active');
+  }
+
+  function renderPresets(){
+    sheetTitle.textContent='PRESETS';
+    const items=[
+      ['classic','CRT CLASSIC','ANALOG'],
+      ['vhs','VHS 1998','TAPE'],
+      ['ghost','GHOST SIGNAL','NOISE'],
+      ['evil','EVIL IRIS','CYBER'],
+      ['arcade','ARCADE','PHOSPHOR'],
+      ['broken','BROKEN SIGNAL','GLITCH']
+    ];
+    sheetBody.innerHTML=`<div class="quick-preset-grid">${
+      items.map(([id,n,s])=>`<button class="quick-preset" data-mobile-preset="${id}"><b>${n}</b><small>${s}</small></button>`).join('')
+    }</div>`;
+    sheetBody.querySelectorAll('[data-mobile-preset]').forEach(b=>b.onclick=()=>preset(b.dataset.mobilePreset));
+  }
+
+  function renderSource(){
+    sheetTitle.textContent='SOURCE';
+    sheetBody.innerHTML=`
+      <div class="sheet-action-row">
+        <button class="sheet-action" id="mLoadImage">LOAD IMAGE</button>
+        <button class="sheet-action" id="mTestPattern">TEST PATTERN</button>
+        <button class="sheet-action" id="mNative">DESKTOP</button>
+      </div>
+      <div style="margin-top:12px" class="kv"><small>CURRENT SOURCE</small><b id="mSourceName">TEST PATTERN</b></div>`;
+    sheetBody.querySelector('#mLoadImage').onclick=()=>document.getElementById('imageInput').click();
+    sheetBody.querySelector('#mTestPattern').onclick=()=>{
+      visual.removeAttribute('style'); apply(); showToast('TEST PATTERN SELECTED');
+      sheetBody.querySelector('#mSourceName').textContent='TEST PATTERN';
+    };
+    sheetBody.querySelector('#mNative').onclick=()=>showToast('NATIVE BRIDGE REQUIRED FOR DESKTOP CAPTURE');
+  }
+
+  function openTool(tool){
+    if(!isMobile()) return;
+    setDockActive(tool);
+    if(tool==='shader'){ document.getElementById('shaderBtn').click(); return; }
+    if(tool==='export'){ document.getElementById('exportBtn').click(); return; }
+    if(tool==='adjust') renderAdjust();
+    if(tool==='effects') renderEffects();
+    if(tool==='presets') renderPresets();
+    if(tool==='source') renderSource();
+    sheet.classList.add('open');
+  }
+
+  dock.querySelectorAll('.dock-btn').forEach(b=>b.onclick=()=>openTool(b.dataset.tool));
+  close.onclick=()=>sheet.classList.remove('open');
+
+  let startY=0;
+  sheet.addEventListener('touchstart',e=>{ if(e.touches[0]) startY=e.touches[0].clientY; },{passive:true});
+  sheet.addEventListener('touchend',e=>{
+    const y=e.changedTouches[0]?.clientY ?? startY;
+    if(y-startY>55) sheet.classList.remove('open');
+  },{passive:true});
+
+  window.addEventListener('resize',()=>{
+    if(!isMobile()) sheet.classList.remove('open');
+  });
+
+  if(isMobile()){
+    setTimeout(()=>openTool('adjust'),250);
+  }
+})();
+</script>
+
 </body>
 </html>
