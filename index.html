@@ -483,6 +483,44 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
 }
 </style>
 
+
+<style id="crtizer-media-layer-synth-upgrade">
+.synth-modal-card{width:min(980px,96vw)}
+.synth-layout{display:grid;grid-template-columns:280px 1fr;min-height:560px}
+.synth-sidebar{border-right:1px solid var(--line);padding:12px}
+.synth-main{padding:12px;overflow:auto}
+.synth-tablist{display:flex;flex-direction:column;gap:6px}
+.synth-tab{
+  border:1px solid var(--line);background:rgba(255,255,255,.015);padding:10px;
+  text-align:left;color:#bccdd4;cursor:pointer;font:9px ui-monospace,monospace
+}
+.synth-tab.active{border-color:rgba(101,231,255,.4);background:rgba(101,231,255,.05);color:var(--cyan)}
+.synth-card{border:1px solid var(--line);background:rgba(255,255,255,.012);padding:12px;margin-bottom:10px}
+.synth-card h3{margin:0 0 6px;font:700 11px ui-monospace,monospace;letter-spacing:.08em}
+.synth-card p{margin:0;color:var(--muted);font:8px/1.55 ui-monospace,monospace}
+.synth-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:10px}
+.synth-control{min-width:0}
+.synth-control label{display:flex;justify-content:space-between;margin-bottom:6px;font:8px ui-monospace,monospace;color:#9eb0b8}
+.synth-control b{color:var(--cyan)}
+.synth-select{width:100%;background:#070a0f;border:1px solid var(--line);color:var(--text);padding:8px;font:8px ui-monospace,monospace}
+.color-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.color-box{border:1px solid var(--line);padding:8px;background:#070a0f}
+.color-box input[type=color]{width:100%;height:38px;border:0;background:transparent;padding:0}
+.synth-preview{aspect-ratio:16/9;border:1px solid var(--line);overflow:hidden;position:relative;background:#020305;margin:10px 0}
+.synth-preview iframe{width:100%;height:100%;border:0;background:#020305}
+.media-layer-badge{font:7px ui-monospace,monospace;color:var(--pink);border:1px solid rgba(255,91,215,.25);padding:3px 5px}
+@media(max-width:900px){
+  .synth-modal-card{width:100vw;height:100dvh;max-height:none;border:0}
+  .synth-modal-card .modalBody{padding:0;height:calc(100dvh - 50px);max-height:none}
+  .synth-layout{display:block;height:100%;min-height:0}
+  .synth-sidebar{height:28%;border-right:0;border-bottom:1px solid var(--line);padding:9px;overflow:auto}
+  .synth-main{height:72%;padding:10px}
+  .synth-tablist{flex-direction:row;overflow-x:auto}
+  .synth-tab{white-space:nowrap;min-width:110px}
+  .synth-grid{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -501,6 +539,7 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
       <button class="btn" id="importBtn">IMPORT</button>
       <button class="btn" id="exportBtn">EXPORT</button>
       <button class="btn" id="layersBtn">LAYERS</button>
+      <button class="btn" id="synthBtn">SYNTH</button>
       <button class="btn accent" id="shaderBtn">SHADER</button>
       <button class="iconBtn" id="fsBtn">⛶</button>
     </div>
@@ -633,6 +672,7 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
     <button class="dock-btn" data-tool="presets"><span class="ico">▦</span><span>PRESETS</span></button>
     <button class="dock-btn" data-tool="source"><span class="ico">▣</span><span>SOURCE</span></button>
     <button class="dock-btn" data-tool="layers"><span class="ico">▱</span><span>LAYERS</span></button>
+    <button class="dock-btn" data-tool="synth"><span class="ico">◫</span><span>SYNTH</span></button>
     <button class="dock-btn" data-tool="shader"><span class="ico">⌘</span><span>SHADER</span></button>
     <button class="dock-btn" data-tool="export"><span class="ico">⇧</span><span>EXPORT</span></button>
   </div>
@@ -750,6 +790,77 @@ void main() {
   </div>
 </div>
 
+
+
+<div class="modal" id="synthModal">
+  <div class="modalCard synth-modal-card">
+    <div class="modalHead"><span>PUNK DITHER // SYNTH ENGINE</span><button class="iconBtn" id="closeSynth">×</button></div>
+    <div class="modalBody">
+      <div class="synth-layout">
+        <aside class="synth-sidebar">
+          <div class="sectionTitle">SYNTH MODULES</div>
+          <div class="synth-tablist">
+            <button class="synth-tab active" data-synthtab="dither">DITHER SYNTH</button>
+            <button class="synth-tab" data-synthtab="tone">TONE SYNTH</button>
+            <button class="synth-tab" data-synthtab="motion">MOTION SYNTH</button>
+          </div>
+        </aside>
+        <section class="synth-main">
+          <div class="synth-card">
+            <h3>PUNK DITHER</h3>
+            <p>CRTiZER adaptation of the prior Punk Dither / EternalSynth concept. The browser build approximates the look in real time; the control model is kept ready for a native or After Effects implementation.</p>
+          </div>
+          <div class="synth-preview"><iframe id="synthPreviewFrame" title="Punk Dither live preview"></iframe></div>
+
+          <div id="synthPaneDither">
+            <div class="synth-grid">
+              <div class="synth-control">
+                <label><span>DITHER STRENGTH</span><b id="ditherStrengthVal">49</b></label>
+                <input type="range" id="ditherStrength" min="1" max="99" value="49">
+              </div>
+              <div class="synth-control">
+                <label><span>ALGORITHM</span></label>
+                <select id="ditherAlgorithm" class="synth-select">
+                  <option value="error">ERROR DIFFUSION</option>
+                  <option value="ordered">ORDERED DITHER</option>
+                  <option value="blue">BLUE NOISE</option>
+                </select>
+              </div>
+            </div>
+            <div class="color-row" style="margin-top:10px">
+              <div class="color-box"><div class="sectionTitle">COLOR A</div><input type="color" id="ditherColorA" value="#06070a"></div>
+              <div class="color-box"><div class="sectionTitle">COLOR B</div><input type="color" id="ditherColorB" value="#d9f8ff"></div>
+            </div>
+            <div class="synth-grid">
+              <div class="synth-control">
+                <label><span>STRUCTURE</span><b id="ditherStructureVal">58</b></label>
+                <input type="range" id="ditherStructure" min="0" max="100" value="58">
+              </div>
+              <div class="synth-control">
+                <label><span>NOISE</span><b id="ditherNoiseVal">12</b></label>
+                <input type="range" id="ditherNoise" min="0" max="100" value="12">
+              </div>
+            </div>
+          </div>
+
+          <div id="synthPaneTone" style="display:none">
+            <div class="synth-grid">
+              <div class="synth-control"><label><span>POSTERIZE</span><b id="tonePosterVal">6</b></label><input type="range" id="tonePoster" min="2" max="16" value="6"></div>
+              <div class="synth-control"><label><span>CONTRAST</span><b id="toneContrastVal">118</b></label><input type="range" id="toneContrast" min="50" max="180" value="118"></div>
+            </div>
+          </div>
+
+          <div id="synthPaneMotion" style="display:none">
+            <div class="synth-grid">
+              <div class="synth-control"><label><span>STREAK</span><b id="motionStreakVal">18</b></label><input type="range" id="motionStreak" min="0" max="100" value="18"></div>
+              <div class="synth-control"><label><span>DRIFT</span><b id="motionDriftVal">9</b></label><input type="range" id="motionDrift" min="0" max="100" value="9"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="onframe-toolbar" id="onframeToolbar">
   <span class="label" id="onframeLayerName">NEON SUN</span>
@@ -1488,7 +1599,241 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
       ${styles}
       body{display:flex;align-items:center;justify-content:center}
       *{box-sizing:border-box}
+    </style>
+<style id="crtizer-media-layer-synth-upgrade">
+.synth-modal-card{width:min(980px,96vw)}
+.synth-layout{display:grid;grid-template-columns:280px 1fr;min-height:560px}
+.synth-sidebar{border-right:1px solid var(--line);padding:12px}
+.synth-main{padding:12px;overflow:auto}
+.synth-tablist{display:flex;flex-direction:column;gap:6px}
+.synth-tab{
+  border:1px solid var(--line);background:rgba(255,255,255,.015);padding:10px;
+  text-align:left;color:#bccdd4;cursor:pointer;font:9px ui-monospace,monospace
+}
+.synth-tab.active{border-color:rgba(101,231,255,.4);background:rgba(101,231,255,.05);color:var(--cyan)}
+.synth-card{border:1px solid var(--line);background:rgba(255,255,255,.012);padding:12px;margin-bottom:10px}
+.synth-card h3{margin:0 0 6px;font:700 11px ui-monospace,monospace;letter-spacing:.08em}
+.synth-card p{margin:0;color:var(--muted);font:8px/1.55 ui-monospace,monospace}
+.synth-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:10px}
+.synth-control{min-width:0}
+.synth-control label{display:flex;justify-content:space-between;margin-bottom:6px;font:8px ui-monospace,monospace;color:#9eb0b8}
+.synth-control b{color:var(--cyan)}
+.synth-select{width:100%;background:#070a0f;border:1px solid var(--line);color:var(--text);padding:8px;font:8px ui-monospace,monospace}
+.color-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.color-box{border:1px solid var(--line);padding:8px;background:#070a0f}
+.color-box input[type=color]{width:100%;height:38px;border:0;background:transparent;padding:0}
+.synth-preview{aspect-ratio:16/9;border:1px solid var(--line);overflow:hidden;position:relative;background:#020305;margin:10px 0}
+.synth-preview iframe{width:100%;height:100%;border:0;background:#020305}
+.media-layer-badge{font:7px ui-monospace,monospace;color:var(--pink);border:1px solid rgba(255,91,215,.25);padding:3px 5px}
+@media(max-width:900px){
+  .synth-modal-card{width:100vw;height:100dvh;max-height:none;border:0}
+  .synth-modal-card .modalBody{padding:0;height:calc(100dvh - 50px);max-height:none}
+  .synth-layout{display:block;height:100%;min-height:0}
+  .synth-sidebar{height:28%;border-right:0;border-bottom:1px solid var(--line);padding:9px;overflow:auto}
+  .synth-main{height:72%;padding:10px}
+  .synth-tablist{flex-direction:row;overflow-x:auto}
+  .synth-tab{white-space:nowrap;min-width:110px}
+  .synth-grid{grid-template-columns:1fr}
+}
+</style>
+
+</head><body>
+<script id="crtizer-media-layer-synth-js">
+(function(){
+  const layerList = document.getElementById('layerList');
+  const sourceVideo = document.getElementById('sourceVideo');
+  const sourceImage = document.getElementById('sourceImage');
+  const synthModal = document.getElementById('synthModal');
+  const synthPreviewFrame = document.getElementById('synthPreviewFrame');
+
+  // ---- Media layer slots ----
+  function ensureMediaLayers(){
+    if(!window.crtizerLayerState) return;
+
+    if(!window.crtizerLayerState.image){
+      window.crtizerLayerState.image = {
+        name:'IMAGE SOURCE', type:'MEDIA', x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0
+      };
+    }
+    if(!window.crtizerLayerState.video){
+      window.crtizerLayerState.video = {
+        name:'VIDEO SOURCE', type:'MEDIA', x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0
+      };
+    }
+
+    // Keep media elements editable through the same layer state.
+    if(window.crtizerLayerElements){
+      window.crtizerLayerElements.image = sourceImage;
+      window.crtizerLayerElements.video = sourceVideo;
+    }
+  }
+
+  // Rebuild the visible layer list with explicit image/video slots.
+  function injectMediaRows(){
+    if(!layerList) return;
+    const existing = layerList.querySelector('[data-layer="image"]');
+    if(existing) return;
+
+    const mk = (id,name,loaded) => {
+      const row=document.createElement('div');
+      row.className='layer-row';
+      row.dataset.layer=id;
+      row.innerHTML=`
+        <span class="layer-grip">⋮⋮</span>
+        <button class="layer-eye" data-media-eye="${id}">${loaded?'◉':'○'}</button>
+        <div><div class="layer-name">${name}</div><div class="layer-type">MEDIA // ${loaded?'LOADED':'EMPTY'}</div></div>
+        <span class="media-layer-badge">${id.toUpperCase()}</span>`;
+      row.addEventListener('click',e=>{
+        if(e.target.dataset.mediaEye) return;
+        const el=id==='image'?sourceImage:sourceVideo;
+        if(!el || el.style.display==='none'){
+          if(window.showToast) showToast(`${id.toUpperCase()} SLOT EMPTY`);
+          return;
+        }
+        // Use native active layer UI if available by dispatching through visible controls.
+        document.querySelectorAll('.layer-row').forEach(x=>x.classList.remove('active'));
+        row.classList.add('active');
+        if(window.crtizerSelectExternalLayer) window.crtizerSelectExternalLayer(id);
+      });
+      row.querySelector('[data-media-eye]').onclick=e=>{
+        e.stopPropagation();
+        const el=id==='image'?sourceImage:sourceVideo;
+        if(!el || !el.src) return;
+        const hidden = el.style.display==='none';
+        el.style.display = hidden ? 'block' : 'none';
+        e.currentTarget.textContent = hidden ? '◉' : '○';
+        if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview();
+      };
+      return row;
+    };
+
+    layerList.prepend(mk('video','VIDEO SOURCE',!!sourceVideo?.src));
+    layerList.prepend(mk('image','IMAGE SOURCE',!!sourceImage?.src));
+  }
+
+  ensureMediaLayers();
+  injectMediaRows();
+
+  // Watch for loads and refresh rows.
+  ['load','loadedmetadata','emptied'].forEach(evt=>{
+    sourceImage?.addEventListener(evt,()=>{ injectMediaRows(); if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview(); });
+    sourceVideo?.addEventListener(evt,()=>{ injectMediaRows(); if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview(); });
+  });
+
+  const mediaName = document.getElementById('mediaName');
+  const mediaObserver = new MutationObserver(()=>{
+    if(layerList){
+      layerList.querySelectorAll('[data-layer="image"],[data-layer="video"]').forEach(x=>x.remove());
+      injectMediaRows();
+    }
+  });
+  if(mediaName) mediaObserver.observe(mediaName,{childList:true,characterData:true,subtree:true});
+
+  // ---- SYNTH modal / live preview ----
+  function buildSynthPreview(){
+    if(!synthPreviewFrame) return;
+    const stage = document.querySelector('.stage') ||
+                  document.querySelector('.preview') ||
+                  document.querySelector('#preview') ||
+                  sourceVideo?.parentElement;
+    if(!stage) return;
+    const clone=stage.cloneNode(true);
+    clone.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
+    clone.style.width='100%'; clone.style.height='100%'; clone.style.margin='0';
+    const styles=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
+    const doc=synthPreviewFrame.contentDocument || synthPreviewFrame.contentWindow.document;
+    doc.open();
+    doc.write(`<!doctype html><html><head><style>
+      html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020305}
+      ${styles}
+      body{display:flex;align-items:center;justify-content:center}
     </style></head><body></body></html>`);
+    doc.close(); doc.body.appendChild(clone);
+
+    const a=doc.body.firstElementChild;
+    if(a){
+      const strength=+(document.getElementById('ditherStrength')?.value||49)/100;
+      const structure=+(document.getElementById('ditherStructure')?.value||58);
+      const noise=+(document.getElementById('ditherNoise')?.value||12);
+      const algo=document.getElementById('ditherAlgorithm')?.value||'error';
+      const ca=document.getElementById('ditherColorA')?.value||'#06070a';
+      const cb=document.getElementById('ditherColorB')?.value||'#d9f8ff';
+
+      // Browser approximation of Punk Dither.
+      a.style.filter=`contrast(${1.1+strength*1.7}) saturate(${0.7+strength*.45})`;
+      a.style.backgroundColor=ca;
+      a.style.boxShadow=`inset 0 0 ${12+structure*.35}px ${cb}22`;
+      const overlay=doc.createElement('div');
+      overlay.style.cssText=`position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:${0.08+noise/230};`;
+      overlay.style.backgroundImage = algo==='ordered'
+        ? `repeating-linear-gradient(0deg,${cb}22 0 1px,transparent 1px ${Math.max(2,7-Math.round(strength*5))}px)`
+        : algo==='blue'
+        ? `radial-gradient(circle at 20% 30%,${cb}35 0 1px,transparent 1.5px),radial-gradient(circle at 70% 60%,${cb}2a 0 1px,transparent 1.5px)`
+        : `repeating-linear-gradient(90deg,transparent 0 3px,${cb}18 3px 4px)`;
+      overlay.style.backgroundSize = algo==='blue' ? '9px 11px,13px 15px' : 'auto';
+      doc.body.appendChild(overlay);
+    }
+  }
+
+  function openSynth(){
+    synthModal.classList.add('open');
+    setTimeout(buildSynthPreview,0);
+  }
+  document.getElementById('synthBtn')?.addEventListener('click',openSynth);
+  document.getElementById('closeSynth')?.addEventListener('click',()=>synthModal.classList.remove('open'));
+  document.querySelectorAll('.dock-btn[data-tool="synth"]').forEach(btn=>btn.addEventListener('click',e=>{
+    e.preventDefault(); e.stopPropagation(); openSynth();
+  },true));
+
+  document.querySelectorAll('.synth-tab').forEach(btn=>btn.onclick=()=>{
+    document.querySelectorAll('.synth-tab').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    ['dither','tone','motion'].forEach(k=>{
+      const el=document.getElementById('synthPane'+k.charAt(0).toUpperCase()+k.slice(1));
+      if(el) el.style.display = btn.dataset.synthtab===k ? 'block' : 'none';
+    });
+  });
+
+  const bindVal=(id,out)=>{
+    const el=document.getElementById(id), o=document.getElementById(out);
+    if(!el)return;
+    const fire=()=>{ if(o)o.textContent=el.value; buildSynthPreview(); };
+    el.addEventListener('input',fire); el.addEventListener('change',fire);
+  };
+  bindVal('ditherStrength','ditherStrengthVal');
+  bindVal('ditherStructure','ditherStructureVal');
+  bindVal('ditherNoise','ditherNoiseVal');
+  bindVal('tonePoster','tonePosterVal');
+  bindVal('toneContrast','toneContrastVal');
+  bindVal('motionStreak','motionStreakVal');
+  bindVal('motionDrift','motionDriftVal');
+  ['ditherAlgorithm','ditherColorA','ditherColorB'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('input',buildSynthPreview);
+    document.getElementById(id)?.addEventListener('change',buildSynthPreview);
+  });
+
+  // Keep a serializable synth state.
+  window.CRTIZER_SYNTH = {
+    getState(){
+      return {
+        ditherStrength:+document.getElementById('ditherStrength').value,
+        algorithm:document.getElementById('ditherAlgorithm').value,
+        colorA:document.getElementById('ditherColorA').value,
+        colorB:document.getElementById('ditherColorB').value,
+        structure:+document.getElementById('ditherStructure').value,
+        noise:+document.getElementById('ditherNoise').value,
+        tonePoster:+document.getElementById('tonePoster').value,
+        toneContrast:+document.getElementById('toneContrast').value,
+        motionStreak:+document.getElementById('motionStreak').value,
+        motionDrift:+document.getElementById('motionDrift').value
+      };
+    },
+    rebuildPreview:buildSynthPreview
+  };
+})();
+</script>
+
+</body></html>`);
     doc.close();
     doc.body.appendChild(clone);
 
@@ -1618,6 +1963,202 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
     video: sourceVideo,
     image: sourceImage,
     rebuildLayerPreview: buildLivePreview
+  };
+})();
+</script>
+
+
+<script id="crtizer-media-layer-synth-js">
+(function(){
+  const layerList = document.getElementById('layerList');
+  const sourceVideo = document.getElementById('sourceVideo');
+  const sourceImage = document.getElementById('sourceImage');
+  const synthModal = document.getElementById('synthModal');
+  const synthPreviewFrame = document.getElementById('synthPreviewFrame');
+
+  // ---- Media layer slots ----
+  function ensureMediaLayers(){
+    if(!window.crtizerLayerState) return;
+
+    if(!window.crtizerLayerState.image){
+      window.crtizerLayerState.image = {
+        name:'IMAGE SOURCE', type:'MEDIA', x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0
+      };
+    }
+    if(!window.crtizerLayerState.video){
+      window.crtizerLayerState.video = {
+        name:'VIDEO SOURCE', type:'MEDIA', x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0
+      };
+    }
+
+    // Keep media elements editable through the same layer state.
+    if(window.crtizerLayerElements){
+      window.crtizerLayerElements.image = sourceImage;
+      window.crtizerLayerElements.video = sourceVideo;
+    }
+  }
+
+  // Rebuild the visible layer list with explicit image/video slots.
+  function injectMediaRows(){
+    if(!layerList) return;
+    const existing = layerList.querySelector('[data-layer="image"]');
+    if(existing) return;
+
+    const mk = (id,name,loaded) => {
+      const row=document.createElement('div');
+      row.className='layer-row';
+      row.dataset.layer=id;
+      row.innerHTML=`
+        <span class="layer-grip">⋮⋮</span>
+        <button class="layer-eye" data-media-eye="${id}">${loaded?'◉':'○'}</button>
+        <div><div class="layer-name">${name}</div><div class="layer-type">MEDIA // ${loaded?'LOADED':'EMPTY'}</div></div>
+        <span class="media-layer-badge">${id.toUpperCase()}</span>`;
+      row.addEventListener('click',e=>{
+        if(e.target.dataset.mediaEye) return;
+        const el=id==='image'?sourceImage:sourceVideo;
+        if(!el || el.style.display==='none'){
+          if(window.showToast) showToast(`${id.toUpperCase()} SLOT EMPTY`);
+          return;
+        }
+        // Use native active layer UI if available by dispatching through visible controls.
+        document.querySelectorAll('.layer-row').forEach(x=>x.classList.remove('active'));
+        row.classList.add('active');
+        if(window.crtizerSelectExternalLayer) window.crtizerSelectExternalLayer(id);
+      });
+      row.querySelector('[data-media-eye]').onclick=e=>{
+        e.stopPropagation();
+        const el=id==='image'?sourceImage:sourceVideo;
+        if(!el || !el.src) return;
+        const hidden = el.style.display==='none';
+        el.style.display = hidden ? 'block' : 'none';
+        e.currentTarget.textContent = hidden ? '◉' : '○';
+        if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview();
+      };
+      return row;
+    };
+
+    layerList.prepend(mk('video','VIDEO SOURCE',!!sourceVideo?.src));
+    layerList.prepend(mk('image','IMAGE SOURCE',!!sourceImage?.src));
+  }
+
+  ensureMediaLayers();
+  injectMediaRows();
+
+  // Watch for loads and refresh rows.
+  ['load','loadedmetadata','emptied'].forEach(evt=>{
+    sourceImage?.addEventListener(evt,()=>{ injectMediaRows(); if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview(); });
+    sourceVideo?.addEventListener(evt,()=>{ injectMediaRows(); if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview(); });
+  });
+
+  const mediaName = document.getElementById('mediaName');
+  const mediaObserver = new MutationObserver(()=>{
+    if(layerList){
+      layerList.querySelectorAll('[data-layer="image"],[data-layer="video"]').forEach(x=>x.remove());
+      injectMediaRows();
+    }
+  });
+  if(mediaName) mediaObserver.observe(mediaName,{childList:true,characterData:true,subtree:true});
+
+  // ---- SYNTH modal / live preview ----
+  function buildSynthPreview(){
+    if(!synthPreviewFrame) return;
+    const stage = document.querySelector('.stage') ||
+                  document.querySelector('.preview') ||
+                  document.querySelector('#preview') ||
+                  sourceVideo?.parentElement;
+    if(!stage) return;
+    const clone=stage.cloneNode(true);
+    clone.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
+    clone.style.width='100%'; clone.style.height='100%'; clone.style.margin='0';
+    const styles=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
+    const doc=synthPreviewFrame.contentDocument || synthPreviewFrame.contentWindow.document;
+    doc.open();
+    doc.write(`<!doctype html><html><head><style>
+      html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020305}
+      ${styles}
+      body{display:flex;align-items:center;justify-content:center}
+    </style></head><body></body></html>`);
+    doc.close(); doc.body.appendChild(clone);
+
+    const a=doc.body.firstElementChild;
+    if(a){
+      const strength=+(document.getElementById('ditherStrength')?.value||49)/100;
+      const structure=+(document.getElementById('ditherStructure')?.value||58);
+      const noise=+(document.getElementById('ditherNoise')?.value||12);
+      const algo=document.getElementById('ditherAlgorithm')?.value||'error';
+      const ca=document.getElementById('ditherColorA')?.value||'#06070a';
+      const cb=document.getElementById('ditherColorB')?.value||'#d9f8ff';
+
+      // Browser approximation of Punk Dither.
+      a.style.filter=`contrast(${1.1+strength*1.7}) saturate(${0.7+strength*.45})`;
+      a.style.backgroundColor=ca;
+      a.style.boxShadow=`inset 0 0 ${12+structure*.35}px ${cb}22`;
+      const overlay=doc.createElement('div');
+      overlay.style.cssText=`position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:${0.08+noise/230};`;
+      overlay.style.backgroundImage = algo==='ordered'
+        ? `repeating-linear-gradient(0deg,${cb}22 0 1px,transparent 1px ${Math.max(2,7-Math.round(strength*5))}px)`
+        : algo==='blue'
+        ? `radial-gradient(circle at 20% 30%,${cb}35 0 1px,transparent 1.5px),radial-gradient(circle at 70% 60%,${cb}2a 0 1px,transparent 1.5px)`
+        : `repeating-linear-gradient(90deg,transparent 0 3px,${cb}18 3px 4px)`;
+      overlay.style.backgroundSize = algo==='blue' ? '9px 11px,13px 15px' : 'auto';
+      doc.body.appendChild(overlay);
+    }
+  }
+
+  function openSynth(){
+    synthModal.classList.add('open');
+    setTimeout(buildSynthPreview,0);
+  }
+  document.getElementById('synthBtn')?.addEventListener('click',openSynth);
+  document.getElementById('closeSynth')?.addEventListener('click',()=>synthModal.classList.remove('open'));
+  document.querySelectorAll('.dock-btn[data-tool="synth"]').forEach(btn=>btn.addEventListener('click',e=>{
+    e.preventDefault(); e.stopPropagation(); openSynth();
+  },true));
+
+  document.querySelectorAll('.synth-tab').forEach(btn=>btn.onclick=()=>{
+    document.querySelectorAll('.synth-tab').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    ['dither','tone','motion'].forEach(k=>{
+      const el=document.getElementById('synthPane'+k.charAt(0).toUpperCase()+k.slice(1));
+      if(el) el.style.display = btn.dataset.synthtab===k ? 'block' : 'none';
+    });
+  });
+
+  const bindVal=(id,out)=>{
+    const el=document.getElementById(id), o=document.getElementById(out);
+    if(!el)return;
+    const fire=()=>{ if(o)o.textContent=el.value; buildSynthPreview(); };
+    el.addEventListener('input',fire); el.addEventListener('change',fire);
+  };
+  bindVal('ditherStrength','ditherStrengthVal');
+  bindVal('ditherStructure','ditherStructureVal');
+  bindVal('ditherNoise','ditherNoiseVal');
+  bindVal('tonePoster','tonePosterVal');
+  bindVal('toneContrast','toneContrastVal');
+  bindVal('motionStreak','motionStreakVal');
+  bindVal('motionDrift','motionDriftVal');
+  ['ditherAlgorithm','ditherColorA','ditherColorB'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('input',buildSynthPreview);
+    document.getElementById(id)?.addEventListener('change',buildSynthPreview);
+  });
+
+  // Keep a serializable synth state.
+  window.CRTIZER_SYNTH = {
+    getState(){
+      return {
+        ditherStrength:+document.getElementById('ditherStrength').value,
+        algorithm:document.getElementById('ditherAlgorithm').value,
+        colorA:document.getElementById('ditherColorA').value,
+        colorB:document.getElementById('ditherColorB').value,
+        structure:+document.getElementById('ditherStructure').value,
+        noise:+document.getElementById('ditherNoise').value,
+        tonePoster:+document.getElementById('tonePoster').value,
+        toneContrast:+document.getElementById('toneContrast').value,
+        motionStreak:+document.getElementById('motionStreak').value,
+        motionDrift:+document.getElementById('motionDrift').value
+      };
+    },
+    rebuildPreview:buildSynthPreview
   };
 })();
 </script>
