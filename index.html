@@ -57,7 +57,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 
 .editor{min-width:0;min-height:0;display:grid;grid-template-rows:minmax(0,1fr) 50px 120px;background:#040507}
 .preview-wrap{min-height:0;display:flex;align-items:center;justify-content:center;padding:12px;background:radial-gradient(circle at 50% 30%,rgba(105,231,255,.035),transparent 40%),#040507}
-.preview-shell{width:min(100%,1100px);aspect-ratio:16/9;max-height:100%;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 22px 60px rgba(0,0,0,.42);background:#000}
+.preview-shell{width:min(100%,1100px);aspect-ratio:var(--project-aspect,16/9);max-height:100%;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 22px 60px rgba(0,0,0,.42);background:#000}
 #stage{width:100%;height:100%;display:block;background:#000}
 .transport{display:grid;grid-template-columns:auto auto 1fr auto auto;gap:8px;align-items:center;padding:6px 10px;background:#090b0f;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .play{width:36px;height:36px;border-radius:50%;border:1px solid rgba(105,231,255,.25);background:#0d1116;color:var(--cyan)}
@@ -532,6 +532,8 @@ const synthPreview=$('#synthPreview'), synthCtx=synthPreview.getContext('2d',{wi
 const shaderPreview=$('#shaderPreview'), shaderCtx=shaderPreview.getContext('2d',{willReadFrequently:true});
 
 const state={
+  projectWidth:1280,
+  projectHeight:720,
   source:{type:'test',name:'TEST PATTERN',url:'',image:null,video:null},
   layers:[],
   selectedLayer:null,
@@ -560,6 +562,62 @@ function toast(msg){
   t.textContent=msg;t.style.opacity='1';clearTimeout(t._timer);t._timer=setTimeout(()=>t.style.opacity='0',1400)
 }
 
+
+function setProjectFrame(w,h,reason='source'){
+  w=Math.max(1,Math.round(w||1280));
+  h=Math.max(1,Math.round(h||720));
+
+  state.projectWidth=w;
+  state.projectHeight=h;
+
+  stage.width=w;
+  stage.height=h;
+
+  // Keep secondary previews lighter while preserving the same aspect ratio.
+  const previewMax=960;
+  const scale=Math.min(1,previewMax/w);
+  layerPreview.width=Math.max(1,Math.round(w*scale));
+  layerPreview.height=Math.max(1,Math.round(h*scale));
+  synthPreview.width=layerPreview.width;
+  synthPreview.height=layerPreview.height;
+  shaderPreview.width=layerPreview.width;
+  shaderPreview.height=layerPreview.height;
+
+  const shell=document.querySelector('.preview-shell');
+  if(shell){
+    shell.style.setProperty('--project-aspect',`${w}/${h}`);
+    shell.style.aspectRatio=`${w} / ${h}`;
+  }
+
+  document.documentElement.style.setProperty('--project-aspect',`${w}/${h}`);
+
+  // Keep export "Source" option honest.
+  const sourceOpt=$('#exportRes')?.querySelector('option[value="source"]');
+  if(sourceOpt)sourceOpt.textContent=`Source ${w} × ${h}`;
+
+  const status=$('#timelineStatus');
+  if(status && state.source.type!=='test'){
+    status.textContent=`${state.source.type.toUpperCase()} • ${w}×${h}`;
+  }
+}
+
+function resetProjectFrame(){
+  setProjectFrame(1280,720,'default');
+}
+
+function fitPreviewShell(){
+  const wrap=document.querySelector('.preview-wrap');
+  const shell=document.querySelector('.preview-shell');
+  if(!wrap||!shell)return;
+  const r=wrap.getBoundingClientRect();
+  const w=state.projectWidth||stage.width||1280;
+  const h=state.projectHeight||stage.height||720;
+  const aspect=w/h;
+  let dw=r.width,dh=dw/aspect;
+  if(dh>r.height){dh=r.height;dw=dh*aspect}
+  shell.style.width=Math.max(1,dw)+'px';
+  shell.style.height=Math.max(1,dh)+'px';
+}
 function makeTest(ctx,w,h){
   const g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'#06101c');g.addColorStop(.5,'#271236');g.addColorStop(1,'#040507');
   ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
@@ -812,21 +870,61 @@ requestAnimationFrame(loop);
 function setSourceTest(){
   if(state.source.video){state.source.video.pause()}
   state.source={type:'test',name:'TEST PATTERN',url:'',image:null,video:null};state.trimStart=0;state.trimEnd=null;
-  updateSourceUI();renderTimelineTracks()
+  resetProjectFrame();
+  updateSourceUI();renderTimelineTracks();fitPreviewShell()
 }
 function setSourceImage(file){
-  const url=URL.createObjectURL(file);objectUrls.add(url);const img=new Image();img.onload=()=>{};img.src=url;
+  const url=URL.createObjectURL(file);
+  objectUrls.add(url);
+  const img=new Image();
+
+  img.onload=()=>{
+    setProjectFrame(img.naturalWidth||img.width||1280,img.naturalHeight||img.height||720,'image');
+    updateSourceUI();
+    renderTimelineTracks();
+    fitPreviewShell();
+  };
+
+  img.src=url;
+
   if(state.source.video)state.source.video.pause();
-  state.source={type:'image',name:file.name,url,image:img,video:null};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderTimelineTracks()
+  state.source={type:'image',name:file.name,url,image:img,video:null};
+  state.trimStart=0;
+  state.trimEnd=null;
 }
 function setSourceVideo(file){
-  const url=URL.createObjectURL(file);objectUrls.add(url);const v=document.createElement('video');v.src=url;v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';
-  v.addEventListener('loadedmetadata',()=>{state.trimEnd=v.duration;updateSourceUI();v.play().catch(()=>{});state.playing=true});
-  state.source={type:'video',name:file.name,url,image:null,video:v,speed:1};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderTimelineTracks()
+  const url=URL.createObjectURL(file);
+  objectUrls.add(url);
+
+  const v=document.createElement('video');
+  v.src=url;
+  v.muted=true;
+  v.loop=true;
+  v.playsInline=true;
+  v.preload='auto';
+
+  v.addEventListener('loadedmetadata',()=>{
+    state.trimEnd=v.duration;
+    state.source.speed=1;
+
+    setProjectFrame(v.videoWidth||1280,v.videoHeight||720,'video');
+    updateSourceUI();
+    renderTimelineTracks();
+    fitPreviewShell();
+
+    v.play().catch(()=>{});
+    state.playing=true;
+  });
+
+  state.source={type:'video',name:file.name,url,image:null,video:v,speed:1};
+  state.trimStart=0;
+  state.trimEnd=null;
 }
 function updateSourceUI(){
   $('#currentSourceLabel').textContent=state.source.name;
-  $('#timelineStatus').textContent=state.source.type==='test'?'No media':state.source.type.toUpperCase();
+  $('#timelineStatus').textContent=state.source.type==='test'
+    ? `TEST • ${state.projectWidth}×${state.projectHeight}`
+    : `${state.source.type.toUpperCase()} • ${state.projectWidth}×${state.projectHeight}`;
   $$('.source-card').forEach(x=>x.classList.remove('active'));
   renderTimelineTracks();
 }
@@ -1499,12 +1597,13 @@ async function makeRecorder(stream,mime,bitrate){
 $('#exportNow').onclick=async()=>{
   const type=$('#exportType').value,res=$('#exportRes').value,q=+$('#exportQuality').value,fps=+$('#exportFps').value;
   const bitrate=+$('#exportBitrate').value,range=$('#exportRange').value;
-  let w=stage.width,h=stage.height;
+  let w=state.projectWidth||stage.width,h=state.projectHeight||stage.height;
   if(res!=='source')[w,h]=res.split('x').map(Number);
 
   if(type==='project'){
     const project={
       version:2,
+      frame:{width:state.projectWidth,height:state.projectHeight},
       source:{type:state.source.type,name:state.source.name},
       layers:state.layers.map(({el,...l})=>l),
       effects:state.effects,synth:state.synth,shader:state.shader,
@@ -1596,6 +1695,13 @@ $('#exportNow').onclick=async()=>{
     toast('Could not start video export');
   }
 }
+
+
+window.addEventListener('resize',()=>requestAnimationFrame(fitPreviewShell),{passive:true});
+window.addEventListener('orientationchange',()=>setTimeout(fitPreviewShell,80),{passive:true});
+window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(fitPreviewShell),{passive:true});
+setProjectFrame(1280,720,'initial');
+requestAnimationFrame(fitPreviewShell);
 
 window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjectURL(u)));
 </script>
