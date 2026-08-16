@@ -1127,7 +1127,6 @@ function layerDuration(l){
   if(l.type==='video'&&l.el&&isFinite(l.el.duration))return l.el.duration;
   return null;
 }
-window.renderMultitrack=renderMultitrack;
 function renderMultitrack(){
   const box=$('#multitrack');
   if(!box)return;
@@ -1229,6 +1228,7 @@ function renderMultitrack(){
     };
   });
 }
+window.renderMultitrack = renderMultitrack;
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push(state.synth.target==='source'?'Dither: Source':'Dither: Layer');if(state.shader.enabled)a.push(state.shader.target==='source'?'Shader: Source':'Shader: Layer');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader';const p=$('#fxStatusPill');if(p)p.innerHTML='FX: <b>'+(a.length?a.join(' + '):'NONE')+'</b>'}
 
 function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers'){renderLayers();renderMultitrack();}if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
@@ -1271,13 +1271,101 @@ $('#exportNow').onclick=async()=>{
 window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjectURL(u)));
 </script>
 
-<script id="crtizer-track-refresh-observer">
+
+<script id="crtizer-ui-binding-fix">
 (function(){
-  const list=document.getElementById('layersList');
-  if(list){
-    const mo=new MutationObserver(()=>requestAnimationFrame(()=>window.renderMultitrack?.()));
-    mo.observe(list,{childList:true,subtree:false});
+  function q(id){ return document.getElementById(id); }
+
+  function openModal(name){
+    const m=q(name+'Modal');
+    if(!m) return;
+    m.classList.add('open');
+
+    if(name==='layers'){
+      window.renderMultitrack?.();
+      window.CRTIZER_ELITE_LAYERS?.render?.();
+      try{ renderLayers?.(); }catch(e){}
+    }
+    if(name==='synth'){
+      try{ updateSynthTargets?.(); renderSynthControls?.(); }catch(e){}
+    }
+    if(name==='shader'){
+      try{ updateShaderTargets?.(); renderShaders?.(q('shaderSearch')?.value||''); }catch(e){}
+    }
   }
+
+  function closeModal(name){
+    q(name+'Modal')?.classList.remove('open');
+  }
+
+  // Desktop/top buttons.
+  document.querySelectorAll('[data-open]').forEach(btn=>{
+    btn.onclick=null;
+    btn.addEventListener('click',e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      openModal(btn.dataset.open);
+    });
+  });
+
+  document.querySelectorAll('[data-close]').forEach(btn=>{
+    btn.onclick=null;
+    btn.addEventListener('click',e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      closeModal(btn.dataset.close);
+    });
+  });
+
+  // Mobile tool dock.
+  document.querySelectorAll('.tool').forEach(btn=>{
+    btn.onclick=null;
+    btn.addEventListener('click',e=>{
+      e.preventDefault();
+      e.stopPropagation();
+
+      const tool=btn.dataset.tool;
+      document.querySelectorAll('.tool').forEach(x=>x.classList.toggle('active',x===btn));
+
+      if(['layers','synth','shader','export'].includes(tool)){
+        openModal(tool);
+        return;
+      }
+
+      try{
+        if(typeof openSheet==='function') openSheet(tool);
+      }catch(err){
+        console.error('CRTiZER sheet open failed:',err);
+      }
+    });
+  });
+
+  // Explicit header fallbacks in case data-open markup changes.
+  const fallbackMap = {
+    layersBtn:'layers',
+    synthBtn:'synth',
+    shaderBtn:'shader',
+    exportBtn:'export'
+  };
+  Object.entries(fallbackMap).forEach(([id,name])=>{
+    const b=q(id);
+    if(!b) return;
+    b.addEventListener('click',()=>openModal(name));
+  });
+
+  // Close modal on backdrop tap, but not content tap.
+  document.querySelectorAll('.modal').forEach(modal=>{
+    modal.addEventListener('click',e=>{
+      if(e.target===modal) modal.classList.remove('open');
+    });
+  });
+
+  // Make sure layer upload controls still work after previous rewiring.
+  q('addLayerImage')?.addEventListener('click',()=>q('layerImageInput')?.click());
+  q('addLayerVideo')?.addEventListener('click',()=>q('layerVideoInput')?.click());
+
+  // Force initial UI into a consistent state.
+  try{ window.renderMultitrack?.(); }catch(e){}
 })();
 </script>
 
