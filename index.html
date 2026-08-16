@@ -377,109 +377,55 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 </style>
 
 
-<style id="crtizer-source-plus-layer-tracks-css">
+<style id="crtizer-track-docker-fix-css">
 .multitrack{
-  display:grid;
-  gap:7px;
+  display:flex!important;
+  flex-direction:column!important;
+  gap:6px!important;
+  min-width:560px!important;
 }
 .track-row{
-  display:grid;
-  grid-template-columns:104px minmax(460px,1fr);
-  gap:8px;
+  display:grid!important;
+  grid-template-columns:96px minmax(440px,1fr)!important;
+  gap:7px!important;
+  align-items:center!important;
+  min-height:48px!important;
+}
+.track-dock{
+  position:sticky!important;
+  left:0!important;
+  z-index:10!important;
+  background:#0b0e12!important;
 }
 .track-row[data-track="source"] .track-dock{
-  border-color:rgba(105,231,255,.28);
-  background:linear-gradient(180deg,rgba(105,231,255,.055),#0a0d11);
-}
-.track-row[data-track="source"] .track-clip{
-  border-color:rgba(105,231,255,.32);
+  border-color:rgba(105,231,255,.28)!important;
 }
 .track-row:not([data-track="source"]) .track-dock{
-  border-color:rgba(255,101,216,.18);
+  border-color:rgba(255,101,216,.20)!important;
 }
-.track-source-badge,
-.track-layer-badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:38px;
-  height:18px;
-  padding:0 5px;
-  border-radius:999px;
-  font:5px ui-monospace,monospace;
-  margin-bottom:3px;
+.track-row[data-track="source"] .track-clip{
+  border-color:rgba(105,231,255,.30)!important;
 }
-.track-source-badge{
-  color:var(--cyan);
-  border:1px solid rgba(105,231,255,.22);
-  background:rgba(105,231,255,.045);
+.track-row:not([data-track="source"]) .track-clip{
+  border-color:rgba(255,101,216,.26)!important;
 }
-.track-layer-badge{
-  color:var(--pink);
-  border:1px solid rgba(255,101,216,.2);
-  background:rgba(255,101,216,.04);
+.track-dock-index{
+  width:18px;height:18px;border-radius:5px;
+  display:grid;place-items:center;
+  background:#151a20;color:#7f9198;
+  font:6px ui-monospace,monospace;flex:0 0 auto
 }
-.track-empty{
-  height:48px;
-  border:1px dashed rgba(255,255,255,.07);
-  border-radius:8px;
-  display:flex;
-  align-items:center;
-  padding:0 10px;
-  color:#596970;
-  font:6px ui-monospace,monospace;
-}
-.timeline-head .track-summary{
-  margin-left:6px;
-  font:6px ui-monospace,monospace;
-  color:#67767d;
+.track-row[data-track="source"] .track-dock-index{color:var(--cyan)}
+.track-row:not([data-track="source"]) .track-dock-index{color:var(--pink)}
+.timeline-body{
+  position:relative!important;
 }
 @media(max-width:900px){
-  .track-row{
-    grid-template-columns:86px minmax(360px,1fr);
-  }
-}
-</style>
-
-
-<style id="crtizer-bottom-sheet-fix-css">
-@media(max-width:900px){
-  .sheet{
-    display:block!important;
-    visibility:hidden;
-    pointer-events:none;
-    opacity:0;
-    transform:translateY(110%)!important;
-    transition:transform .22s ease,opacity .16s ease,visibility 0s linear .22s!important;
-  }
-  .sheet.open{
-    visibility:visible!important;
-    pointer-events:auto!important;
-    opacity:1!important;
-    transform:translateY(0)!important;
-    transition:transform .22s ease,opacity .16s ease!important;
-  }
-
-  .tool-tabs{
-    position:relative!important;
-    z-index:200!important;
-    pointer-events:auto!important;
-  }
-
-  .tool{
-    position:relative!important;
-    z-index:201!important;
-    pointer-events:auto!important;
-  }
-
-  .timeline{
-    position:relative!important;
-    z-index:10!important;
-  }
-
-  .sheet{
-    z-index:300!important;
-  }
+  .multitrack{min-width:500px!important}
+  .track-row{grid-template-columns:78px minmax(390px,1fr)!important}
+  .track-dock{padding:4px 5px!important}
+  .track-dock-index{display:none}
+  .track-dock small{font-size:5px!important}
 }
 </style>
 
@@ -927,12 +873,12 @@ function setSourceTest(){
 function setSourceImage(file){
   const url=URL.createObjectURL(file);objectUrls.add(url);const img=new Image();img.onload=()=>{};img.src=url;
   if(state.source.video)state.source.video.pause();
-  state.source={type:'image',name:file.name,url,image:img,video:null};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets();toast('Source background updated')
+  state.source={type:'image',name:file.name,url,image:img,video:null};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets()
 }
 function setSourceVideo(file){
   const url=URL.createObjectURL(file);objectUrls.add(url);const v=document.createElement('video');v.src=url;v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';
   v.addEventListener('loadedmetadata',()=>{state.trimEnd=v.duration;updateSourceUI();v.play().catch(()=>{});state.playing=true});
-  state.source={type:'video',name:file.name,url,image:null,video:v};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets();toast('Source background updated')
+  state.source={type:'video',name:file.name,url,image:null,video:v};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets()
 }
 function updateSourceUI(){
   $('#currentSourceLabel').textContent=state.source.name;
@@ -997,10 +943,10 @@ function makeLayer(file){
   let el;if(type==='image'){el=new Image();el.src=url}else{el=document.createElement('video');el.src=url;el.muted=true;el.loop=true;el.playsInline=true;el.play().catch(()=>{})}
   const z=state.layers.length?Math.max(...state.layers.map(l=>l.z))+1:1;
   const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z};
-  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack();toast('New layer track added')
+  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack();requestAnimationFrame(renderMultitrack);setTimeout(renderMultitrack,60);toast('Layer added')
 }
-$('#layerImageInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
-$('#layerVideoInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
+$('#layerImageInput').onchange=e=>{const f=e.target.files?.[0];if(f){makeLayer(f);setTimeout(renderMultitrack,100)}e.target.value=''}
+$('#layerVideoInput').onchange=e=>{const f=e.target.files?.[0];if(f){makeLayer(f);setTimeout(renderMultitrack,180)}e.target.value=''}
 $('#addLayerImage').onclick=()=>$('#layerImageInput').click();$('#addLayerVideo').onclick=()=>$('#layerVideoInput').click();
 
 function selectedLayer(){return state.layers.find(l=>l.id===state.selectedLayer)}
@@ -1025,12 +971,12 @@ function renderLayerInspector(){
   $('#layerParams').innerHTML=defs.map(d=>paramHTML(d[0],d[1],l[d[1]],d[2],d[3],d[4],'data-layer-param')).join('');
   $$('[data-layer-param]').forEach(r=>r.oninput=()=>{l[r.dataset.layerParam]=+r.value;r.previousElementSibling.querySelector('b').textContent=r.value})
 }
-function deleteLayer(id){snapshot();state.layers=state.layers.filter(l=>l.id!==id);if(state.selectedLayer===id)state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack()}
+function deleteLayer(id){snapshot();state.layers=state.layers.filter(l=>l.id!==id);if(state.selectedLayer===id)state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack();requestAnimationFrame(renderMultitrack);requestAnimationFrame(renderMultitrack)}
 function restoreHistory(){
   if(!state.history.length)return toast('Nothing to undo');
   const snap=JSON.parse(state.history.pop());const byId=new Map(state.layers.map(l=>[l.id,l]));
   state.layers=snap.map(s=>{let l=byId.get(s.id);if(!l){let el=s.type==='image'?new Image():document.createElement('video');el.src=s.url;if(s.type==='video'){el.muted=true;el.loop=true;el.playsInline=true;el.play().catch(()=>{})}l={...s,el}}return Object.assign(l,s)});
-  state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack()
+  state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack();requestAnimationFrame(renderMultitrack)
 }
 $('#undoLayer').onclick=restoreHistory;$('#layerDelete').onclick=()=>selectedLayer()&&deleteLayer(selectedLayer().id);
 $('#layerCenter').onclick=()=>{const l=selectedLayer();if(l){snapshot();l.x=0;l.y=0;renderLayerInspector()}}
@@ -1181,205 +1127,132 @@ function layerDuration(l){
   if(l.type==='video'&&l.el&&isFinite(l.el.duration))return l.el.duration;
   return null;
 }
+window.renderMultitrack=renderMultitrack;
 function renderMultitrack(){
   const box=$('#multitrack');
   if(!box)return;
 
   const rows=[];
 
-  // SOURCE is always its own dedicated background track.
-  const sourceThumb=
-    state.source.type==='image'
-      ? `<div class="track-clip-thumb"><img src="${state.source.url}"></div>`
-      : state.source.type==='video'
-        ? `<div class="track-clip-thumb"><video src="${state.source.url}" muted playsinline></video></div>`
-        : `<div class="track-clip-thumb" style="display:grid;place-items:center;color:#65747b;font:10px ui-monospace">GEN</div>`;
+  // SOURCE track always exists and always stays first.
+  const sourceThumb = state.source.type==='image'
+    ? `<div class="track-clip-thumb"><img src="${state.source.url}"></div>`
+    : state.source.type==='video'
+      ? `<div class="track-clip-thumb"><video src="${state.source.url}" muted playsinline preload="metadata"></video></div>`
+      : `<div class="track-clip-thumb" style="display:grid;place-items:center;color:#65747b;font:10px ui-monospace">GEN</div>`;
 
   rows.push(`
     <div class="track-row ${state.selectedLayer===null?'selected':''}" data-track="source">
       <div class="track-dock">
+        <span class="track-dock-index">S</span>
         <div class="track-dock-main">
-          <span class="track-source-badge">SOURCE</span>
-          <b>Background</b>
+          <b>SOURCE</b>
           <small>${escapeHtml(state.source.name)}</small>
         </div>
+        <button class="on" data-track-visible="source" title="Source is always visible">◉</button>
       </div>
       <div class="track-lane" data-lane="source">
         <div class="track-clip">
           ${sourceThumb}
           <div class="track-clip-info">
             <b>${escapeHtml(state.source.name)}</b>
-            <small>${state.source.type==='video' ? fmt(state.source.video?.duration||0) : state.source.type.toUpperCase()}</small>
+            <small>${state.source.type==='video'
+              ? fmt(state.source.video?.duration||0)
+              : state.source.type==='image' ? 'STILL IMAGE' : 'TEST SOURCE'}</small>
           </div>
         </div>
       </div>
     </div>`);
 
-  // Every uploaded layer gets a SEPARATE dock/track underneath Source.
+  // Every added media layer gets its own independent dock + lane.
   const orderedLayers=state.layers.slice().sort((a,b)=>a.z-b.z);
-
   orderedLayers.forEach((l,index)=>{
     const thumb=l.type==='image'
       ? `<div class="track-clip-thumb"><img src="${l.url}"></div>`
-      : `<div class="track-clip-thumb"><video src="${l.url}" muted playsinline></video></div>`;
+      : `<div class="track-clip-thumb"><video src="${l.url}" muted playsinline preload="metadata"></video></div>`;
 
     rows.push(`
       <div class="track-row ${state.selectedLayer===l.id?'selected':''}" data-track="${l.id}">
         <div class="track-dock">
+          <span class="track-dock-index">${index+1}</span>
           <div class="track-dock-main">
-            <span class="track-layer-badge">LAYER ${index+1}</span>
             <b>${escapeHtml(l.name)}</b>
-            <small>${l.type.toUpperCase()} • Z${l.z}</small>
+            <small>${l.type.toUpperCase()} • LAYER ${index+1}</small>
           </div>
-          <button class="${l.visible?'on':''}" data-track-visible="${l.id}" title="Toggle layer">${l.visible?'◉':'○'}</button>
+          <button class="${l.visible?'on':''}" data-track-visible="${l.id}" title="Toggle layer visibility">${l.visible?'◉':'○'}</button>
         </div>
         <div class="track-lane" data-lane="${l.id}">
           <div class="track-clip layer">
             ${thumb}
             <div class="track-clip-info">
               <b>${escapeHtml(l.name)}</b>
-              <small>${l.type==='video' ? fmt(layerDuration(l)||0) : 'STILL IMAGE'}</small>
+              <small>${l.type==='video' ? fmt(layerDuration(l)||0) : 'STILL IMAGE'} • Z${l.z}</small>
             </div>
           </div>
         </div>
       </div>`);
   });
 
-  if(!orderedLayers.length){
-    rows.push(`
-      <div class="track-row" data-track="empty">
-        <div class="track-dock">
-          <div class="track-dock-main">
-            <span class="track-layer-badge">LAYERS</span>
-            <b>No overlay layers</b>
-            <small>Add from Layers tab</small>
-          </div>
-        </div>
-        <div class="track-empty">Uploaded photos/videos will appear here as independent tracks.</div>
-      </div>`);
-  }
-
   box.innerHTML=rows.join('');
+  $('#timelineStatus').textContent=
+    orderedLayers.length
+      ? `Source + ${orderedLayers.length} layer${orderedLayers.length===1?'':'s'}`
+      : (state.source.type==='test'?'Source only':'Source loaded');
 
-  // Summary in timeline header.
-  const timelineHead=document.querySelector('.timeline-head > div:first-child');
-  if(timelineHead){
-    let summary=timelineHead.querySelector('.track-summary');
-    if(!summary){
-      summary=document.createElement('span');
-      summary.className='track-summary';
-      timelineHead.appendChild(summary);
-    }
-    summary.textContent=`1 SOURCE + ${orderedLayers.length} LAYER${orderedLayers.length===1?'':'S'}`;
-  }
-
-  // Selecting a row only selects that exact source/layer.
-  $$('[data-track]').forEach(r=>r.onclick=e=>{
-    if(e.target.closest('[data-track-visible]'))return;
-    const id=r.dataset.track;
-    if(id==='empty')return;
-    state.selectedLayer=id==='source'?null:id;
-    renderMultitrack();
-    if(id!=='source'){
-      renderLayers();
-      renderLayerInspector();
-    }
+  $$('[data-track]').forEach(row=>{
+    row.onclick=e=>{
+      if(e.target.closest('[data-track-visible]'))return;
+      const id=row.dataset.track;
+      state.selectedLayer=id==='source'?null:id;
+      renderMultitrack();
+      if(id!=='source'){
+        renderLayers();
+        renderLayerInspector();
+      }
+    };
   });
 
-  // Visibility only affects that single layer, never Source.
-  $$('[data-track-visible]').forEach(b=>b.onclick=e=>{
-    e.stopPropagation();
-    const id=b.dataset.trackVisible;
-    const l=state.layers.find(x=>x.id===id);
-    if(l){
+  $$('[data-track-visible]').forEach(btn=>{
+    btn.onclick=e=>{
+      e.stopPropagation();
+      const id=btn.dataset.trackVisible;
+      if(id==='source'){
+        toast('Source track remains visible');
+        return;
+      }
+      const l=state.layers.find(x=>x.id===id);
+      if(!l)return;
       snapshot();
       l.visible=!l.visible;
       renderMultitrack();
       renderLayers();
-    }
+    };
   });
 }
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push(state.synth.target==='source'?'Dither: Source':'Dither: Layer');if(state.shader.enabled)a.push(state.shader.target==='source'?'Shader: Source':'Shader: Layer');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader';const p=$('#fxStatusPill');if(p)p.innerHTML='FX: <b>'+(a.length?a.join(' + '):'NONE')+'</b>'}
 
-function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
+function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers'){renderLayers();renderMultitrack();}if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
 function closeModal(name){$('#'+name+'Modal')?.classList.remove('open')}
 $$('[data-open]').forEach(b=>b.onclick=()=>openModal(b.dataset.open));$$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 
 function openSheet(tool){
   $$('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
-
-  if(['layers','synth','shader','export'].includes(tool)){
-    const sheet=$('#sheet');
-    if(sheet)sheet.classList.remove('open');
-    openModal(tool);
-    return;
-  }
-
-  const sheet=$('#sheet');
-  const body=$('#sheetBody');
-  const title=$('#sheetTitle');
-  if(!sheet||!body||!title)return;
-
-  title.textContent=tool[0].toUpperCase()+tool.slice(1);
-  body.innerHTML='';
-
+  if(['layers','synth','shader','export'].includes(tool)){openModal(tool);return}
+  const sheet=$('#sheet'),body=$('#sheetBody');$('#sheetTitle').textContent=tool[0].toUpperCase()+tool.slice(1);body.innerHTML='';
   if(tool==='source'){
-    body.innerHTML=`
-      <div class="stack">
-        <button class="btn" id="mTest">Test Pattern</button>
-        <button class="btn" id="mImage">Load Photo</button>
-        <button class="btn accent" id="mVideo">Load Video</button>
-      </div>
-      <div class="source-card" style="margin-top:9px">
-        <b>${escapeHtml(state.source.name)}</b>
-        <small>${state.source.type.toUpperCase()}</small>
-      </div>`;
-    body.querySelector('#mTest').onclick=setSourceTest;
-    body.querySelector('#mImage').onclick=()=>$('#sourceImageInput').click();
-    body.querySelector('#mVideo').onclick=()=>$('#sourceVideoInput').click();
-
+    body.innerHTML=`<div class="stack"><button class="btn" id="mTest">Test Pattern</button><button class="btn" id="mImage">Load Photo</button><button class="btn accent" id="mVideo">Load Video</button></div><div class="source-card" style="margin-top:9px"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type.toUpperCase()}</small></div>`;
+    body.querySelector('#mTest').onclick=setSourceTest;body.querySelector('#mImage').onclick=()=>$('#sourceImageInput').click();body.querySelector('#mVideo').onclick=()=>$('#sourceVideoInput').click();
   }else if(tool==='edit'){
-    body.innerHTML=`
-      <div class="row">
-        <button class="btn grow" id="mSplit">Split</button>
-        <button class="btn grow" id="mTrim">Trim</button>
-        <button class="btn grow danger" id="mDelete">Delete</button>
-      </div>
-      <div class="source-card" style="margin-top:9px">
-        <b>${escapeHtml(state.source.name)}</b>
-        <small>${state.source.type==='video'?fmt(state.source.video?.duration||0):state.source.type.toUpperCase()}</small>
-      </div>`;
-    body.querySelector('#mSplit').onclick=()=>$('#splitBtn').click();
-    body.querySelector('#mTrim').onclick=()=>$('#trimBtn').click();
-    body.querySelector('#mDelete').onclick=()=>$('#deleteSourceBtn').click();
-
+    body.innerHTML=`<div class="row"><button class="btn grow" id="mSplit">Split</button><button class="btn grow" id="mTrim">Trim</button><button class="btn grow danger" id="mDelete">Delete</button></div><div class="source-card" style="margin-top:9px"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type==='video'?fmt(state.source.video?.duration||0):state.source.type.toUpperCase()}</small></div>`;
+    body.querySelector('#mSplit').onclick=()=>$('#splitBtn').click();body.querySelector('#mTrim').onclick=()=>$('#trimBtn').click();body.querySelector('#mDelete').onclick=()=>$('#deleteSourceBtn').click();
   }else if(tool==='effects'){
     body.innerHTML=quickDefs.map(d=>paramHTML(d[0],d[1],state.effects[d[1]],d[2],d[3],d[4])).join('');
-    body.querySelectorAll('[data-fx]').forEach(r=>{
-      r.oninput=()=>{
-        state.effects[r.dataset.fx]=+r.value;
-        r.previousElementSibling.querySelector('b').textContent=(+r.value).toFixed(+r.step<1?2:0);
-      };
-    });
+    body.querySelectorAll('[data-fx]').forEach(r=>r.oninput=()=>{state.effects[r.dataset.fx]=+r.value;r.previousElementSibling.querySelector('b').textContent=(+r.value).toFixed(+r.step<1?2:0)});
   }
-
-  sheet.classList.add('open');
+  sheet.style.display='block';requestAnimationFrame(()=>sheet.classList.add('open'))
 }
-
-$$('.tool').forEach(b=>{
-  b.onclick=null;
-  b.addEventListener('click',e=>{
-    e.preventDefault();
-    e.stopPropagation();
-    openSheet(b.dataset.tool);
-  });
-});
-
-$('#closeSheet').onclick=()=>{
-  const sheet=$('#sheet');
-  if(sheet)sheet.classList.remove('open');
-  $$('.tool').forEach(b=>b.classList.remove('active'));
-};};
+$$('.tool').forEach(b=>b.onclick=()=>openSheet(b.dataset.tool));
+$('#closeSheet').onclick=()=>{$('#sheet').classList.remove('open');setTimeout(()=>$('#sheet').style.display='none',220)};
 
 $('#exportNow').onclick=async()=>{
   const type=$('#exportType').value,res=$('#exportRes').value,q=+$('#exportQuality').value,fps=+$('#exportFps').value;
@@ -1398,21 +1271,13 @@ $('#exportNow').onclick=async()=>{
 window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjectURL(u)));
 </script>
 
-<script id="crtizer-bottom-sheet-fallback-js">
+<script id="crtizer-track-refresh-observer">
 (function(){
-  document.addEventListener('pointerup',e=>{
-    if(!window.matchMedia('(max-width:900px)').matches)return;
-    const tool=e.target.closest('.tool');
-    if(!tool)return;
-    const name=tool.dataset.tool;
-    if(!name)return;
-    if(['source','edit','effects'].includes(name)){
-      const sheet=document.getElementById('sheet');
-      if(sheet && !sheet.classList.contains('open')){
-        openSheet(name);
-      }
-    }
-  });
+  const list=document.getElementById('layersList');
+  if(list){
+    const mo=new MutationObserver(()=>requestAnimationFrame(()=>window.renderMultitrack?.()));
+    mo.observe(list,{childList:true,subtree:false});
+  }
 })();
 </script>
 
