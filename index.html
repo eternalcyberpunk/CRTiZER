@@ -770,7 +770,7 @@ function renderTimelineTracks(){
     type:state.source.type,
     url:state.source.url,
     meta:state.source.type==='video'
-      ? `${fmt(state.trimStart)} → ${fmt(state.trimEnd??state.source.video?.duration||0)}`
+      ? `${fmt(state.trimStart)} → ${fmt(state.trimEnd ?? (state.source.video?.duration || 0))}`
       : (state.source.type==='image'?'Still image':'Generator'),
     cls:''
   });
@@ -1061,7 +1061,7 @@ $('#exportNow').onclick=async()=>{
     if(!window.MediaRecorder||!stage.captureStream)return toast('WebM recording not supported here');
     const stream=stage.captureStream(fps),rec=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm'}),chunks=[];
     rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);rec.onstop=()=>{const blob=new Blob(chunks,{type:'video/webm'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crtizer.webm';a.click()};
-    rec.start();const v=state.source.video;if(v){v.currentTime=state.trimStart||0;v.play().catch(()=>{});setTimeout(()=>rec.stop(),Math.max(500,((state.trimEnd??v.duration)-state.trimStart)*1000))}else setTimeout(()=>rec.stop(),3000)
+    rec.start();const v=state.source.video;if(v){v.currentTime=state.trimStart||0;v.play().catch(()=>{});setTimeout(()=>rec.stop(),Math.max(500,((state.trimEnd ?? v.duration)-state.trimStart)*1000))}else setTimeout(()=>rec.stop(),3000)
   }
 }
 
