@@ -395,6 +395,58 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="irisseg-use-prompt-mobile-css">
+#irisSegPromptApply{
+  min-height:44px;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.04em;
+  touch-action:manipulation;
+}
+#irisSegPromptClear{
+  min-height:44px;
+  touch-action:manipulation;
+}
+.irisseg-prompt-text{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+  padding:7px 8px;
+  border:1px solid rgba(105,231,255,.12);
+  background:rgba(105,231,255,.035);
+  border-radius:7px;
+  font:6px ui-monospace;
+  color:#a9bcc3;
+  line-height:1.45;
+}
+.irisseg-prompt-text b{
+  color:var(--cyan);
+  flex:0 0 auto;
+}
+.irisseg-prompt-text span{
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+@media(max-width:900px){
+  #irisSegPromptApply{
+    min-height:50px;
+    font-size:14px;
+    border-radius:10px;
+  }
+  #irisSegPromptClear{
+    min-height:50px;
+    font-size:13px;
+    border-radius:10px;
+  }
+  .irisseg-prompt-text{
+    font-size:11px;
+    padding:9px 10px;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -2369,8 +2421,36 @@ function drawIrisSegFrame(){
   }
 }
 function renderIrisSegPoints(){
-  const box=$('#irisSegPointList');if(!box)return;
-  box.innerHTML=irisSeg.points.length?irisSeg.points.map((p,i)=>`<div class="irisseg-point"><span>POINT ${i+1}</span><b class="${p.label===1?'pos':'neg'}">${p.label===1?'INCLUDE':'EXCLUDE'}</b></div>`).join(''):'<div class="irisseg-status">No prompts yet.</div>';
+  const box=$('#irisSegPointList');
+  if(!box)return;
+
+  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
+  const session=irisSegSession(targetId);
+  const textPrompt=(session.prompt||'').trim();
+
+  const rows=[];
+
+  if(textPrompt){
+    rows.push(
+      `<div class="irisseg-prompt-text">
+        <b>TEXT</b>
+        <span>${escapeHtml(textPrompt)}</span>
+      </div>`
+    );
+  }
+
+  irisSeg.points.forEach((p,i)=>{
+    rows.push(
+      `<div class="irisseg-point">
+        <span>POINT ${i+1}</span>
+        <b class="${p.label===1?'pos':'neg'}">${p.label===1?'INCLUDE':'EXCLUDE'}</b>
+      </div>`
+    );
+  });
+
+  box.innerHTML=rows.length
+    ? rows.join('')
+    : '<div class="irisseg-status">No prompts yet.</div>';
 }
 function irisSegSetMode(mode){
   irisSeg.mode=mode;
@@ -2561,7 +2641,12 @@ function syncIrisSegPrompt(){
   const session=irisSegSession(targetId);
   session.prompt=field.value;
 }
-$('#irisSegPrompt')?.addEventListener('input',syncIrisSegPrompt);
+$('#irisSegPrompt')?.addEventListener('input',()=>{
+  syncIrisSegPrompt();
+  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
+  const session=irisSegSession(targetId);
+  if(session.prompt)renderIrisSegPoints();
+});
 $('#irisSegPrompt')?.addEventListener('change',syncIrisSegPrompt);
 $('#irisSegPrompt')?.addEventListener('focus',e=>{
   e.stopPropagation();
@@ -2576,22 +2661,53 @@ $('#irisSegPrompt')?.addEventListener('touchstart',e=>e.stopPropagation(),{passi
 $('#irisSegPromptClear')?.addEventListener('click',()=>{
   const field=$('#irisSegPrompt');
   if(!field)return;
+
   field.value='';
   syncIrisSegPrompt();
+
+  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
+  irisSegSession(targetId).prompt='';
+
+  renderIrisSegPoints();
   field.focus();
 });
 $('#irisSegPromptApply')?.addEventListener('click',()=>{
   syncIrisSegPrompt();
-  const prompt=$('#irisSegPrompt')?.value?.trim()||'';
+
+  const field=$('#irisSegPrompt');
+  const prompt=field?.value?.trim()||'';
+
   if(!prompt){
     setIrisSegConnection(irisSeg.connected?'online':'offline','Enter a prompt first.');
-    $('#irisSegPrompt')?.focus();
+    field?.focus();
     return;
   }
+
+  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
+  const session=irisSegSession(targetId);
+  session.prompt=prompt;
+
+  renderIrisSegPoints();
+
   setIrisSegConnection(
     irisSeg.connected?'online':'offline',
-    `IrisReg prompt saved: "${prompt.slice(0,80)}${prompt.length>80?'…':''}"`
+    `IrisReg text prompt active: "${prompt.slice(0,80)}${prompt.length>80?'…':''}"`
   );
+
+  // Mobile UX: dismiss keyboard after the explicit action.
+  field?.blur();
+
+  // Brief visual confirmation on the button.
+  const btn=$('#irisSegPromptApply');
+  if(btn){
+    const old=btn.textContent;
+    btn.textContent='Prompt Added';
+    btn.classList.add('accent');
+    setTimeout(()=>{
+      btn.textContent=old;
+      btn.classList.remove('accent');
+    },900);
+  }
 });
 $('#irisSegTarget')?.addEventListener('change',()=>{
   state.roto.activeTarget=$('#irisSegTarget').value;
