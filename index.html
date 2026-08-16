@@ -429,6 +429,171 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="crtizer-mobile-timeline-scrollbox">
+@media(max-width:900px){
+  .timeline{
+    height:154px!important;
+    min-height:154px!important;
+    overflow:hidden!important;
+    display:grid!important;
+    grid-template-rows:30px 1fr!important;
+    background:#07090c!important;
+  }
+
+  .timeline-head{
+    height:30px!important;
+    min-height:30px!important;
+    padding:0 6px!important;
+    overflow:hidden!important;
+  }
+
+  .timeline-body{
+    height:124px!important;
+    max-height:124px!important;
+    min-height:0!important;
+    overflow:auto!important;
+    -webkit-overflow-scrolling:touch!important;
+    overscroll-behavior:contain!important;
+    scrollbar-width:thin!important;
+    padding:7px!important;
+    position:relative!important;
+    background:#06080b!important;
+  }
+
+  .multitrack{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:6px!important;
+    width:max-content!important;
+    min-width:100%!important;
+    padding-right:8px!important;
+  }
+
+  .track-row{
+    display:grid!important;
+    grid-template-columns:82px 460px!important;
+    gap:6px!important;
+    min-height:44px!important;
+    width:max-content!important;
+    align-items:center!important;
+  }
+
+  .track-dock{
+    position:sticky!important;
+    left:0!important;
+    z-index:30!important;
+    height:44px!important;
+    min-width:82px!important;
+    max-width:82px!important;
+    padding:5px 6px!important;
+    background:#0b0e12!important;
+    box-shadow:7px 0 12px rgba(5,6,8,.72)!important;
+    border-radius:8px!important;
+  }
+
+  .track-dock-main b{
+    font-size:6.5px!important;
+  }
+
+  .track-dock-main small{
+    font-size:5px!important;
+  }
+
+  .track-dock button{
+    width:22px!important;
+    height:22px!important;
+    flex:0 0 22px!important;
+  }
+
+  .track-lane{
+    width:460px!important;
+    min-width:460px!important;
+    height:44px!important;
+    position:relative!important;
+    overflow:hidden!important;
+  }
+
+  .track-clip{
+    top:4px!important;
+    bottom:4px!important;
+    left:5px!important;
+    right:5px!important;
+    min-width:0!important;
+  }
+
+  .track-clip-thumb{
+    width:42px!important;
+    height:28px!important;
+  }
+
+  .track-clip-info b{
+    font-size:6.5px!important;
+  }
+
+  .track-clip-info small{
+    font-size:5px!important;
+  }
+
+  /* Give the user a clear swipe affordance */
+  .timeline-body:after{
+    content:"SWIPE TIMELINE ↔";
+    position:sticky;
+    left:8px;
+    bottom:2px;
+    display:block;
+    width:max-content;
+    margin-top:3px;
+    padding:2px 5px;
+    border-radius:5px;
+    background:rgba(5,7,10,.78);
+    color:#596970;
+    font:5px ui-monospace,monospace;
+    pointer-events:none;
+  }
+
+  .timeline-body::-webkit-scrollbar{
+    height:5px!important;
+    width:5px!important;
+  }
+
+  .timeline-body::-webkit-scrollbar-thumb{
+    background:#26343b!important;
+    border-radius:999px!important;
+  }
+
+  .timeline-body::-webkit-scrollbar-track{
+    background:transparent!important;
+  }
+}
+
+@media(max-width:430px){
+  .timeline{
+    height:148px!important;
+    min-height:148px!important;
+  }
+
+  .timeline-body{
+    height:118px!important;
+    max-height:118px!important;
+  }
+
+  .track-row{
+    grid-template-columns:76px 420px!important;
+  }
+
+  .track-dock{
+    min-width:76px!important;
+    max-width:76px!important;
+  }
+
+  .track-lane{
+    width:420px!important;
+    min-width:420px!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1366,6 +1531,63 @@ window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjec
 
   // Force initial UI into a consistent state.
   try{ window.renderMultitrack?.(); }catch(e){}
+})();
+</script>
+
+
+<script id="crtizer-mobile-timeline-scrollbox-js">
+(function(){
+  const body=document.querySelector('.timeline-body');
+  const box=document.getElementById('multitrack');
+
+  if(!body||!box)return;
+
+  // Preserve horizontal scroll while tracks are re-rendered.
+  let lastLeft=0,lastTop=0;
+  body.addEventListener('scroll',()=>{
+    lastLeft=body.scrollLeft;
+    lastTop=body.scrollTop;
+  },{passive:true});
+
+  const observer=new MutationObserver(()=>{
+    requestAnimationFrame(()=>{
+      body.scrollLeft=lastLeft;
+      body.scrollTop=lastTop;
+    });
+  });
+  observer.observe(box,{childList:true,subtree:true});
+
+  // Drag-to-scroll for touch/pointer without stealing button taps.
+  let dragging=false,startX=0,startY=0,startLeft=0,startTop=0;
+
+  body.addEventListener('pointerdown',e=>{
+    if(e.target.closest('button,input,.track-clip'))return;
+    dragging=true;
+    startX=e.clientX;
+    startY=e.clientY;
+    startLeft=body.scrollLeft;
+    startTop=body.scrollTop;
+    body.setPointerCapture?.(e.pointerId);
+  });
+
+  body.addEventListener('pointermove',e=>{
+    if(!dragging)return;
+    const dx=e.clientX-startX;
+    const dy=e.clientY-startY;
+    body.scrollLeft=startLeft-dx;
+    body.scrollTop=startTop-dy;
+  });
+
+  const stop=e=>{
+    dragging=false;
+    if(e?.pointerId!=null)body.releasePointerCapture?.(e.pointerId);
+  };
+  body.addEventListener('pointerup',stop);
+  body.addEventListener('pointercancel',stop);
+
+  window.CRTIZER_TIMELINE_SCROLLBOX={
+    scrollToStart(){body.scrollTo({left:0,behavior:'smooth'});}
+  };
 })();
 </script>
 
