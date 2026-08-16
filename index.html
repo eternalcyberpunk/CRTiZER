@@ -182,6 +182,33 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
   .track{height:46px}
   .tool{height:41px}
 }
+
+/* Full ShaderGlass-scale library */
+.shader-library-toolbar{display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:7px}
+.shader-library-toolbar input{width:100%;min-width:0;height:34px;border:1px solid var(--line);background:#0d1014;color:#fff;border-radius:8px;padding:0 9px}
+.shader-count{min-width:66px;height:34px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:#0d1014;border-radius:8px;font:6px ui-monospace;color:var(--muted)}
+.shader-categories{display:flex;gap:5px;overflow-x:auto;padding-bottom:7px;scrollbar-width:none}
+.shader-categories::-webkit-scrollbar{display:none}
+.shader-chip{flex:0 0 auto;min-height:27px;padding:0 8px;border:1px solid var(--line);background:#0d1014;color:#75858c;border-radius:999px;font:6px ui-sans-serif}
+.shader-chip.active{color:var(--cyan);border-color:rgba(105,231,255,.3);background:rgba(105,231,255,.05)}
+.shader-virtual-list{height:calc(100% - 80px);min-height:240px;overflow:auto;position:relative;border-top:1px solid rgba(255,255,255,.035);scrollbar-width:thin}
+.shader-row{height:48px;display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center;padding:6px 7px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
+.shader-row:hover{background:rgba(255,255,255,.02)}
+.shader-row.active{background:rgba(105,231,255,.055);box-shadow:inset 2px 0 0 var(--cyan)}
+.shader-row b{display:block;font-size:7.5px;color:#dbe5e8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shader-row small{display:block;margin-top:2px;font:5.5px ui-monospace;color:#65747b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shader-fav{width:28px;height:28px;border:0;background:transparent;color:#56666d;border-radius:6px}
+.shader-fav.on{color:#ffd66b}
+.shader-sync-row{display:flex;gap:6px;margin:8px 0}
+.shader-sync-status{font:6px ui-monospace;color:#66767d;line-height:1.5}
+.shader-detail-path{font:6px ui-monospace;color:#65747b;word-break:break-all;margin-top:5px}
+@media(max-width:900px){
+  .shader-layout{grid-template-rows:46% 54%}
+  .shader-library-toolbar{grid-template-columns:1fr 60px}
+  .shader-virtual-list{height:calc(100% - 76px);min-height:0}
+  .shader-row{height:46px}
+}
+
 </style>
 </head>
 <body>
@@ -351,12 +378,21 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
     <div class="modal-body">
       <div class="shader-layout">
         <aside class="library">
-          <input id="shaderSearch" placeholder="Search shaders" style="width:100%;height:34px;border:1px solid var(--line);background:#0d1014;color:#fff;border-radius:8px;padding:0 9px;margin-bottom:8px">
-          <div class="preset-grid" id="shaderList"></div>
+          <div class="shader-library-toolbar">
+            <input id="shaderSearch" type="search" placeholder="Search 1200+ shaders…">
+            <div class="shader-count" id="shaderCount">6 LOCAL</div>
+          </div>
+          <div class="shader-categories" id="shaderCategories"></div>
+          <div class="shader-virtual-list" id="shaderList"></div>
         </aside>
         <section class="workpane">
           <canvas class="effect-preview" id="shaderPreview" width="960" height="540"></canvas>
-          <div class="source-card"><b id="shaderName">CRT Classic</b><small id="shaderDesc">Scanlines, glow and RGB separation</small></div>
+          <div class="source-card"><b id="shaderName">CRT Classic</b><small id="shaderDesc">Scanlines, glow and RGB separation</small><div class="shader-detail-path" id="shaderPath">built-in/classic</div></div>
+          <div class="shader-sync-row">
+            <button class="btn grow" id="syncShaderLibrary">Sync Full Library</button>
+            <button class="btn" id="shaderFavoritesBtn">★ Favorites</button>
+          </div>
+          <div class="shader-sync-status" id="shaderSyncStatus">Local fallback library ready. Full catalog loads from the upstream libretro preset tree when online.</div>
           <div id="shaderParams" style="margin-top:8px"></div>
           <div class="row" style="margin-top:10px">
             <button class="btn accent grow" id="applyShader">Apply Shader</button>
@@ -664,32 +700,106 @@ $('#color1').oninput=e=>state.synth.color1=e.target.value;$('#color2').oninput=e
 $('#applySynth').onclick=()=>{state.synth.enabled=true;state.synth.target=$('#synthTarget').value;updateFxLabel();toast('Dither applied')}
 $('#removeSynth').onclick=()=>{state.synth.enabled=false;updateFxLabel();toast('Dither removed')}
 
-const shaders=[
- {id:'classic',name:'CRT Classic',desc:'Balanced scanlines and glow',v:{scanlines:.28,glow:.18,rgbShift:1.5,curve:.08,noise:.02}},
- {id:'royale',name:'CRT Royale',desc:'Dense aperture-style presentation',v:{scanlines:.38,glow:.12,rgbShift:1.2,curve:.12,noise:.015}},
- {id:'geom',name:'CRT Geom',desc:'Curved monitor feel',v:{scanlines:.3,glow:.14,rgbShift:2,curve:.18,noise:.02}},
- {id:'vhs',name:'VHS Signal',desc:'Noise and RGB offset',v:{scanlines:.16,glow:.08,rgbShift:4,curve:.03,noise:.08}},
- {id:'lcd',name:'LCD Grid',desc:'Sharper low-glow display',v:{scanlines:.1,glow:.02,rgbShift:.4,curve:0,noise:0}},
- {id:'arcade',name:'Arcade Glow',desc:'Bright bloom and scanlines',v:{scanlines:.32,glow:.28,rgbShift:1.8,curve:.1,noise:.01}}
+const localShaders=[
+ {id:'classic',name:'CRT Classic',desc:'Balanced scanlines and glow',path:'built-in/classic',category:'crt',v:{scanlines:.28,glow:.18,rgbShift:1.5,curve:.08,noise:.02}},
+ {id:'royale',name:'CRT Royale',desc:'Dense aperture-style presentation',path:'crt/crt-royale.slangp',category:'crt',v:{scanlines:.38,glow:.12,rgbShift:1.2,curve:.12,noise:.015}},
+ {id:'geom',name:'CRT Geom',desc:'Curved monitor feel',path:'crt/crt-geom.slangp',category:'crt',v:{scanlines:.3,glow:.14,rgbShift:2,curve:.18,noise:.02}},
+ {id:'vhs',name:'VHS Signal',desc:'Noise and RGB offset',path:'vhs/',category:'vhs',v:{scanlines:.16,glow:.08,rgbShift:4,curve:.03,noise:.08}},
+ {id:'lcd',name:'LCD Grid',desc:'Sharper low-glow display',path:'handheld/',category:'handheld',v:{scanlines:.1,glow:.02,rgbShift:.4,curve:0,noise:0}},
+ {id:'arcade',name:'Arcade Glow',desc:'Bright bloom and scanlines',path:'built-in/arcade',category:'crt',v:{scanlines:.32,glow:.28,rgbShift:1.8,curve:.1,noise:.01}}
 ];
-let shaderSelected='classic';
-function selectShader(id){
-  shaderSelected=id;const s=shaders.find(x=>x.id===id);Object.assign(state.shader,s.v,{id});$('#shaderName').textContent=s.name;$('#shaderDesc').textContent=s.desc;renderShaders()
+let shaderCatalog=[...localShaders], shaderSelected='classic', shaderCategory='all', shaderFavorites=new Set(JSON.parse(localStorage.getItem('crtizer_shader_favs')||'[]')), favoritesOnly=false;
+
+function shaderCategoryOf(path){
+  const p=(path||'').toLowerCase();
+  const first=p.split('/')[0]||'other';
+  const map={'anti-aliasing':'anti-alias','blurs':'blur','denoisers':'denoise','deinterlacing':'deinterlace','scanlines':'scanline','sharpen':'sharpen','vhs':'vhs','crt':'crt','handheld':'handheld','presets':'presets','bezel':'bezel','border':'border','warp':'warp','cel':'cel','deblur':'deblur','reshade':'reshade','anamorphic':'anamorphic','stereoscopic-3d':'3d'};
+  return map[first]||first.replace(/[^a-z0-9-]/g,'')||'other'
+}
+function prettifyShader(path){
+  const base=path.split('/').pop().replace(/\.slangp$/i,'');
+  return base.replace(/[-_]+/g,' ').replace(/\b\w/g,m=>m.toUpperCase())
+}
+function catalogFxFor(path){
+  const p=path.toLowerCase();
+  if(p.includes('vhs')||p.includes('ntsc'))return {scanlines:.16,glow:.08,rgbShift:4,curve:.03,noise:.08};
+  if(p.includes('lcd')||p.includes('handheld'))return {scanlines:.1,glow:.02,rgbShift:.4,curve:0,noise:.005};
+  if(p.includes('blur')||p.includes('soft'))return {scanlines:0,glow:.12,rgbShift:0,curve:0,noise:0};
+  if(p.includes('sharpen')||p.includes('xbr')||p.includes('scale'))return {scanlines:0,glow:0,rgbShift:.2,curve:0,noise:0};
+  if(p.includes('crt'))return {scanlines:.32,glow:.16,rgbShift:1.6,curve:.1,noise:.015};
+  return {scanlines:.08,glow:.04,rgbShift:.4,curve:.02,noise:.01};
+}
+function renderShaderCategories(){
+  const cats=['all',...new Set(shaderCatalog.map(s=>s.category))].sort((a,b)=>a==='all'?-1:a.localeCompare(b));
+  $('#shaderCategories').innerHTML=cats.map(c=>`<button class="shader-chip ${shaderCategory===c?'active':''}" data-cat="${c}">${c==='all'?'All':c.replace(/-/g,' ')}</button>`).join('');
+  $$('[data-cat]').forEach(b=>b.onclick=()=>{shaderCategory=b.dataset.cat;renderShaders($('#shaderSearch').value)})
+}
+function filteredShaders(filter=''){
+  const q=filter.trim().toLowerCase();
+  return shaderCatalog.filter(s=>{
+    if(shaderCategory!=='all'&&s.category!==shaderCategory)return false;
+    if(favoritesOnly&&!shaderFavorites.has(s.id))return false;
+    return !q||(s.name+' '+s.path+' '+s.category).toLowerCase().includes(q)
+  })
 }
 function renderShaders(filter=''){
-  $('#shaderList').innerHTML=shaders.filter(s=>(s.name+' '+s.desc).toLowerCase().includes(filter.toLowerCase())).map(s=>`<button class="preset-card ${shaderSelected===s.id?'active':''}" data-sh="${s.id}"><b>${s.name}</b><small>${s.desc}</small></button>`).join('');
-  $$('[data-sh]').forEach(b=>b.onclick=()=>selectShader(b.dataset.sh));
+  const list=filteredShaders(filter);
+  $('#shaderCount').textContent=list.length+' / '+shaderCatalog.length;
+  $('#shaderList').innerHTML=list.map(s=>`<div class="shader-row ${shaderSelected===s.id?'active':''}" data-sh="${s.id}">
+    <div><b>${escapeHtml(s.name)}</b><small>${escapeHtml(s.category.toUpperCase())} • ${escapeHtml(s.path)}</small></div>
+    <button class="shader-fav ${shaderFavorites.has(s.id)?'on':''}" data-fav="${s.id}">${shaderFavorites.has(s.id)?'★':'☆'}</button>
+  </div>`).join('');
+  $$('[data-sh]').forEach(row=>row.onclick=e=>{if(e.target.closest('[data-fav]'))return;selectShader(row.dataset.sh)});
+  $$('[data-fav]').forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.fav;shaderFavorites.has(id)?shaderFavorites.delete(id):shaderFavorites.add(id);localStorage.setItem('crtizer_shader_favs',JSON.stringify([...shaderFavorites]));renderShaders($('#shaderSearch').value)});
+  renderShaderCategories();
+}
+function selectShader(id){
+  shaderSelected=id;const s=shaderCatalog.find(x=>x.id===id);if(!s)return;
+  Object.assign(state.shader,s.v,{id});
+  $('#shaderName').textContent=s.name;$('#shaderDesc').textContent=s.desc||('Shader preset • '+s.category);$('#shaderPath').textContent=s.path;
+  renderShaders($('#shaderSearch').value);renderShaderParams()
+}
+function renderShaderParams(){
   const defs=[['Scanlines','scanlines',0,.7,.01],['Glow','glow',0,.5,.01],['RGB Shift','rgbShift',0,8,.1],['Curve','curve',0,.3,.01],['Noise','noise',0,.15,.005]];
   $('#shaderParams').innerHTML=defs.map(d=>paramHTML(d[0],d[1],state.shader[d[1]],d[2],d[3],d[4],'data-shader-param')).join('');
   $$('[data-shader-param]').forEach(r=>r.oninput=()=>{state.shader[r.dataset.shaderParam]=+r.value;r.previousElementSibling.querySelector('b').textContent=(+r.value).toFixed(+r.step<1?2:0)})
 }
-renderShaders();
+async function syncShaderCatalog(){
+  const status=$('#shaderSyncStatus'),btn=$('#syncShaderLibrary');btn.disabled=true;status.textContent='Syncing upstream .slangp preset catalog…';
+  try{
+    const res=await fetch('https://api.github.com/repos/libretro/slang-shaders/git/trees/master?recursive=1',{headers:{'Accept':'application/vnd.github+json'}});
+    if(!res.ok)throw new Error('GitHub '+res.status);
+    const data=await res.json();
+    const presets=(data.tree||[]).filter(x=>x.type==='blob'&&/\.slangp$/i.test(x.path)).map(x=>({
+      id:'libretro:'+x.path,
+      name:prettifyShader(x.path),
+      desc:'RetroArch Slang preset',
+      path:x.path,
+      category:shaderCategoryOf(x.path),
+      v:catalogFxFor(x.path)
+    }));
+    const dedupe=new Map([...localShaders,...presets].map(s=>[s.id,s]));
+    shaderCatalog=[...dedupe.values()];
+    localStorage.setItem('crtizer_shader_manifest',JSON.stringify(shaderCatalog.map(({id,name,desc,path,category,v})=>({id,name,desc,path,category,v}))));
+    status.textContent=`Full catalog synced: ${presets.length} .slangp presets available.`;
+    renderShaders($('#shaderSearch').value)
+  }catch(err){
+    status.textContent='Full sync unavailable. Using cached/local shader catalog.';
+    const cached=JSON.parse(localStorage.getItem('crtizer_shader_manifest')||'null');
+    if(Array.isArray(cached)&&cached.length){shaderCatalog=cached;renderShaders($('#shaderSearch').value)}
+  }finally{btn.disabled=false}
+}
+const cachedManifest=JSON.parse(localStorage.getItem('crtizer_shader_manifest')||'null');
+if(Array.isArray(cachedManifest)&&cachedManifest.length)shaderCatalog=cachedManifest;
+renderShaders();renderShaderParams();renderShaderCategories();
 $('#shaderSearch').oninput=e=>renderShaders(e.target.value);
+$('#syncShaderLibrary').onclick=syncShaderCatalog;
+$('#shaderFavoritesBtn').onclick=e=>{favoritesOnly=!favoritesOnly;e.currentTarget.classList.toggle('accent',favoritesOnly);renderShaders($('#shaderSearch').value)};
 $('#applyShader').onclick=()=>{state.shader.enabled=true;state.shader.id=shaderSelected;updateFxLabel();toast('Shader applied')}
 $('#removeShader').onclick=()=>{state.shader.enabled=false;updateFxLabel();toast('Shader removed')}
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push('Dither');if(state.shader.enabled)a.push('Shader');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader'}
 
-function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader')renderShaders()}
+function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){renderShaders();if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
 function closeModal(name){$('#'+name+'Modal')?.classList.remove('open')}
 $$('[data-open]').forEach(b=>b.onclick=()=>openModal(b.dataset.open));$$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 
