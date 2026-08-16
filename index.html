@@ -519,6 +519,28 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
 }
 </style>
 
+
+<style id="crtizer-unified-source-css">
+#mainSourceImage,#mainSourceVideo,#mainSynthOutput{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:0;
+}
+#mainSynthOutput{pointer-events:none}
+.live-layer-preview .live-screen-clone{
+  position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#020305;
+}
+.synth-target-row{
+  display:flex;gap:7px;margin-bottom:10px;align-items:center;flex-wrap:wrap
+}
+.synth-target-btn{
+  border:1px solid var(--line);background:#080b10;color:var(--muted);
+  padding:7px 10px;font:8px ui-monospace,monospace;cursor:pointer
+}
+.synth-target-btn.active{color:var(--cyan);border-color:rgba(101,231,255,.42);background:rgba(101,231,255,.06)}
+.synth-target-label{font:8px ui-monospace,monospace;color:#7f929b;margin-right:auto}
+.synth-apply-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0}
+.synth-apply-row .btn{font-size:8px}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -596,6 +618,9 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
         <div class="screenFrame">
           <div class="screen" id="screen">
             <div class="visual" id="visual">
+              <video id="mainSourceVideo" playsinline muted loop></video>
+              <img id="mainSourceImage" alt="">
+              <canvas id="mainSynthOutput" width="640" height="360"></canvas>
               <div class="cityGrid"></div>
               <div class="sun"></div>
               <div class="tower"></div>
@@ -758,6 +783,18 @@ void main() {
             <div class="synth-overlay-label">LIVE SYNTH OUTPUT</div>
           </div>
 
+          <div class="synth-target-row">
+            <span class="synth-target-label">DITHER TARGET</span>
+            <button class="synth-target-btn active" id="synthTargetSource">SOURCE</button>
+            <button class="synth-target-btn" id="synthTargetPhoto">PHOTO</button>
+            <button class="synth-target-btn" id="synthLoadPhoto">LOAD PHOTO</button>
+            <input type="file" id="synthPhotoInput" accept="image/*" hidden>
+          </div>
+          <div class="synth-apply-row">
+            <button class="btn accent" id="applySynthToOutput">APPLY TO OUTPUT</button>
+            <button class="btn" id="removeSynthFromOutput">REMOVE FROM OUTPUT</button>
+          </div>
+
           <div class="synth-switch">
             <span style="font:8px ui-monospace,monospace;color:#a9bbc3">SYNTH ENABLED</span>
             <div class="toggle on" id="synthToggle"></div>
@@ -799,7 +836,7 @@ void main() {
 <img id="sourceImage" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0">
 
             <div class="live-layer-preview-label">LIVE COMPOSITION</div>
-            <iframe id="liveLayerFrame" title="Live CRTiZER composition preview"></iframe>
+            <div class="live-screen-clone" id="liveLayerClone"></div>
           </div>
           <div class="video-controls" id="videoControls">
             <button class="media-btn" id="videoPlayBtn">PLAY</button>
@@ -1595,6 +1632,28 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
 }
 </style>
 
+
+<style id="crtizer-unified-source-css">
+#mainSourceImage,#mainSourceVideo,#mainSynthOutput{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;z-index:0;
+}
+#mainSynthOutput{pointer-events:none}
+.live-layer-preview .live-screen-clone{
+  position:absolute;inset:0;width:100%;height:100%;overflow:hidden;background:#020305;
+}
+.synth-target-row{
+  display:flex;gap:7px;margin-bottom:10px;align-items:center;flex-wrap:wrap
+}
+.synth-target-btn{
+  border:1px solid var(--line);background:#080b10;color:var(--muted);
+  padding:7px 10px;font:8px ui-monospace,monospace;cursor:pointer
+}
+.synth-target-btn.active{color:var(--cyan);border-color:rgba(101,231,255,.42);background:rgba(101,231,255,.06)}
+.synth-target-label{font:8px ui-monospace,monospace;color:#7f929b;margin-right:auto}
+.synth-apply-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0}
+.synth-apply-row .btn{font-size:8px}
+</style>
+
 </head><body>
 <script id="crtizer-synth-media-layers-js">
 (function(){
@@ -1889,6 +1948,353 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
   },400);
 
   window.CRTIZER_SYNTH={state:synthState,render:renderSynthFrame,punkDitherImageData};
+})();
+</script>
+
+
+<script id="crtizer-unified-source-js">
+(function(){
+  const visual=document.getElementById('visual');
+  const screen=document.getElementById('screen');
+
+  const mainImg=document.getElementById('mainSourceImage');
+  const mainVid=document.getElementById('mainSourceVideo');
+  const mainSynth=document.getElementById('mainSynthOutput');
+
+  const layerImg=document.getElementById('sourceImage');
+  const layerVid=document.getElementById('sourceVideo');
+
+  const liveClone=document.getElementById('liveLayerClone');
+
+  const synthCanvas=document.getElementById('synthCanvas');
+  const synthCtx=synthCanvas?.getContext('2d',{willReadFrequently:true});
+  const synthPhotoInput=document.getElementById('synthPhotoInput');
+  const synthTargetSource=document.getElementById('synthTargetSource');
+  const synthTargetPhoto=document.getElementById('synthTargetPhoto');
+  const synthLoadPhoto=document.getElementById('synthLoadPhoto');
+  const applySynthBtn=document.getElementById('applySynthToOutput');
+  const removeSynthBtn=document.getElementById('removeSynthFromOutput');
+
+  let activeSourceType='test';
+  let activeSourceURL='';
+  let activeSourceName='TEST PATTERN';
+  let synthTarget='source';
+  let synthPhoto=null;
+  let synthPhotoURL='';
+  let synthApplied=false;
+  let lastLayerClone=0;
+
+  function setMediaDisplay(type){
+    mainImg.style.display=type==='image'?'block':'none';
+    mainVid.style.display=type==='video'?'block':'none';
+    if(layerImg) layerImg.style.display=type==='image'?'block':'none';
+    if(layerVid) layerVid.style.display=type==='video'?'block':'none';
+
+    // Hide default decorative source only when actual media is active.
+    const decorative=visual.querySelectorAll('.cityGrid,.sun,.tower,.horizon');
+    decorative.forEach(el=>el.style.display=(type==='image'||type==='video')?'none':'');
+  }
+
+  function syncLegacyMedia(type,url){
+    if(type==='image' && layerImg){
+      layerImg.src=url;
+      layerImg.style.display='block';
+      if(layerVid){layerVid.pause();layerVid.style.display='none';}
+    }
+    if(type==='video' && layerVid){
+      layerVid.src=url;
+      layerVid.style.display='block';
+      layerVid.muted=true;layerVid.loop=true;layerVid.playsInline=true;
+      layerVid.play().catch(()=>{});
+      if(layerImg)layerImg.style.display='none';
+    }
+  }
+
+  function setImageSource(fileOrUrl,name){
+    let url=fileOrUrl;
+    if(fileOrUrl instanceof File) url=URL.createObjectURL(fileOrUrl);
+    activeSourceType='image';activeSourceURL=url;activeSourceName=name||'IMAGE SOURCE';
+
+    mainVid.pause();mainVid.removeAttribute('src');mainVid.load();
+    mainImg.src=url;
+    setMediaDisplay('image');
+    syncLegacyMedia('image',url);
+
+    const mediaName=document.getElementById('mediaName');
+    if(mediaName)mediaName.textContent=activeSourceName;
+    setTimeout(()=>{ rebuildLayerPreview(true); refreshSynth(); },50);
+  }
+
+  function setVideoSource(fileOrUrl,name){
+    let url=fileOrUrl;
+    if(fileOrUrl instanceof File) url=URL.createObjectURL(fileOrUrl);
+    activeSourceType='video';activeSourceURL=url;activeSourceName=name||'VIDEO SOURCE';
+
+    mainImg.removeAttribute('src');
+    mainVid.src=url;mainVid.muted=true;mainVid.loop=true;mainVid.playsInline=true;
+    setMediaDisplay('video');
+    syncLegacyMedia('video',url);
+    mainVid.play().catch(()=>{});
+
+    const mediaName=document.getElementById('mediaName');
+    if(mediaName)mediaName.textContent=activeSourceName;
+    setTimeout(()=>{ rebuildLayerPreview(true); refreshSynth(); },80);
+  }
+
+  function setTestPattern(){
+    activeSourceType='test';activeSourceURL='';activeSourceName='TEST PATTERN';
+    mainVid.pause();mainVid.removeAttribute('src');mainVid.load();
+    mainImg.removeAttribute('src');setMediaDisplay('test');
+    if(layerVid){layerVid.pause();layerVid.style.display='none';}
+    if(layerImg)layerImg.style.display='none';
+    const mediaName=document.getElementById('mediaName');
+    if(mediaName)mediaName.textContent='TEST PATTERN';
+    rebuildLayerPreview(true);refreshSynth();
+  }
+
+  // Override/extend all existing image loaders so every UI entry point feeds the SAME source.
+  const oldImageInput=document.getElementById('imageInput');
+  if(oldImageInput){
+    oldImageInput.addEventListener('change',e=>{
+      const f=e.target.files?.[0]; if(!f)return;
+      e.stopImmediatePropagation();
+      setImageSource(f,f.name);
+      if(window.showToast)showToast('IMAGE SOURCE LOADED // '+f.name.toUpperCase());
+    },true);
+  }
+
+  const layerImageInput=document.getElementById('imageFileInput');
+  if(layerImageInput){
+    layerImageInput.addEventListener('change',e=>{
+      const f=e.target.files?.[0]; if(!f)return;
+      setImageSource(f,f.name);
+    },true);
+  }
+
+  const layerVideoInput=document.getElementById('videoFileInput');
+  if(layerVideoInput){
+    layerVideoInput.addEventListener('change',e=>{
+      const f=e.target.files?.[0]; if(!f)return;
+      setVideoSource(f,f.name);
+    },true);
+  }
+
+  document.getElementById('layerClearMediaBtn')?.addEventListener('click',()=>{
+    setTestPattern();
+  },true);
+
+  // Keep controls/playhead unified with the MAIN video.
+  document.getElementById('videoPlayBtn')?.addEventListener('click',e=>{
+    if(activeSourceType!=='video')return;
+    e.stopImmediatePropagation();
+    if(mainVid.paused){mainVid.play().catch(()=>{});layerVid?.play().catch(()=>{});}
+    else{mainVid.pause();layerVid?.pause();}
+  },true);
+
+  const videoSeek=document.getElementById('videoSeek');
+  const videoTime=document.getElementById('videoTime');
+  function fmt(t){
+    if(!isFinite(t))return'00:00';
+    const m=Math.floor(t/60),s=Math.floor(t%60);
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  mainVid.addEventListener('timeupdate',()=>{
+    if(mainVid.duration&&videoSeek){
+      videoSeek.value=Math.round(mainVid.currentTime/mainVid.duration*1000);
+      if(videoTime)videoTime.textContent=fmt(mainVid.currentTime)+' / '+fmt(mainVid.duration);
+      if(layerVid && Math.abs((layerVid.currentTime||0)-mainVid.currentTime)>.18){
+        try{layerVid.currentTime=mainVid.currentTime}catch(e){}
+      }
+    }
+  });
+  mainVid.addEventListener('play',()=>{const b=document.getElementById('videoPlayBtn');if(b)b.textContent='PAUSE';});
+  mainVid.addEventListener('pause',()=>{const b=document.getElementById('videoPlayBtn');if(b)b.textContent='PLAY';});
+  videoSeek?.addEventListener('input',e=>{
+    if(activeSourceType!=='video'||!mainVid.duration)return;
+    e.stopImmediatePropagation();
+    const t=(+videoSeek.value/1000)*mainVid.duration;
+    mainVid.currentTime=t;if(layerVid)layerVid.currentTime=t;
+  },true);
+
+  // Live Layers preview now clones the ACTUAL screen, including current source and FX styles.
+  function cloneScreen(){
+    if(!liveClone||!screen)return;
+    const clone=screen.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
+    clone.style.width='100%';clone.style.height='100%';
+    clone.style.position='absolute';clone.style.inset='0';
+    clone.style.transform='none';clone.style.margin='0';
+
+    const cv=clone.querySelector('video');
+    const ci=clone.querySelector('img');
+    const cc=clone.querySelector('canvas');
+
+    if(ci && mainImg){
+      ci.src=mainImg.src;
+      ci.style.display=mainImg.style.display;
+    }
+    if(cv && mainVid){
+      cv.src=mainVid.src;
+      cv.style.display=mainVid.style.display;
+      cv.muted=true;cv.loop=true;cv.playsInline=true;
+      try{cv.currentTime=mainVid.currentTime||0}catch(e){}
+      if(!mainVid.paused)cv.play().catch(()=>{});
+    }
+    if(cc && mainSynth && mainSynth.style.display==='block'){
+      const cctx=cc.getContext?.('2d');
+      try{cctx?.drawImage(mainSynth,0,0,cc.width,cc.height)}catch(e){}
+    }
+
+    liveClone.replaceChildren(clone);
+  }
+
+  function rebuildLayerPreview(force=false){
+    const now=performance.now();
+    if(!force && now-lastLayerClone<80)return;
+    lastLayerClone=now;
+    cloneScreen();
+  }
+  window.rebuildUnifiedLayerPreview=rebuildLayerPreview;
+
+  // Keep live preview visually locked to main source/video.
+  function previewLoop(){
+    requestAnimationFrame(previewLoop);
+    if(document.getElementById('layersModal')?.classList.contains('open')){
+      rebuildLayerPreview();
+    }
+  }
+  previewLoop();
+
+  // Mirror transform/effect changes.
+  const obs=new MutationObserver(()=>rebuildLayerPreview());
+  obs.observe(screen,{subtree:true,attributes:true,attributeFilter:['style','class']});
+
+  // ---------- Synth target system ----------
+  function setSynthTarget(target){
+    synthTarget=target;
+    synthTargetSource?.classList.toggle('active',target==='source');
+    synthTargetPhoto?.classList.toggle('active',target==='photo');
+    refreshSynth();
+  }
+  synthTargetSource?.addEventListener('click',()=>setSynthTarget('source'));
+  synthTargetPhoto?.addEventListener('click',()=>setSynthTarget('photo'));
+  synthLoadPhoto?.addEventListener('click',()=>synthPhotoInput?.click());
+
+  synthPhotoInput?.addEventListener('change',e=>{
+    const f=e.target.files?.[0];if(!f)return;
+    if(synthPhotoURL)URL.revokeObjectURL(synthPhotoURL);
+    synthPhotoURL=URL.createObjectURL(f);
+    const img=new Image();
+    img.onload=()=>{synthPhoto=img;setSynthTarget('photo');if(window.showToast)showToast('SYNTH PHOTO LOADED // '+f.name.toUpperCase());};
+    img.src=synthPhotoURL;
+  });
+
+  function getSynthTargetElement(){
+    if(synthTarget==='photo')return synthPhoto;
+    if(activeSourceType==='video'&&mainVid.readyState>=2)return mainVid;
+    if(activeSourceType==='image'&&mainImg.complete)return mainImg;
+    // For test pattern/source composition, use the live screen clone is impossible directly;
+    // fall back to the decorative visual via a generated test canvas.
+    return null;
+  }
+
+  function drawSourceInto(ctx,w,h,source){
+    ctx.clearRect(0,0,w,h);
+    if(source){
+      const sw=source.videoWidth||source.naturalWidth||w;
+      const sh=source.videoHeight||source.naturalHeight||h;
+      const sr=sw/sh,dr=w/h;
+      let dw=w,dh=h,dx=0,dy=0;
+      if(sr>dr){dh=h;dw=h*sr;dx=(w-dw)/2}
+      else{dw=w;dh=w/sr;dy=(h-dh)/2}
+      ctx.drawImage(source,dx,dy,dw,dh);
+    }else{
+      // Same built-in test source used when no user media exists.
+      const g=ctx.createLinearGradient(0,0,w,h);
+      g.addColorStop(0,'#07111f');g.addColorStop(.5,'#2a123a');g.addColorStop(1,'#05060a');
+      ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+      ctx.fillStyle='#65e7ff';ctx.fillRect(w*.18,h*.25,w*.16,h*.48);
+      ctx.fillStyle='#ff5bd7';ctx.beginPath();ctx.arc(w*.68,h*.42,h*.18,0,Math.PI*2);ctx.fill();
+    }
+  }
+
+  function refreshSynth(){
+    if(!synthCtx||!synthCanvas)return;
+    const source=getSynthTargetElement();
+    drawSourceInto(synthCtx,synthCanvas.width,synthCanvas.height,source);
+    if(window.CRTIZER_SYNTH?.punkDitherImageData){
+      try{
+        const img=synthCtx.getImageData(0,0,synthCanvas.width,synthCanvas.height);
+        synthCtx.putImageData(window.CRTIZER_SYNTH.punkDitherImageData(img,synthCanvas.width,synthCanvas.height),0,0);
+      }catch(e){}
+    }
+  }
+  window.refreshUnifiedSynth=refreshSynth;
+
+  // Override older synth render with unified source target.
+  if(window.CRTIZER_SYNTH){
+    window.CRTIZER_SYNTH.render=refreshSynth;
+  }
+
+  // Apply synth result to the main output.
+  function updateMainSynth(){
+    if(!synthApplied)return;
+    const c=mainSynth.getContext('2d',{willReadFrequently:true});
+    const source=getSynthTargetElement();
+    drawSourceInto(c,mainSynth.width,mainSynth.height,source);
+    if(window.CRTIZER_SYNTH?.punkDitherImageData){
+      try{
+        const img=c.getImageData(0,0,mainSynth.width,mainSynth.height);
+        c.putImageData(window.CRTIZER_SYNTH.punkDitherImageData(img,mainSynth.width,mainSynth.height),0,0);
+      }catch(e){}
+    }
+    mainSynth.style.display='block';
+
+    // Hide only the raw media while synth output is active so overlays/effects still remain.
+    if(activeSourceType==='image')mainImg.style.opacity='0';
+    if(activeSourceType==='video')mainVid.style.opacity='0';
+    rebuildLayerPreview();
+  }
+
+  applySynthBtn?.addEventListener('click',()=>{
+    synthApplied=true;
+    updateMainSynth();
+    if(window.showToast)showToast('PUNK SYNTH APPLIED TO OUTPUT');
+  });
+  removeSynthBtn?.addEventListener('click',()=>{
+    synthApplied=false;mainSynth.style.display='none';
+    mainImg.style.opacity='';mainVid.style.opacity='';
+    rebuildLayerPreview(true);
+    if(window.showToast)showToast('PUNK SYNTH REMOVED FROM OUTPUT');
+  });
+
+  function unifiedLoop(){
+    requestAnimationFrame(unifiedLoop);
+    if(document.getElementById('synthModal')?.classList.contains('open'))refreshSynth();
+    if(synthApplied && activeSourceType==='video' && !mainVid.paused)updateMainSynth();
+  }
+  unifiedLoop();
+
+  // Keep Layer media slots synced to unified source.
+  function ensureLayerMediaSlot(){
+    if(!window.crtizerLayerState)return;
+    delete window.crtizerLayerState.media_video;
+    delete window.crtizerLayerState.media_image;
+    if(activeSourceType==='image'){
+      window.crtizerLayerState.media_image={
+        name:'IMAGE SOURCE',type:'MEDIA',x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0,media:true
+      };
+    }else if(activeSourceType==='video'){
+      window.crtizerLayerState.media_video={
+        name:'VIDEO SOURCE',type:'MEDIA',x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0,media:true
+      };
+    }
+  }
+  setInterval(ensureLayerMediaSlot,300);
+
+  // Initialize from existing state.
+  setTestPattern();
 })();
 </script>
 
@@ -2320,6 +2726,353 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
   },400);
 
   window.CRTIZER_SYNTH={state:synthState,render:renderSynthFrame,punkDitherImageData};
+})();
+</script>
+
+
+<script id="crtizer-unified-source-js">
+(function(){
+  const visual=document.getElementById('visual');
+  const screen=document.getElementById('screen');
+
+  const mainImg=document.getElementById('mainSourceImage');
+  const mainVid=document.getElementById('mainSourceVideo');
+  const mainSynth=document.getElementById('mainSynthOutput');
+
+  const layerImg=document.getElementById('sourceImage');
+  const layerVid=document.getElementById('sourceVideo');
+
+  const liveClone=document.getElementById('liveLayerClone');
+
+  const synthCanvas=document.getElementById('synthCanvas');
+  const synthCtx=synthCanvas?.getContext('2d',{willReadFrequently:true});
+  const synthPhotoInput=document.getElementById('synthPhotoInput');
+  const synthTargetSource=document.getElementById('synthTargetSource');
+  const synthTargetPhoto=document.getElementById('synthTargetPhoto');
+  const synthLoadPhoto=document.getElementById('synthLoadPhoto');
+  const applySynthBtn=document.getElementById('applySynthToOutput');
+  const removeSynthBtn=document.getElementById('removeSynthFromOutput');
+
+  let activeSourceType='test';
+  let activeSourceURL='';
+  let activeSourceName='TEST PATTERN';
+  let synthTarget='source';
+  let synthPhoto=null;
+  let synthPhotoURL='';
+  let synthApplied=false;
+  let lastLayerClone=0;
+
+  function setMediaDisplay(type){
+    mainImg.style.display=type==='image'?'block':'none';
+    mainVid.style.display=type==='video'?'block':'none';
+    if(layerImg) layerImg.style.display=type==='image'?'block':'none';
+    if(layerVid) layerVid.style.display=type==='video'?'block':'none';
+
+    // Hide default decorative source only when actual media is active.
+    const decorative=visual.querySelectorAll('.cityGrid,.sun,.tower,.horizon');
+    decorative.forEach(el=>el.style.display=(type==='image'||type==='video')?'none':'');
+  }
+
+  function syncLegacyMedia(type,url){
+    if(type==='image' && layerImg){
+      layerImg.src=url;
+      layerImg.style.display='block';
+      if(layerVid){layerVid.pause();layerVid.style.display='none';}
+    }
+    if(type==='video' && layerVid){
+      layerVid.src=url;
+      layerVid.style.display='block';
+      layerVid.muted=true;layerVid.loop=true;layerVid.playsInline=true;
+      layerVid.play().catch(()=>{});
+      if(layerImg)layerImg.style.display='none';
+    }
+  }
+
+  function setImageSource(fileOrUrl,name){
+    let url=fileOrUrl;
+    if(fileOrUrl instanceof File) url=URL.createObjectURL(fileOrUrl);
+    activeSourceType='image';activeSourceURL=url;activeSourceName=name||'IMAGE SOURCE';
+
+    mainVid.pause();mainVid.removeAttribute('src');mainVid.load();
+    mainImg.src=url;
+    setMediaDisplay('image');
+    syncLegacyMedia('image',url);
+
+    const mediaName=document.getElementById('mediaName');
+    if(mediaName)mediaName.textContent=activeSourceName;
+    setTimeout(()=>{ rebuildLayerPreview(true); refreshSynth(); },50);
+  }
+
+  function setVideoSource(fileOrUrl,name){
+    let url=fileOrUrl;
+    if(fileOrUrl instanceof File) url=URL.createObjectURL(fileOrUrl);
+    activeSourceType='video';activeSourceURL=url;activeSourceName=name||'VIDEO SOURCE';
+
+    mainImg.removeAttribute('src');
+    mainVid.src=url;mainVid.muted=true;mainVid.loop=true;mainVid.playsInline=true;
+    setMediaDisplay('video');
+    syncLegacyMedia('video',url);
+    mainVid.play().catch(()=>{});
+
+    const mediaName=document.getElementById('mediaName');
+    if(mediaName)mediaName.textContent=activeSourceName;
+    setTimeout(()=>{ rebuildLayerPreview(true); refreshSynth(); },80);
+  }
+
+  function setTestPattern(){
+    activeSourceType='test';activeSourceURL='';activeSourceName='TEST PATTERN';
+    mainVid.pause();mainVid.removeAttribute('src');mainVid.load();
+    mainImg.removeAttribute('src');setMediaDisplay('test');
+    if(layerVid){layerVid.pause();layerVid.style.display='none';}
+    if(layerImg)layerImg.style.display='none';
+    const mediaName=document.getElementById('mediaName');
+    if(mediaName)mediaName.textContent='TEST PATTERN';
+    rebuildLayerPreview(true);refreshSynth();
+  }
+
+  // Override/extend all existing image loaders so every UI entry point feeds the SAME source.
+  const oldImageInput=document.getElementById('imageInput');
+  if(oldImageInput){
+    oldImageInput.addEventListener('change',e=>{
+      const f=e.target.files?.[0]; if(!f)return;
+      e.stopImmediatePropagation();
+      setImageSource(f,f.name);
+      if(window.showToast)showToast('IMAGE SOURCE LOADED // '+f.name.toUpperCase());
+    },true);
+  }
+
+  const layerImageInput=document.getElementById('imageFileInput');
+  if(layerImageInput){
+    layerImageInput.addEventListener('change',e=>{
+      const f=e.target.files?.[0]; if(!f)return;
+      setImageSource(f,f.name);
+    },true);
+  }
+
+  const layerVideoInput=document.getElementById('videoFileInput');
+  if(layerVideoInput){
+    layerVideoInput.addEventListener('change',e=>{
+      const f=e.target.files?.[0]; if(!f)return;
+      setVideoSource(f,f.name);
+    },true);
+  }
+
+  document.getElementById('layerClearMediaBtn')?.addEventListener('click',()=>{
+    setTestPattern();
+  },true);
+
+  // Keep controls/playhead unified with the MAIN video.
+  document.getElementById('videoPlayBtn')?.addEventListener('click',e=>{
+    if(activeSourceType!=='video')return;
+    e.stopImmediatePropagation();
+    if(mainVid.paused){mainVid.play().catch(()=>{});layerVid?.play().catch(()=>{});}
+    else{mainVid.pause();layerVid?.pause();}
+  },true);
+
+  const videoSeek=document.getElementById('videoSeek');
+  const videoTime=document.getElementById('videoTime');
+  function fmt(t){
+    if(!isFinite(t))return'00:00';
+    const m=Math.floor(t/60),s=Math.floor(t%60);
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  mainVid.addEventListener('timeupdate',()=>{
+    if(mainVid.duration&&videoSeek){
+      videoSeek.value=Math.round(mainVid.currentTime/mainVid.duration*1000);
+      if(videoTime)videoTime.textContent=fmt(mainVid.currentTime)+' / '+fmt(mainVid.duration);
+      if(layerVid && Math.abs((layerVid.currentTime||0)-mainVid.currentTime)>.18){
+        try{layerVid.currentTime=mainVid.currentTime}catch(e){}
+      }
+    }
+  });
+  mainVid.addEventListener('play',()=>{const b=document.getElementById('videoPlayBtn');if(b)b.textContent='PAUSE';});
+  mainVid.addEventListener('pause',()=>{const b=document.getElementById('videoPlayBtn');if(b)b.textContent='PLAY';});
+  videoSeek?.addEventListener('input',e=>{
+    if(activeSourceType!=='video'||!mainVid.duration)return;
+    e.stopImmediatePropagation();
+    const t=(+videoSeek.value/1000)*mainVid.duration;
+    mainVid.currentTime=t;if(layerVid)layerVid.currentTime=t;
+  },true);
+
+  // Live Layers preview now clones the ACTUAL screen, including current source and FX styles.
+  function cloneScreen(){
+    if(!liveClone||!screen)return;
+    const clone=screen.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
+    clone.style.width='100%';clone.style.height='100%';
+    clone.style.position='absolute';clone.style.inset='0';
+    clone.style.transform='none';clone.style.margin='0';
+
+    const cv=clone.querySelector('video');
+    const ci=clone.querySelector('img');
+    const cc=clone.querySelector('canvas');
+
+    if(ci && mainImg){
+      ci.src=mainImg.src;
+      ci.style.display=mainImg.style.display;
+    }
+    if(cv && mainVid){
+      cv.src=mainVid.src;
+      cv.style.display=mainVid.style.display;
+      cv.muted=true;cv.loop=true;cv.playsInline=true;
+      try{cv.currentTime=mainVid.currentTime||0}catch(e){}
+      if(!mainVid.paused)cv.play().catch(()=>{});
+    }
+    if(cc && mainSynth && mainSynth.style.display==='block'){
+      const cctx=cc.getContext?.('2d');
+      try{cctx?.drawImage(mainSynth,0,0,cc.width,cc.height)}catch(e){}
+    }
+
+    liveClone.replaceChildren(clone);
+  }
+
+  function rebuildLayerPreview(force=false){
+    const now=performance.now();
+    if(!force && now-lastLayerClone<80)return;
+    lastLayerClone=now;
+    cloneScreen();
+  }
+  window.rebuildUnifiedLayerPreview=rebuildLayerPreview;
+
+  // Keep live preview visually locked to main source/video.
+  function previewLoop(){
+    requestAnimationFrame(previewLoop);
+    if(document.getElementById('layersModal')?.classList.contains('open')){
+      rebuildLayerPreview();
+    }
+  }
+  previewLoop();
+
+  // Mirror transform/effect changes.
+  const obs=new MutationObserver(()=>rebuildLayerPreview());
+  obs.observe(screen,{subtree:true,attributes:true,attributeFilter:['style','class']});
+
+  // ---------- Synth target system ----------
+  function setSynthTarget(target){
+    synthTarget=target;
+    synthTargetSource?.classList.toggle('active',target==='source');
+    synthTargetPhoto?.classList.toggle('active',target==='photo');
+    refreshSynth();
+  }
+  synthTargetSource?.addEventListener('click',()=>setSynthTarget('source'));
+  synthTargetPhoto?.addEventListener('click',()=>setSynthTarget('photo'));
+  synthLoadPhoto?.addEventListener('click',()=>synthPhotoInput?.click());
+
+  synthPhotoInput?.addEventListener('change',e=>{
+    const f=e.target.files?.[0];if(!f)return;
+    if(synthPhotoURL)URL.revokeObjectURL(synthPhotoURL);
+    synthPhotoURL=URL.createObjectURL(f);
+    const img=new Image();
+    img.onload=()=>{synthPhoto=img;setSynthTarget('photo');if(window.showToast)showToast('SYNTH PHOTO LOADED // '+f.name.toUpperCase());};
+    img.src=synthPhotoURL;
+  });
+
+  function getSynthTargetElement(){
+    if(synthTarget==='photo')return synthPhoto;
+    if(activeSourceType==='video'&&mainVid.readyState>=2)return mainVid;
+    if(activeSourceType==='image'&&mainImg.complete)return mainImg;
+    // For test pattern/source composition, use the live screen clone is impossible directly;
+    // fall back to the decorative visual via a generated test canvas.
+    return null;
+  }
+
+  function drawSourceInto(ctx,w,h,source){
+    ctx.clearRect(0,0,w,h);
+    if(source){
+      const sw=source.videoWidth||source.naturalWidth||w;
+      const sh=source.videoHeight||source.naturalHeight||h;
+      const sr=sw/sh,dr=w/h;
+      let dw=w,dh=h,dx=0,dy=0;
+      if(sr>dr){dh=h;dw=h*sr;dx=(w-dw)/2}
+      else{dw=w;dh=w/sr;dy=(h-dh)/2}
+      ctx.drawImage(source,dx,dy,dw,dh);
+    }else{
+      // Same built-in test source used when no user media exists.
+      const g=ctx.createLinearGradient(0,0,w,h);
+      g.addColorStop(0,'#07111f');g.addColorStop(.5,'#2a123a');g.addColorStop(1,'#05060a');
+      ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+      ctx.fillStyle='#65e7ff';ctx.fillRect(w*.18,h*.25,w*.16,h*.48);
+      ctx.fillStyle='#ff5bd7';ctx.beginPath();ctx.arc(w*.68,h*.42,h*.18,0,Math.PI*2);ctx.fill();
+    }
+  }
+
+  function refreshSynth(){
+    if(!synthCtx||!synthCanvas)return;
+    const source=getSynthTargetElement();
+    drawSourceInto(synthCtx,synthCanvas.width,synthCanvas.height,source);
+    if(window.CRTIZER_SYNTH?.punkDitherImageData){
+      try{
+        const img=synthCtx.getImageData(0,0,synthCanvas.width,synthCanvas.height);
+        synthCtx.putImageData(window.CRTIZER_SYNTH.punkDitherImageData(img,synthCanvas.width,synthCanvas.height),0,0);
+      }catch(e){}
+    }
+  }
+  window.refreshUnifiedSynth=refreshSynth;
+
+  // Override older synth render with unified source target.
+  if(window.CRTIZER_SYNTH){
+    window.CRTIZER_SYNTH.render=refreshSynth;
+  }
+
+  // Apply synth result to the main output.
+  function updateMainSynth(){
+    if(!synthApplied)return;
+    const c=mainSynth.getContext('2d',{willReadFrequently:true});
+    const source=getSynthTargetElement();
+    drawSourceInto(c,mainSynth.width,mainSynth.height,source);
+    if(window.CRTIZER_SYNTH?.punkDitherImageData){
+      try{
+        const img=c.getImageData(0,0,mainSynth.width,mainSynth.height);
+        c.putImageData(window.CRTIZER_SYNTH.punkDitherImageData(img,mainSynth.width,mainSynth.height),0,0);
+      }catch(e){}
+    }
+    mainSynth.style.display='block';
+
+    // Hide only the raw media while synth output is active so overlays/effects still remain.
+    if(activeSourceType==='image')mainImg.style.opacity='0';
+    if(activeSourceType==='video')mainVid.style.opacity='0';
+    rebuildLayerPreview();
+  }
+
+  applySynthBtn?.addEventListener('click',()=>{
+    synthApplied=true;
+    updateMainSynth();
+    if(window.showToast)showToast('PUNK SYNTH APPLIED TO OUTPUT');
+  });
+  removeSynthBtn?.addEventListener('click',()=>{
+    synthApplied=false;mainSynth.style.display='none';
+    mainImg.style.opacity='';mainVid.style.opacity='';
+    rebuildLayerPreview(true);
+    if(window.showToast)showToast('PUNK SYNTH REMOVED FROM OUTPUT');
+  });
+
+  function unifiedLoop(){
+    requestAnimationFrame(unifiedLoop);
+    if(document.getElementById('synthModal')?.classList.contains('open'))refreshSynth();
+    if(synthApplied && activeSourceType==='video' && !mainVid.paused)updateMainSynth();
+  }
+  unifiedLoop();
+
+  // Keep Layer media slots synced to unified source.
+  function ensureLayerMediaSlot(){
+    if(!window.crtizerLayerState)return;
+    delete window.crtizerLayerState.media_video;
+    delete window.crtizerLayerState.media_image;
+    if(activeSourceType==='image'){
+      window.crtizerLayerState.media_image={
+        name:'IMAGE SOURCE',type:'MEDIA',x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0,media:true
+      };
+    }else if(activeSourceType==='video'){
+      window.crtizerLayerState.media_video={
+        name:'VIDEO SOURCE',type:'MEDIA',x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0,media:true
+      };
+    }
+  }
+  setInterval(ensureLayerMediaSlot,300);
+
+  // Initialize from existing state.
+  setTestPattern();
 })();
 </script>
 
