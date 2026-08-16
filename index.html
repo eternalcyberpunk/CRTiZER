@@ -376,6 +376,25 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 @keyframes irisPulse{50%{transform:translate(-50%,-50%) scale(1.12);filter:brightness(1.4)}}
 </style>
 
+
+<style id="irisseg-prompt-fix-css">
+#irisSegPrompt{
+  position:relative;
+  z-index:5;
+  cursor:text;
+  -webkit-touch-callout:default;
+}
+#irisSegPrompt:focus{
+  outline:none;
+  border-color:rgba(105,231,255,.55)!important;
+  box-shadow:0 0 0 2px rgba(105,231,255,.08);
+}
+.irisseg-pane.left{overscroll-behavior:contain}
+@media(max-width:900px){
+  #irisSegPrompt{font-size:16px!important;min-height:96px}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -385,7 +404,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
       <div class="brandtext"><b>CRTiZER</b><small>REALITY, REPROCESSED</small></div>
     </div>
     <div class="top-actions">
-      <button class="text-btn" data-open="layers">Layers</button><button class="text-btn" data-open="irisseg">IrisSeg</button><button class="text-btn" data-open="prompts">Prompts</button>
+      <button class="text-btn" data-open="layers">Layers</button><button class="text-btn" data-open="irisseg">IrisSeg</button>
       <button class="text-btn" data-open="synth">Dither</button>
       <button class="text-btn" data-open="shader">Shader</button>
       <button class="text-btn" data-open="export">Export</button>
@@ -439,7 +458,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
         <button class="tool" data-tool="source"><span class="ico">▣</span><span>Source</span></button>
         <button class="tool" data-tool="edit"><span class="ico">✂</span><span>Edit</span></button>
         <button class="tool" data-tool="effects"><span class="ico">✦</span><span>Effects</span></button>
-        <button class="tool" data-tool="layers"><span class="ico">▱</span><span>Layers</span></button><button class="tool" data-tool="irisseg"><span class="ico">◉</span><span>IrisSeg</span></button><button class="tool" data-tool="prompts"><span class="ico">⌁</span><span>Prompts</span></button>
+        <button class="tool" data-tool="layers"><span class="ico">▱</span><span>Layers</span></button><button class="tool" data-tool="irisseg"><span class="ico">◉</span><span>IrisSeg</span></button>
         <button class="tool" data-tool="synth"><span class="ico">◫</span><span>Dither</span></button>
         <button class="tool" data-tool="shader"><span class="ico">⌗</span><span>Shader</span></button>
         <button class="tool" data-tool="export"><span class="ico">⇧</span><span>Export</span></button>
@@ -504,48 +523,6 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 </div>
 
 
-
-<div class="modal" id="promptsModal">
-  <div class="modal-card" style="max-width:560px">
-    <div class="modal-head">
-      <b>Prompts</b>
-      <small>IrisReg semantic roto prompt</small>
-      <button class="icon-btn" data-close="prompts">×</button>
-    </div>
-    <div class="modal-body" style="padding:12px">
-      <div class="irisseg-block">
-        <label>TARGET</label>
-        <select id="promptTarget"></select>
-      </div>
-
-      <div class="irisseg-block">
-        <label>WHAT SHOULD IRISREG ISOLATE?</label>
-        <textarea id="promptComposer" placeholder="Example: isolate the person in the purple jacket, including their hair and hands, ignore the background and other people." style="width:100%;min-height:150px;border:1px solid var(--line);background:#080b0f;color:#dce5e8;border-radius:8px;padding:10px;resize:vertical;font-size:9px;line-height:1.45"></textarea>
-        <div class="irisseg-note">This prompt is saved per Source/layer and passed into IrisReg when you generate.</div>
-      </div>
-
-      <div class="irisseg-block">
-        <label>QUICK PROMPTS</label>
-        <div class="row" style="flex-wrap:wrap;gap:6px">
-          <button class="btn prompt-chip" data-prompt="person or main subject">Main Subject</button>
-          <button class="btn prompt-chip" data-prompt="face and hair of the main person">Face + Hair</button>
-          <button class="btn prompt-chip" data-prompt="foreground subject only, remove the background">Foreground</button>
-          <button class="btn prompt-chip" data-prompt="vehicle closest to camera">Vehicle</button>
-        </div>
-      </div>
-
-      <div class="row" style="gap:8px">
-        <button class="btn grow" id="promptSave">Save Prompt</button>
-        <button class="btn accent grow" id="promptGenerate">Generate IrisReg</button>
-      </div>
-
-      <div class="publish-status" id="promptStatus" style="margin-top:9px">
-        Enter a prompt, select a target, then generate.
-      </div>
-    </div>
-  </div>
-</div>
-
 <div class="modal" id="irissegModal">
   <div class="modal-card">
     <div class="modal-head">
@@ -568,7 +545,30 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
               <option value="efficienttam">EfficientTAM</option>
             </select>
           </div>
-<div class="irisseg-block">
+          <div class="irisseg-block">
+            <label>IRISREG PROMPT</label>
+            <textarea
+              id="irisSegPrompt"
+              name="irisSegPrompt"
+              placeholder="Describe what to isolate, e.g. person in the purple jacket, foreground car, face and hair…"
+              autocomplete="off"
+              autocapitalize="sentences"
+              autocorrect="on"
+              spellcheck="true"
+              enterkeyhint="done"
+              inputmode="text"
+              tabindex="0"
+              aria-label="IrisReg prompt"
+              style="width:100%;min-height:88px;border:1px solid var(--line);background:#080b0f;color:#dce5e8;border-radius:7px;padding:10px;resize:vertical;font-size:14px;line-height:1.4;pointer-events:auto;user-select:text;-webkit-user-select:text;touch-action:manipulation"
+            ></textarea>
+            <div class="row" style="margin-top:6px">
+              <button class="btn grow" id="irisSegPromptClear" type="button">Clear</button>
+              <button class="btn grow" id="irisSegPromptApply" type="button">Use Prompt</button>
+            </div>
+            <div class="irisseg-note"><span id="irisSegPromptCount">0</span>/500 characters • Prompt is saved per target.</div>
+          </div>
+
+          <div class="irisseg-block">
             <label>REFINEMENT / MATTING</label>
             <select id="irisSegMatte">
               <option value="none">Segmentation Only</option>
@@ -1436,7 +1436,7 @@ function makeLayer(file){
   let el;if(type==='image'){el=new Image();el.src=url}else{el=document.createElement('video');el.src=url;el.muted=true;el.loop=true;el.playsInline=true;el.play().catch(()=>{})}
   const z=state.layers.length?Math.max(...state.layers.map(l=>l.z))+1:1;
   const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z,trimStart:0,trimEnd:null,speed:1,volume:1};
-  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();updateIrisSegTargets();updatePromptTargets();renderTimelineTracks();toast('Layer added')
+  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();updateIrisSegTargets();renderTimelineTracks();toast('Layer added')
 }
 $('#layerImageInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
 $('#layerVideoInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
@@ -1464,7 +1464,7 @@ function renderLayerInspector(){
   $('#layerParams').innerHTML=defs.map(d=>paramHTML(d[0],d[1],l[d[1]],d[2],d[3],d[4],'data-layer-param')).join('');
   $$('[data-layer-param]').forEach(r=>r.oninput=()=>{l[r.dataset.layerParam]=+r.value;r.previousElementSibling.querySelector('b').textContent=r.value})
 }
-function deleteLayer(id){snapshot();state.layers=state.layers.filter(l=>l.id!==id);if(state.selectedLayer===id)state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();updateIrisSegTargets();updatePromptTargets();renderTimelineTracks()}
+function deleteLayer(id){snapshot();state.layers=state.layers.filter(l=>l.id!==id);if(state.selectedLayer===id)state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();updateIrisSegTargets();renderTimelineTracks()}
 function restoreHistory(){
   if(!state.history.length)return toast('Nothing to undo');
   const snap=JSON.parse(state.history.pop());const byId=new Map(state.layers.map(l=>[l.id,l]));
@@ -1753,13 +1753,13 @@ $('#applyShader').onclick=async()=>{
 $('#removeShader').onclick=()=>{state.shader.enabled=false;updateFxLabel();toast('Shader removed')}
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push(state.synth.target==='source'?'Dither: Source':'Dither: Layer');if(state.shader.enabled)a.push(state.shader.target==='source'?'Shader: Source':'Shader: Layer');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader';const p=$('#fxStatusPill');if(p)p.innerHTML='FX: <b>'+(a.length?a.join(' + '):'NONE')+'</b>'}
 
-function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='irisseg')prepareIrisSeg();if(name==='prompts')loadPromptComposer();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();selectShader(shaderSelected);if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
+function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='irisseg')prepareIrisSeg();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();selectShader(shaderSelected);if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
 function closeModal(name){$('#'+name+'Modal')?.classList.remove('open')}
 $$('[data-open]').forEach(b=>b.onclick=()=>openModal(b.dataset.open));$$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 
 function openSheet(tool){
   $$('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
-  if(['layers','irisseg','prompts','synth','shader','export'].includes(tool)){openModal(tool);return}
+  if(['layers','irisseg','synth','shader','export'].includes(tool)){openModal(tool);return}
   const sheet=$('#sheet'),body=$('#sheetBody');$('#sheetTitle').textContent=tool[0].toUpperCase()+tool.slice(1);body.innerHTML='';
   if(tool==='source'){
     body.innerHTML=`<div class="stack"><button class="btn" id="mTest">Test Pattern</button><button class="btn" id="mImage">Load Photo</button><button class="btn accent" id="mVideo">Load Video</button></div><div class="source-card" style="margin-top:9px"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type.toUpperCase()}</small></div>`;
@@ -2247,7 +2247,7 @@ async function irisBrowserSegmentCurrent(){
   session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
   session.enabled=true;
   session.points=[...irisSeg.points];
-  session.prompt=session.prompt||rotoForTarget(target.id)?.prompt||'';
+  session.prompt=$('#irisSegPrompt')?.value?.trim()||'';
   session.model='slimsam-browser';
   session.matte='none';
   setIrisBoot(true,'MASK READY',100,'DONE');
@@ -2292,7 +2292,7 @@ async function irisBrowserTrack(direction='forward'){
     session.frames.push({time:t,url:image.src,image});
   }
   session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
-  session.enabled=true;session.points=[...irisSeg.points];session.prompt=session.prompt||rotoForTarget(target.id)?.prompt||'';session.model='slimsam-browser';
+  session.enabled=true;session.points=[...irisSeg.points];session.prompt=$('#irisSegPrompt')?.value?.trim()||'';session.model='slimsam-browser';
   setIrisBoot(true,'TRACK COMPLETE',100,'DONE');
   setTimeout(()=>setIrisBoot(false),450);
   if(!wasPaused)v.play().catch(()=>{});
@@ -2457,7 +2457,7 @@ async function irisSegCreatePayload(action,direction='forward'){
   fd.append('model',$('#irisSegModel').value);
   fd.append('matting',$('#irisSegMatte').value);
   fd.append('points',JSON.stringify(irisSeg.points));
-  fd.append('prompt',rotoForTarget(target.id)?.prompt||'');
+  fd.append('prompt',$('#irisSegPrompt')?.value?.trim()||'');
   fd.append('feather',$('#irisSegFeather').value);
   fd.append('expand',$('#irisSegExpand').value);
   return {target,fd};
@@ -2503,7 +2503,7 @@ async function irisSegRun(action,direction='forward'){
 
     const session=irisSegSession(target.id);
     session.points=[...irisSeg.points];
-    session.prompt=session.prompt||rotoForTarget(target.id)?.prompt||'';
+    session.prompt=$('#irisSegPrompt')?.value?.trim()||'';
     session.model=$('#irisSegModel').value;
     session.matte=$('#irisSegMatte').value;
     session.feather=+$('#irisSegFeather').value;
@@ -2528,89 +2528,13 @@ function prepareIrisSeg(){
   $('#irisSegOut').value=(d||0).toFixed(2);
   const activeSession=rotoForTarget(t?.id);
   irisSeg.points=[...(activeSession?.points||[])];
+  if($('#irisSegPrompt')){$('#irisSegPrompt').value=activeSession?.prompt||'';syncIrisSegPrompt();}
   renderIrisSegPoints();
   $('#irisSegModel').disabled=irisSeg.engine==='browser';
   $('#irisSegMatte').disabled=irisSeg.engine==='browser';
   requestAnimationFrame(drawIrisSegFrame);
 }
 
-
-
-function updatePromptTargets(){
-  const sel=$('#promptTarget');
-  if(!sel)return;
-  const prev=sel.value||state.roto.activeTarget||'source';
-  sel.innerHTML='<option value="source">Source</option>'+state.layers.map(l=>`<option value="${l.id}">${escapeHtml(l.name)}</option>`).join('');
-  sel.value=[...sel.options].some(o=>o.value===prev)?prev:'source';
-}
-function promptSession(id){
-  return irisSegSession(id||'source');
-}
-function loadPromptComposer(){
-  updatePromptTargets();
-  const id=$('#promptTarget')?.value||state.roto.activeTarget||'source';
-  const session=rotoForTarget(id);
-  if($('#promptComposer'))$('#promptComposer').value=session?.prompt||'';
-  if($('#promptStatus'))$('#promptStatus').textContent=`Target: ${id==='source'?'Source':(state.layers.find(l=>l.id===id)?.name||id)}`;
-}
-function savePromptComposer(){
-  const id=$('#promptTarget')?.value||'source';
-  const text=$('#promptComposer')?.value?.trim()||'';
-  const session=promptSession(id);
-  session.prompt=text;
-  state.roto.activeTarget=id;
-
-  // Keep IrisSeg's target synchronized.
-  if($('#irisSegTarget')){
-    updateIrisSegTargets();
-    $('#irisSegTarget').value=id;
-  }
-  if($('#promptStatus'))$('#promptStatus').textContent=text?'Prompt saved.':'Prompt cleared.';
-  return {id,text,session};
-}
-async function generateFromPromptTab(){
-  const {id,text}=savePromptComposer();
-  if(!text){
-    $('#promptStatus').textContent='Enter a prompt before generating.';
-    return;
-  }
-
-  // Synchronize IrisSeg UI/state.
-  state.roto.activeTarget=id;
-  updateIrisSegTargets();
-  if($('#irisSegTarget'))$('#irisSegTarget').value=id;
-
-  // Browser Local still needs point prompts. For bridge mode, text prompt can drive the backend.
-  if(irisSeg.engine==='browser'){
-    $('#promptStatus').textContent='Prompt saved. Browser Local still needs at least one Include point before generation.';
-    openModal('irisseg');
-    prepareIrisSeg();
-    return;
-  }
-
-  if(!irisSeg.connected){
-    $('#promptStatus').textContent='Connecting IrisSeg…';
-    await irisSegConnect();
-  }
-
-  $('#promptStatus').textContent='Generating roto from prompt…';
-  try{
-    await irisSegRun('segment');
-    $('#promptStatus').textContent='IrisReg generation complete.';
-  }catch(e){
-    $('#promptStatus').textContent=e?.message||String(e);
-  }
-}
-
-$('#promptTarget')?.addEventListener('change',loadPromptComposer);
-$('#promptSave')?.addEventListener('click',savePromptComposer);
-$('#promptGenerate')?.addEventListener('click',generateFromPromptTab);
-$$('.prompt-chip').forEach(btn=>btn.addEventListener('click',()=>{
-  const box=$('#promptComposer');
-  const text=btn.dataset.prompt||'';
-  box.value=box.value.trim()?`${box.value.trim()}, ${text}`:text;
-  box.focus();
-}));
 
 $('#irisSegEngine')?.addEventListener('change',e=>{
   irisSeg.engine=e.target.value;
@@ -2625,10 +2549,55 @@ $('#irisSegEngine')?.addEventListener('change',e=>{
   irisSeg.connected=false;
   setIrisSegConnection('offline',browser?'Browser engine not launched.':'Sammie bridge not connected.');
 });
+
+function syncIrisSegPrompt(){
+  const field=$('#irisSegPrompt');
+  if(!field)return;
+  if(field.value.length>500)field.value=field.value.slice(0,500);
+  const count=$('#irisSegPromptCount');
+  if(count)count.textContent=field.value.length;
+
+  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
+  const session=irisSegSession(targetId);
+  session.prompt=field.value;
+}
+$('#irisSegPrompt')?.addEventListener('input',syncIrisSegPrompt);
+$('#irisSegPrompt')?.addEventListener('change',syncIrisSegPrompt);
+$('#irisSegPrompt')?.addEventListener('focus',e=>{
+  e.stopPropagation();
+  setIrisSegConnection(
+    irisSeg.connected?'online':'offline',
+    'Enter a text description, then use Include / Exclude points to refine the selection.'
+  );
+});
+$('#irisSegPrompt')?.addEventListener('pointerdown',e=>e.stopPropagation());
+$('#irisSegPrompt')?.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
+
+$('#irisSegPromptClear')?.addEventListener('click',()=>{
+  const field=$('#irisSegPrompt');
+  if(!field)return;
+  field.value='';
+  syncIrisSegPrompt();
+  field.focus();
+});
+$('#irisSegPromptApply')?.addEventListener('click',()=>{
+  syncIrisSegPrompt();
+  const prompt=$('#irisSegPrompt')?.value?.trim()||'';
+  if(!prompt){
+    setIrisSegConnection(irisSeg.connected?'online':'offline','Enter a prompt first.');
+    $('#irisSegPrompt')?.focus();
+    return;
+  }
+  setIrisSegConnection(
+    irisSeg.connected?'online':'offline',
+    `IrisReg prompt saved: "${prompt.slice(0,80)}${prompt.length>80?'…':''}"`
+  );
+});
 $('#irisSegTarget')?.addEventListener('change',()=>{
   state.roto.activeTarget=$('#irisSegTarget').value;
   const session=rotoForTarget(state.roto.activeTarget);
   irisSeg.points=[...(session?.points||[])];
+  if($('#irisSegPrompt')){$('#irisSegPrompt').value=session?.prompt||'';syncIrisSegPrompt();}
   renderIrisSegPoints();drawIrisSegFrame()
 });
 $('#irisSegInclude')?.addEventListener('click',()=>irisSegSetMode('include'));
