@@ -222,375 +222,47 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 </style>
 
 
-<style id="crtizer-multitrack-css">
-.timeline{
-  min-height:150px;
+<style id="crtizer-multitrack-shader-css">
+.shader-target-row{display:grid;grid-template-columns:1fr;gap:5px;margin:8px 0}
+.shader-target-row label{font:6px ui-monospace;color:var(--muted)}
+.timeline{display:grid!important;grid-template-rows:31px 1fr!important}
+.timeline-body{height:auto!important;min-height:89px!important;overflow:auto!important}
+.track-stack{display:grid;gap:6px;min-width:540px}
+.track-row{display:grid;grid-template-columns:72px minmax(0,1fr);gap:6px;align-items:center}
+.track-label{
+  height:52px;border:1px solid var(--line);border-radius:7px;background:#0b0e12;
+  display:flex;flex-direction:column;justify-content:center;padding:0 7px;overflow:hidden
 }
-.timeline-body{
-  height:auto!important;
-  max-height:210px;
-  overflow:auto!important;
-  padding:8px!important;
-}
-.multitrack{
-  display:grid;
-  gap:6px;
-  min-width:560px;
-}
-.track-row{
-  display:grid;
-  grid-template-columns:92px minmax(440px,1fr);
-  gap:7px;
-  align-items:center;
-}
-.track-dock{
-  height:48px;
-  border:1px solid var(--line);
-  background:#0a0d11;
-  border-radius:8px;
-  padding:6px 7px;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  min-width:0;
-}
-.track-dock-main{
-  min-width:0;
-  flex:1;
-}
-.track-dock b{
-  display:block;
-  font-size:7px;
-  color:#dce6e9;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.track-dock small{
-  display:block;
-  margin-top:2px;
-  font:5.5px ui-monospace,monospace;
-  color:#66767d;
-}
-.track-dock button{
-  width:24px;height:24px;
-  border:0;
-  border-radius:6px;
-  background:#15191e;
-  color:#809097;
-}
-.track-dock button.on{color:var(--cyan)}
-.track-lane{
-  position:relative;
-  height:48px;
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:#090c10;
-  overflow:hidden;
+.track-label b{font-size:6.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track-label small{font:5.5px ui-monospace;color:var(--muted);margin-top:2px}
+.track{
+  position:relative;height:52px;min-width:460px;border:1px solid var(--line);
+  border-radius:8px;background:#0b0e12;overflow:hidden
 }
 .track-clip{
-  position:absolute;
-  top:5px;bottom:5px;
-  left:6px;right:6px;
-  border-radius:7px;
-  border:1px solid rgba(105,231,255,.22);
-  background:linear-gradient(90deg,rgba(105,231,255,.07),rgba(255,101,216,.045));
-  display:flex;
-  align-items:center;
-  gap:7px;
-  padding:0 8px;
-  overflow:hidden;
+  position:absolute;left:7px;right:7px;top:6px;bottom:6px;border-radius:7px;
+  border:1px solid rgba(105,231,255,.24);
+  background:linear-gradient(90deg,rgba(105,231,255,.08),rgba(255,101,216,.045));
+  display:flex;align-items:center;gap:7px;padding:0 8px;overflow:hidden
 }
-.track-clip.layer{
-  border-color:rgba(255,101,216,.22);
-  background:linear-gradient(90deg,rgba(255,101,216,.06),rgba(105,231,255,.04));
+.track-clip.layer-track{border-color:rgba(255,101,216,.24);background:linear-gradient(90deg,rgba(255,101,216,.07),rgba(105,231,255,.035))}
+.track-thumb{width:46px;height:30px;border-radius:5px;overflow:hidden;background:#020305;flex:0 0 auto}
+.track-thumb img,.track-thumb video{width:100%;height:100%;object-fit:cover;display:block}
+.track-info{min-width:0}
+.track-info b{display:block;font-size:6.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.track-info small{display:block;margin-top:2px;font:5.5px ui-monospace;color:var(--muted)}
+.track-playhead{
+  position:absolute;top:0;bottom:0;width:2px;background:var(--cyan);left:7px;z-index:6;
+  box-shadow:0 0 8px rgba(105,231,255,.28);pointer-events:none
 }
-.track-clip-thumb{
-  width:46px;height:30px;
-  border-radius:5px;
-  overflow:hidden;
-  background:#020305;
-  flex:0 0 auto;
-}
-.track-clip-thumb img,.track-clip-thumb video{
-  width:100%;height:100%;object-fit:cover;
-}
-.track-clip-info{
-  min-width:0;
-}
-.track-clip-info b{
-  display:block;
-  font-size:7px;
-  color:#d7e1e4;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.track-clip-info small{
-  display:block;
-  margin-top:2px;
-  font:5.5px ui-monospace,monospace;
-  color:#617077;
-}
-.track-row.selected .track-dock,
-.track-row.selected .track-lane{
-  border-color:rgba(105,231,255,.34);
-}
-.global-playhead{
-  position:absolute;
-  top:0;bottom:0;
-  width:2px;
-  background:var(--cyan);
-  z-index:20;
-  pointer-events:none;
-}
-.shader-target-row{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:5px;
-  margin:8px 0;
-}
-.shader-target-row label{
-  font:6px ui-monospace,monospace;
-  color:var(--muted);
-}
+.track-playhead:before{content:"";position:absolute;top:0;left:50%;transform:translate(-50%,-45%);width:7px;height:7px;border-radius:50%;background:var(--cyan)}
 @media(max-width:900px){
-  .timeline{
-    min-height:152px!important;
-    height:152px!important;
-  }
-  .timeline-body{
-    max-height:121px;
-    height:121px!important;
-    overflow:auto!important;
-  }
-  .track-row{
-    grid-template-columns:80px minmax(360px,1fr);
-  }
-  .track-dock{
-    height:44px;
-    padding:5px 6px;
-  }
-  .track-lane{height:44px}
-  .track-clip{top:4px;bottom:4px}
-}
-</style>
-
-
-<style id="crtizer-track-docker-fix-css">
-.multitrack{
-  display:flex!important;
-  flex-direction:column!important;
-  gap:6px!important;
-  min-width:560px!important;
-}
-.track-row{
-  display:grid!important;
-  grid-template-columns:96px minmax(440px,1fr)!important;
-  gap:7px!important;
-  align-items:center!important;
-  min-height:48px!important;
-}
-.track-dock{
-  position:sticky!important;
-  left:0!important;
-  z-index:10!important;
-  background:#0b0e12!important;
-}
-.track-row[data-track="source"] .track-dock{
-  border-color:rgba(105,231,255,.28)!important;
-}
-.track-row:not([data-track="source"]) .track-dock{
-  border-color:rgba(255,101,216,.20)!important;
-}
-.track-row[data-track="source"] .track-clip{
-  border-color:rgba(105,231,255,.30)!important;
-}
-.track-row:not([data-track="source"]) .track-clip{
-  border-color:rgba(255,101,216,.26)!important;
-}
-.track-dock-index{
-  width:18px;height:18px;border-radius:5px;
-  display:grid;place-items:center;
-  background:#151a20;color:#7f9198;
-  font:6px ui-monospace,monospace;flex:0 0 auto
-}
-.track-row[data-track="source"] .track-dock-index{color:var(--cyan)}
-.track-row:not([data-track="source"]) .track-dock-index{color:var(--pink)}
-.timeline-body{
-  position:relative!important;
-}
-@media(max-width:900px){
-  .multitrack{min-width:500px!important}
-  .track-row{grid-template-columns:78px minmax(390px,1fr)!important}
-  .track-dock{padding:4px 5px!important}
-  .track-dock-index{display:none}
-  .track-dock small{font-size:5px!important}
-}
-</style>
-
-
-<style id="crtizer-mobile-timeline-scrollbox">
-@media(max-width:900px){
-  .timeline{
-    height:154px!important;
-    min-height:154px!important;
-    overflow:hidden!important;
-    display:grid!important;
-    grid-template-rows:30px 1fr!important;
-    background:#07090c!important;
-  }
-
-  .timeline-head{
-    height:30px!important;
-    min-height:30px!important;
-    padding:0 6px!important;
-    overflow:hidden!important;
-  }
-
-  .timeline-body{
-    height:124px!important;
-    max-height:124px!important;
-    min-height:0!important;
-    overflow:auto!important;
-    -webkit-overflow-scrolling:touch!important;
-    overscroll-behavior:contain!important;
-    scrollbar-width:thin!important;
-    padding:7px!important;
-    position:relative!important;
-    background:#06080b!important;
-  }
-
-  .multitrack{
-    display:flex!important;
-    flex-direction:column!important;
-    gap:6px!important;
-    width:max-content!important;
-    min-width:100%!important;
-    padding-right:8px!important;
-  }
-
-  .track-row{
-    display:grid!important;
-    grid-template-columns:82px 460px!important;
-    gap:6px!important;
-    min-height:44px!important;
-    width:max-content!important;
-    align-items:center!important;
-  }
-
-  .track-dock{
-    position:sticky!important;
-    left:0!important;
-    z-index:30!important;
-    height:44px!important;
-    min-width:82px!important;
-    max-width:82px!important;
-    padding:5px 6px!important;
-    background:#0b0e12!important;
-    box-shadow:7px 0 12px rgba(5,6,8,.72)!important;
-    border-radius:8px!important;
-  }
-
-  .track-dock-main b{
-    font-size:6.5px!important;
-  }
-
-  .track-dock-main small{
-    font-size:5px!important;
-  }
-
-  .track-dock button{
-    width:22px!important;
-    height:22px!important;
-    flex:0 0 22px!important;
-  }
-
-  .track-lane{
-    width:460px!important;
-    min-width:460px!important;
-    height:44px!important;
-    position:relative!important;
-    overflow:hidden!important;
-  }
-
-  .track-clip{
-    top:4px!important;
-    bottom:4px!important;
-    left:5px!important;
-    right:5px!important;
-    min-width:0!important;
-  }
-
-  .track-clip-thumb{
-    width:42px!important;
-    height:28px!important;
-  }
-
-  .track-clip-info b{
-    font-size:6.5px!important;
-  }
-
-  .track-clip-info small{
-    font-size:5px!important;
-  }
-
-  /* Give the user a clear swipe affordance */
-  .timeline-body:after{
-    content:"SWIPE TIMELINE ↔";
-    position:sticky;
-    left:8px;
-    bottom:2px;
-    display:block;
-    width:max-content;
-    margin-top:3px;
-    padding:2px 5px;
-    border-radius:5px;
-    background:rgba(5,7,10,.78);
-    color:#596970;
-    font:5px ui-monospace,monospace;
-    pointer-events:none;
-  }
-
-  .timeline-body::-webkit-scrollbar{
-    height:5px!important;
-    width:5px!important;
-  }
-
-  .timeline-body::-webkit-scrollbar-thumb{
-    background:#26343b!important;
-    border-radius:999px!important;
-  }
-
-  .timeline-body::-webkit-scrollbar-track{
-    background:transparent!important;
-  }
-}
-
-@media(max-width:430px){
-  .timeline{
-    height:148px!important;
-    min-height:148px!important;
-  }
-
-  .timeline-body{
-    height:118px!important;
-    max-height:118px!important;
-  }
-
-  .track-row{
-    grid-template-columns:76px 420px!important;
-  }
-
-  .track-dock{
-    min-width:76px!important;
-    max-width:76px!important;
-  }
-
-  .track-lane{
-    width:420px!important;
-    min-width:420px!important;
-  }
+  .timeline-body{min-height:73px!important}
+  .track-stack{min-width:500px}
+  .track-row{grid-template-columns:64px minmax(0,1fr)}
+  .track-label{height:46px}
+  .track{height:46px}
+  .track-thumb{width:40px;height:26px}
 }
 </style>
 
@@ -648,8 +320,8 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
             <button class="btn danger" id="deleteSourceBtn">Delete</button>
           </div>
         </div>
-        <div class="timeline-body">
-          <div class="multitrack" id="multitrack"></div>
+        <div class="timeline-body" id="timelineBody">
+          <div class="track-stack" id="trackStack"></div>
         </div>
       </section>
 
@@ -822,7 +494,7 @@ const state={
   splits:[],
   effects:{brightness:1,contrast:1,saturation:1,scanlines:.24,glow:.18,rgbShift:1.5,vignette:.25},
   synth:{enabled:false,target:'source',strength:.72,neighborBoost:20,rightWeight:7,downWeight:9,thresholdBase:128,lineBias:1,color1:'#69e7ff',color2:'#050608',preset:'punk'},
-  shader:{enabled:false,id:'classic',target:'source',scanlines:.28,glow:.18,rgbShift:1.5,curve:.08,noise:.03}
+  shader:{enabled:false,target:'source',id:'classic',scanlines:.28,glow:.18,rgbShift:1.5,curve:.08,noise:.03}
 };
 
 let raf=0, objectUrls=new Set();
@@ -967,6 +639,7 @@ function renderTo(c,w,h,includeUI=false){
   const sourceBuf=document.createElement('canvas');
   sourceBuf.width=w;sourceBuf.height=h;
   const sc=sourceBuf.getContext('2d',{willReadFrequently:true});
+
   drawBase(sc,w,h);
 
   if(state.synth.enabled && state.synth.target==='source'){
@@ -983,23 +656,31 @@ function renderTo(c,w,h,includeUI=false){
   c.drawImage(sourceBuf,0,0);
 
   state.layers.slice().sort((a,b)=>a.z-b.z).forEach(l=>{
-    const tmp=document.createElement('canvas');
-    tmp.width=w;tmp.height=h;
-    const tc=tmp.getContext('2d',{willReadFrequently:true});
-    drawLayer(tc,l,w,h);
+    const needsSynth=state.synth.enabled && state.synth.target===l.id;
+    const needsShader=state.shader.enabled && state.shader.target===l.id;
 
-    if(state.synth.enabled && state.synth.target===l.id){
-      try{
-        const im=tc.getImageData(0,0,w,h);
-        tc.putImageData(applyPunk(im,w,h,state.synth),0,0);
-      }catch(e){}
+    if(needsSynth || needsShader){
+      const tmp=document.createElement('canvas');
+      tmp.width=w;tmp.height=h;
+      const tc=tmp.getContext('2d',{willReadFrequently:true});
+
+      drawLayer(tc,l,w,h);
+
+      if(needsSynth){
+        try{
+          const im=tc.getImageData(0,0,w,h);
+          tc.putImageData(applyPunk(im,w,h,state.synth),0,0);
+        }catch(e){}
+      }
+
+      if(needsShader){
+        applyShaderFx(tc,w,h,state.shader);
+      }
+
+      c.drawImage(tmp,0,0);
+    }else{
+      drawLayer(c,l,w,h);
     }
-
-    if(state.shader.enabled && state.shader.target===l.id){
-      applyShaderFx(tc,w,h,state.shader);
-    }
-
-    c.drawImage(tmp,0,0);
   });
 
   if(state.effects.scanlines>0 && !state.shader.enabled){
@@ -1033,55 +714,113 @@ requestAnimationFrame(loop);
 function setSourceTest(){
   if(state.source.video){state.source.video.pause()}
   state.source={type:'test',name:'TEST PATTERN',url:'',image:null,video:null};state.trimStart=0;state.trimEnd=null;
-  updateSourceUI();renderMultitrack();updateShaderTargets()
+  updateSourceUI();renderTimelineTracks()
 }
 function setSourceImage(file){
   const url=URL.createObjectURL(file);objectUrls.add(url);const img=new Image();img.onload=()=>{};img.src=url;
   if(state.source.video)state.source.video.pause();
-  state.source={type:'image',name:file.name,url,image:img,video:null};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets()
+  state.source={type:'image',name:file.name,url,image:img,video:null};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderTimelineTracks()
 }
 function setSourceVideo(file){
   const url=URL.createObjectURL(file);objectUrls.add(url);const v=document.createElement('video');v.src=url;v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';
   v.addEventListener('loadedmetadata',()=>{state.trimEnd=v.duration;updateSourceUI();v.play().catch(()=>{});state.playing=true});
-  state.source={type:'video',name:file.name,url,image:null,video:v};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderMultitrack();updateShaderTargets()
+  state.source={type:'video',name:file.name,url,image:null,video:v};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderTimelineTracks()
 }
 function updateSourceUI(){
   $('#currentSourceLabel').textContent=state.source.name;
   $('#timelineStatus').textContent=state.source.type==='test'?'No media':state.source.type.toUpperCase();
-  const clip=$('#timelineClip'),thumb=$('#timelineThumb');thumb.innerHTML='';
-  if(state.source.type==='test'){clip.hidden=true;return}
-  clip.hidden=false;$('#timelineName').textContent=state.source.name;
-  if(state.source.type==='image'){const i=document.createElement('img');i.src=state.source.url;thumb.appendChild(i);$('#timelineMeta').textContent='Still image'}
-  else{const v=document.createElement('video');v.src=state.source.url;v.muted=true;v.playsInline=true;thumb.appendChild(v);$('#timelineMeta').textContent=fmt(state.source.video?.duration||0)}
   $$('.source-card').forEach(x=>x.classList.remove('active'));
-}
-
-function syncLayerVideos(){
-  const sv=state.source.video;
-  state.layers.forEach(l=>{
-    if(l.type!=='video'||!l.el||!isFinite(l.el.duration))return;
-    if(sv&&isFinite(sv.currentTime)){
-      const target=Math.min(sv.currentTime,l.el.duration||sv.currentTime);
-      if(Math.abs((l.el.currentTime||0)-target)>.18){
-        try{l.el.currentTime=target}catch(e){}
-      }
-      if(sv.paused){if(!l.el.paused)l.el.pause()}
-      else if(l.el.paused)l.el.play().catch(()=>{});
-    }
-  })
+  renderTimelineTracks();
 }
 function syncTransport(){
   const v=state.source.video;
   if(state.source.type==='video'&&v&&v.duration){
-    $('#timeNow').textContent=fmt(v.currentTime);$('#timeDur').textContent=fmt(v.duration);$('#seek').value=Math.round(v.currentTime/v.duration*1000);
-    $('#playBtn').textContent=v.paused?'▶':'Ⅱ';$('#timelineMeta').textContent=fmt(state.trimStart)+' → '+fmt(state.trimEnd??v.duration);
-    const track=$('#track');const p=clamp(v.currentTime/v.duration,0,1);$('#playhead').style.left=(10+p*(track.clientWidth-20))+'px';
-    if(state.trimEnd!=null&&v.currentTime>=state.trimEnd){v.currentTime=state.trimStart;if(!v.paused)v.play().catch(()=>{})} syncLayerVideos(); renderMultitrack();
-  }else{$('#timeNow').textContent='00:00';$('#timeDur').textContent='00:00';$('#seek').value=0;$('#playBtn').textContent='▶';$('#playhead').style.left='10px'}
+    $('#timeNow').textContent=fmt(v.currentTime);
+    $('#timeDur').textContent=fmt(v.duration);
+    $('#seek').value=Math.round(v.currentTime/v.duration*1000);
+    $('#playBtn').textContent=v.paused?'▶':'Ⅱ';
+
+    if(state.trimEnd!=null&&v.currentTime>=state.trimEnd){
+      v.currentTime=state.trimStart;
+      if(!v.paused)v.play().catch(()=>{});
+    }
+  }else{
+    $('#timeNow').textContent='00:00';
+    $('#timeDur').textContent='00:00';
+    $('#seek').value=0;
+    $('#playBtn').textContent='▶';
+  }
+  updateTimelinePlayheads();
+}
+
+function timelineThumbHTML(type,url){
+  if(type==='image')return `<img src="${url}" alt="">`;
+  if(type==='video')return `<video src="${url}" muted playsinline preload="metadata"></video>`;
+  return `<div style="width:100%;height:100%;display:grid;place-items:center;color:#607078;font:700 12px ui-monospace">SRC</div>`;
+}
+function renderTimelineTracks(){
+  const box=$('#trackStack');
+  if(!box)return;
+  const rows=[];
+
+  // Original source is always its own track.
+  rows.push({
+    id:'source',
+    name:state.source.name,
+    type:state.source.type,
+    url:state.source.url,
+    meta:state.source.type==='video'
+      ? `${fmt(state.trimStart)} → ${fmt(state.trimEnd??state.source.video?.duration||0)}`
+      : (state.source.type==='image'?'Still image':'Generator'),
+    cls:''
+  });
+
+  // Each user layer gets an independent track.
+  state.layers.slice().sort((a,b)=>b.z-a.z).forEach(l=>rows.push({
+    id:l.id,name:l.name,type:l.type,url:l.url,
+    meta:`${l.type.toUpperCase()} • Z${l.z}`,
+    cls:'layer-track'
+  }));
+
+  box.innerHTML=rows.map(r=>`
+    <div class="track-row" data-track-id="${r.id}">
+      <div class="track-label">
+        <b>${escapeHtml(r.id==='source'?'SOURCE':r.name)}</b>
+        <small>${escapeHtml(r.id==='source'?'BASE TRACK':r.type.toUpperCase())}</small>
+      </div>
+      <div class="track" data-seek-track="${r.id}">
+        <div class="track-clip ${r.cls}">
+          <div class="track-thumb">${timelineThumbHTML(r.type,r.url)}</div>
+          <div class="track-info">
+            <b>${escapeHtml(r.name)}</b>
+            <small>${escapeHtml(r.meta)}</small>
+          </div>
+        </div>
+        <div class="track-playhead" data-playhead="${r.id}"></div>
+      </div>
+    </div>`).join('');
+
+  box.querySelectorAll('[data-seek-track]').forEach(track=>{
+    track.addEventListener('click',e=>{
+      const v=state.source.video;
+      if(!v||!v.duration)return;
+      const r=track.getBoundingClientRect();
+      const p=clamp((e.clientX-r.left)/r.width,0,1);
+      v.currentTime=p*v.duration;
+    });
+  });
+}
+function updateTimelinePlayheads(){
+  const v=state.source.video;
+  const p=(v&&v.duration)?clamp(v.currentTime/v.duration,0,1):0;
+  $$('[data-playhead]').forEach(ph=>{
+    const track=ph.parentElement;
+    const width=Math.max(0,track.clientWidth-14);
+    ph.style.left=(7+p*width)+'px';
+  });
 }
 $('#playBtn').onclick=()=>{const v=state.source.video;if(!v)return;v.paused?v.play().catch(()=>{}):v.pause()}
 $('#seek').oninput=e=>{const v=state.source.video;if(v&&v.duration)v.currentTime=(+e.target.value/1000)*v.duration}
-$('#track').onclick=e=>{const v=state.source.video;if(!v||!v.duration)return;const r=e.currentTarget.getBoundingClientRect();v.currentTime=clamp((e.clientX-r.left)/r.width,0,1)*v.duration}
 $('#splitBtn').onclick=()=>{const v=state.source.video;if(!v)return toast('Split marker '+fmt(v.currentTime)),state.splits.push(v.currentTime)}
 $('#trimBtn').onclick=()=>{const v=state.source.video;if(!v)return; if(!state._trimArmed){state.trimStart=v.currentTime;state._trimArmed=true;toast('Trim start '+fmt(v.currentTime))}else{state.trimEnd=Math.max(state.trimStart+.05,v.currentTime);state._trimArmed=false;toast('Trim range saved')}}
 $('#deleteSourceBtn').onclick=()=>setSourceTest();
@@ -1101,17 +840,17 @@ function renderQuick(){
   $('#quickParams').innerHTML=html;$('#desktopEffects').innerHTML=html;
   $$('[data-fx]').forEach(r=>r.oninput=()=>{state.effects[r.dataset.fx]=+r.value;r.previousElementSibling.querySelector('b').textContent=(+r.value).toFixed(+r.step<1?2:0)})
 }
-renderQuick();renderMultitrack();
+renderQuick();
 
 function makeLayer(file){
   snapshot();const id='layer_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),type=file.type.startsWith('video/')?'video':'image',url=URL.createObjectURL(file);objectUrls.add(url);
   let el;if(type==='image'){el=new Image();el.src=url}else{el=document.createElement('video');el.src=url;el.muted=true;el.loop=true;el.playsInline=true;el.play().catch(()=>{})}
   const z=state.layers.length?Math.max(...state.layers.map(l=>l.z))+1:1;
   const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z};
-  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack();requestAnimationFrame(renderMultitrack);setTimeout(renderMultitrack,60);toast('Layer added')
+  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();renderTimelineTracks();toast('Layer added')
 }
-$('#layerImageInput').onchange=e=>{const f=e.target.files?.[0];if(f){makeLayer(f);setTimeout(renderMultitrack,100)}e.target.value=''}
-$('#layerVideoInput').onchange=e=>{const f=e.target.files?.[0];if(f){makeLayer(f);setTimeout(renderMultitrack,180)}e.target.value=''}
+$('#layerImageInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
+$('#layerVideoInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
 $('#addLayerImage').onclick=()=>$('#layerImageInput').click();$('#addLayerVideo').onclick=()=>$('#layerVideoInput').click();
 
 function selectedLayer(){return state.layers.find(l=>l.id===state.selectedLayer)}
@@ -1136,12 +875,12 @@ function renderLayerInspector(){
   $('#layerParams').innerHTML=defs.map(d=>paramHTML(d[0],d[1],l[d[1]],d[2],d[3],d[4],'data-layer-param')).join('');
   $$('[data-layer-param]').forEach(r=>r.oninput=()=>{l[r.dataset.layerParam]=+r.value;r.previousElementSibling.querySelector('b').textContent=r.value})
 }
-function deleteLayer(id){snapshot();state.layers=state.layers.filter(l=>l.id!==id);if(state.selectedLayer===id)state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack();requestAnimationFrame(renderMultitrack);requestAnimationFrame(renderMultitrack)}
+function deleteLayer(id){snapshot();state.layers=state.layers.filter(l=>l.id!==id);if(state.selectedLayer===id)state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();renderTimelineTracks()}
 function restoreHistory(){
   if(!state.history.length)return toast('Nothing to undo');
   const snap=JSON.parse(state.history.pop());const byId=new Map(state.layers.map(l=>[l.id,l]));
   state.layers=snap.map(s=>{let l=byId.get(s.id);if(!l){let el=s.type==='image'?new Image():document.createElement('video');el.src=s.url;if(s.type==='video'){el.muted=true;el.loop=true;el.playsInline=true;el.play().catch(()=>{})}l={...s,el}}return Object.assign(l,s)});
-  state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();renderMultitrack();requestAnimationFrame(renderMultitrack)
+  state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();renderTimelineTracks()
 }
 $('#undoLayer').onclick=restoreHistory;$('#layerDelete').onclick=()=>selectedLayer()&&deleteLayer(selectedLayer().id);
 $('#layerCenter').onclick=()=>{const l=selectedLayer();if(l){snapshot();l.x=0;l.y=0;renderLayerInspector()}}
@@ -1172,7 +911,17 @@ function updateSynthTargets(){
   $('#synthTarget').innerHTML='<option value="source">Source</option>'+state.layers.map(l=>`<option value="${l.id}">${escapeHtml(l.name)}</option>`).join('');
   $('#synthTarget').value=state.synth.target&&([...$('#synthTarget').options].some(o=>o.value===state.synth.target))?state.synth.target:'source';
 }
-renderSynthControls();updateSynthTargets();
+
+function updateShaderTargets(){
+  const el=$('#shaderTarget');
+  if(!el)return;
+  el.innerHTML='<option value="source">Source</option>'+state.layers.map(l=>`<option value="${l.id}">${escapeHtml(l.name)}</option>`).join('');
+  const exists=[...el.options].some(o=>o.value===state.shader.target);
+  el.value=exists?state.shader.target:'source';
+  if(!exists)state.shader.target='source';
+}
+
+renderSynthControls();updateSynthTargets();updateShaderTargets();renderTimelineTracks();
 $('#synthPresetSelect').onchange=e=>applySynthPreset(e.target.value);
 $('#synthTarget').onchange=e=>state.synth.target=e.target.value;
 $('#color1').oninput=e=>state.synth.color1=e.target.value;$('#color2').oninput=e=>state.synth.color2=e.target.value;
@@ -1272,131 +1021,14 @@ const cachedManifest=JSON.parse(localStorage.getItem('crtizer_shader_manifest')|
 if(Array.isArray(cachedManifest)&&cachedManifest.length)shaderCatalog=cachedManifest;
 renderShaders();renderShaderParams();renderShaderCategories();
 $('#shaderSearch').oninput=e=>renderShaders(e.target.value);
+$('#shaderTarget').onchange=e=>state.shader.target=e.target.value;
 $('#syncShaderLibrary').onclick=syncShaderCatalog;
 $('#shaderFavoritesBtn').onclick=e=>{favoritesOnly=!favoritesOnly;e.currentTarget.classList.toggle('accent',favoritesOnly);renderShaders($('#shaderSearch').value)};
-updateShaderTargets();
-$('#shaderTarget').onchange=e=>state.shader.target=e.target.value;
-$('#applyShader').onclick=()=>{state.shader.enabled=true;state.shader.target=$('#shaderTarget')?.value||'source';state.shader.id=shaderSelected;const s=shaderCatalog.find(x=>x.id===shaderSelected);if(s)Object.assign(state.shader,s.v,{id:s.id,target:state.shader.target});updateFxLabel();toast(state.shader.target==='source'?'Shader applied to source':'Shader applied to selected layer')}
+$('#applyShader').onclick=()=>{state.shader.enabled=true;state.shader.target=$('#shaderTarget').value;state.shader.id=shaderSelected;const s=shaderCatalog.find(x=>x.id===shaderSelected);if(s)Object.assign(state.shader,s.v,{id:s.id,target:state.shader.target});updateFxLabel();toast(state.shader.target==='source'?'Shader applied to source':'Shader applied to selected layer')}
 $('#removeShader').onclick=()=>{state.shader.enabled=false;updateFxLabel();toast('Shader removed')}
-
-function updateShaderTargets(){
-  const sel=$('#shaderTarget');
-  if(!sel)return;
-  const current=state.shader.target||'source';
-  sel.innerHTML='<option value="source">Source</option>'+
-    state.layers.map(l=>`<option value="${l.id}">${escapeHtml(l.name)}</option>`).join('');
-  if([...sel.options].some(o=>o.value===current))sel.value=current;
-  else{sel.value='source';state.shader.target='source'}
-}
-function layerDuration(l){
-  if(l.type==='video'&&l.el&&isFinite(l.el.duration))return l.el.duration;
-  return null;
-}
-function renderMultitrack(){
-  const box=$('#multitrack');
-  if(!box)return;
-
-  const rows=[];
-
-  // SOURCE track always exists and always stays first.
-  const sourceThumb = state.source.type==='image'
-    ? `<div class="track-clip-thumb"><img src="${state.source.url}"></div>`
-    : state.source.type==='video'
-      ? `<div class="track-clip-thumb"><video src="${state.source.url}" muted playsinline preload="metadata"></video></div>`
-      : `<div class="track-clip-thumb" style="display:grid;place-items:center;color:#65747b;font:10px ui-monospace">GEN</div>`;
-
-  rows.push(`
-    <div class="track-row ${state.selectedLayer===null?'selected':''}" data-track="source">
-      <div class="track-dock">
-        <span class="track-dock-index">S</span>
-        <div class="track-dock-main">
-          <b>SOURCE</b>
-          <small>${escapeHtml(state.source.name)}</small>
-        </div>
-        <button class="on" data-track-visible="source" title="Source is always visible">◉</button>
-      </div>
-      <div class="track-lane" data-lane="source">
-        <div class="track-clip">
-          ${sourceThumb}
-          <div class="track-clip-info">
-            <b>${escapeHtml(state.source.name)}</b>
-            <small>${state.source.type==='video'
-              ? fmt(state.source.video?.duration||0)
-              : state.source.type==='image' ? 'STILL IMAGE' : 'TEST SOURCE'}</small>
-          </div>
-        </div>
-      </div>
-    </div>`);
-
-  // Every added media layer gets its own independent dock + lane.
-  const orderedLayers=state.layers.slice().sort((a,b)=>a.z-b.z);
-  orderedLayers.forEach((l,index)=>{
-    const thumb=l.type==='image'
-      ? `<div class="track-clip-thumb"><img src="${l.url}"></div>`
-      : `<div class="track-clip-thumb"><video src="${l.url}" muted playsinline preload="metadata"></video></div>`;
-
-    rows.push(`
-      <div class="track-row ${state.selectedLayer===l.id?'selected':''}" data-track="${l.id}">
-        <div class="track-dock">
-          <span class="track-dock-index">${index+1}</span>
-          <div class="track-dock-main">
-            <b>${escapeHtml(l.name)}</b>
-            <small>${l.type.toUpperCase()} • LAYER ${index+1}</small>
-          </div>
-          <button class="${l.visible?'on':''}" data-track-visible="${l.id}" title="Toggle layer visibility">${l.visible?'◉':'○'}</button>
-        </div>
-        <div class="track-lane" data-lane="${l.id}">
-          <div class="track-clip layer">
-            ${thumb}
-            <div class="track-clip-info">
-              <b>${escapeHtml(l.name)}</b>
-              <small>${l.type==='video' ? fmt(layerDuration(l)||0) : 'STILL IMAGE'} • Z${l.z}</small>
-            </div>
-          </div>
-        </div>
-      </div>`);
-  });
-
-  box.innerHTML=rows.join('');
-  $('#timelineStatus').textContent=
-    orderedLayers.length
-      ? `Source + ${orderedLayers.length} layer${orderedLayers.length===1?'':'s'}`
-      : (state.source.type==='test'?'Source only':'Source loaded');
-
-  $$('[data-track]').forEach(row=>{
-    row.onclick=e=>{
-      if(e.target.closest('[data-track-visible]'))return;
-      const id=row.dataset.track;
-      state.selectedLayer=id==='source'?null:id;
-      renderMultitrack();
-      if(id!=='source'){
-        renderLayers();
-        renderLayerInspector();
-      }
-    };
-  });
-
-  $$('[data-track-visible]').forEach(btn=>{
-    btn.onclick=e=>{
-      e.stopPropagation();
-      const id=btn.dataset.trackVisible;
-      if(id==='source'){
-        toast('Source track remains visible');
-        return;
-      }
-      const l=state.layers.find(x=>x.id===id);
-      if(!l)return;
-      snapshot();
-      l.visible=!l.visible;
-      renderMultitrack();
-      renderLayers();
-    };
-  });
-}
-window.renderMultitrack = renderMultitrack;
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push(state.synth.target==='source'?'Dither: Source':'Dither: Layer');if(state.shader.enabled)a.push(state.shader.target==='source'?'Shader: Source':'Shader: Layer');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader';const p=$('#fxStatusPill');if(p)p.innerHTML='FX: <b>'+(a.length?a.join(' + '):'NONE')+'</b>'}
 
-function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers'){renderLayers();renderMultitrack();}if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
+function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
 function closeModal(name){$('#'+name+'Modal')?.classList.remove('open')}
 $$('[data-open]').forEach(b=>b.onclick=()=>openModal(b.dataset.open));$$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 
@@ -1435,161 +1067,5 @@ $('#exportNow').onclick=async()=>{
 
 window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjectURL(u)));
 </script>
-
-
-<script id="crtizer-ui-binding-fix">
-(function(){
-  function q(id){ return document.getElementById(id); }
-
-  function openModal(name){
-    const m=q(name+'Modal');
-    if(!m) return;
-    m.classList.add('open');
-
-    if(name==='layers'){
-      window.renderMultitrack?.();
-      window.CRTIZER_ELITE_LAYERS?.render?.();
-      try{ renderLayers?.(); }catch(e){}
-    }
-    if(name==='synth'){
-      try{ updateSynthTargets?.(); renderSynthControls?.(); }catch(e){}
-    }
-    if(name==='shader'){
-      try{ updateShaderTargets?.(); renderShaders?.(q('shaderSearch')?.value||''); }catch(e){}
-    }
-  }
-
-  function closeModal(name){
-    q(name+'Modal')?.classList.remove('open');
-  }
-
-  // Desktop/top buttons.
-  document.querySelectorAll('[data-open]').forEach(btn=>{
-    btn.onclick=null;
-    btn.addEventListener('click',e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      openModal(btn.dataset.open);
-    });
-  });
-
-  document.querySelectorAll('[data-close]').forEach(btn=>{
-    btn.onclick=null;
-    btn.addEventListener('click',e=>{
-      e.preventDefault();
-      e.stopPropagation();
-      closeModal(btn.dataset.close);
-    });
-  });
-
-  // Mobile tool dock.
-  document.querySelectorAll('.tool').forEach(btn=>{
-    btn.onclick=null;
-    btn.addEventListener('click',e=>{
-      e.preventDefault();
-      e.stopPropagation();
-
-      const tool=btn.dataset.tool;
-      document.querySelectorAll('.tool').forEach(x=>x.classList.toggle('active',x===btn));
-
-      if(['layers','synth','shader','export'].includes(tool)){
-        openModal(tool);
-        return;
-      }
-
-      try{
-        if(typeof openSheet==='function') openSheet(tool);
-      }catch(err){
-        console.error('CRTiZER sheet open failed:',err);
-      }
-    });
-  });
-
-  // Explicit header fallbacks in case data-open markup changes.
-  const fallbackMap = {
-    layersBtn:'layers',
-    synthBtn:'synth',
-    shaderBtn:'shader',
-    exportBtn:'export'
-  };
-  Object.entries(fallbackMap).forEach(([id,name])=>{
-    const b=q(id);
-    if(!b) return;
-    b.addEventListener('click',()=>openModal(name));
-  });
-
-  // Close modal on backdrop tap, but not content tap.
-  document.querySelectorAll('.modal').forEach(modal=>{
-    modal.addEventListener('click',e=>{
-      if(e.target===modal) modal.classList.remove('open');
-    });
-  });
-
-  // Make sure layer upload controls still work after previous rewiring.
-  q('addLayerImage')?.addEventListener('click',()=>q('layerImageInput')?.click());
-  q('addLayerVideo')?.addEventListener('click',()=>q('layerVideoInput')?.click());
-
-  // Force initial UI into a consistent state.
-  try{ window.renderMultitrack?.(); }catch(e){}
-})();
-</script>
-
-
-<script id="crtizer-mobile-timeline-scrollbox-js">
-(function(){
-  const body=document.querySelector('.timeline-body');
-  const box=document.getElementById('multitrack');
-
-  if(!body||!box)return;
-
-  // Preserve horizontal scroll while tracks are re-rendered.
-  let lastLeft=0,lastTop=0;
-  body.addEventListener('scroll',()=>{
-    lastLeft=body.scrollLeft;
-    lastTop=body.scrollTop;
-  },{passive:true});
-
-  const observer=new MutationObserver(()=>{
-    requestAnimationFrame(()=>{
-      body.scrollLeft=lastLeft;
-      body.scrollTop=lastTop;
-    });
-  });
-  observer.observe(box,{childList:true,subtree:true});
-
-  // Drag-to-scroll for touch/pointer without stealing button taps.
-  let dragging=false,startX=0,startY=0,startLeft=0,startTop=0;
-
-  body.addEventListener('pointerdown',e=>{
-    if(e.target.closest('button,input,.track-clip'))return;
-    dragging=true;
-    startX=e.clientX;
-    startY=e.clientY;
-    startLeft=body.scrollLeft;
-    startTop=body.scrollTop;
-    body.setPointerCapture?.(e.pointerId);
-  });
-
-  body.addEventListener('pointermove',e=>{
-    if(!dragging)return;
-    const dx=e.clientX-startX;
-    const dy=e.clientY-startY;
-    body.scrollLeft=startLeft-dx;
-    body.scrollTop=startTop-dy;
-  });
-
-  const stop=e=>{
-    dragging=false;
-    if(e?.pointerId!=null)body.releasePointerCapture?.(e.pointerId);
-  };
-  body.addEventListener('pointerup',stop);
-  body.addEventListener('pointercancel',stop);
-
-  window.CRTIZER_TIMELINE_SCROLLBOX={
-    scrollToStart(){body.scrollTo({left:0,behavior:'smooth'});}
-  };
-})();
-</script>
-
 </body>
 </html>
