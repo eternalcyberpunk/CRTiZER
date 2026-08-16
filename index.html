@@ -266,6 +266,22 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="crtizer-pro-editor-upgrade-css">
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.edit-card{border:1px solid var(--line);background:#0d1014;border-radius:9px;padding:9px}
+.edit-card label{display:block;font:6px ui-monospace;color:var(--muted);margin-bottom:5px}
+.edit-card select,.edit-card input[type=number]{width:100%;min-height:34px;border:1px solid var(--line);background:#090c10;color:#dce5e8;border-radius:7px;padding:0 8px}
+.edit-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:9px}
+.edit-status{margin-top:8px;border:1px solid var(--line);background:#0b0e12;border-radius:8px;padding:8px;font:6px ui-monospace;color:#738189;line-height:1.5}
+.export-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.export-note{font:6px ui-monospace;color:#65747b;line-height:1.5;margin-top:8px}
+@media(max-width:900px){
+  .edit-grid,.export-grid{grid-template-columns:1fr!important}
+  .edit-actions{grid-template-columns:1fr 1fr}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -463,15 +479,44 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
     <div class="modal-head"><b>Export</b><small>Compatible browser output</small><button class="icon-btn" data-close="export">×</button></div>
     <div class="modal-body" style="padding:12px;overflow:auto">
       <div class="export-grid">
-        <div class="export-card"><label>TYPE</label><select id="exportType"><option value="png">PNG Frame</option><option value="jpeg">JPEG Frame</option><option value="webm">WebM Video</option></select></div>
-        <div class="export-card"><label>RESOLUTION</label><select id="exportRes"><option value="source">Source / Canvas</option><option value="1920x1080">1920 × 1080</option><option value="1280x720">1280 × 720</option><option value="1080x1920">1080 × 1920</option></select></div>
-        <div class="export-card"><label>FPS</label><select id="exportFps"><option>24</option><option selected>30</option><option>60</option></select></div>
-        <div class="export-card"><label>QUALITY</label><select id="exportQuality"><option value=".8">High</option><option value=".92" selected>Very High</option><option value="1">Maximum</option></select></div>
+        <div class="export-card"><label>OUTPUT</label><select id="exportType">
+          <option value="png">PNG Still</option>
+          <option value="jpeg">JPEG Still</option>
+          <option value="webp">WebP Still</option>
+          <option value="webm">WebM Video</option>
+          <option value="project">CRTiZER Project JSON</option>
+        </select></div>
+        <div class="export-card"><label>RESOLUTION</label><select id="exportRes">
+          <option value="source">1280 × 720 Canvas</option>
+          <option value="3840x2160">3840 × 2160 (4K)</option>
+          <option value="2560x1440">2560 × 1440</option>
+          <option value="1920x1080">1920 × 1080</option>
+          <option value="1280x720">1280 × 720</option>
+          <option value="1080x1920">1080 × 1920 Vertical</option>
+          <option value="1080x1080">1080 × 1080 Square</option>
+        </select></div>
+        <div class="export-card"><label>FRAME RATE</label><select id="exportFps">
+          <option>24</option><option>25</option><option selected>30</option><option>50</option><option>60</option>
+        </select></div>
+        <div class="export-card"><label>VIDEO CODEC</label><select id="exportCodec"></select></div>
+        <div class="export-card"><label>VIDEO BITRATE</label><select id="exportBitrate">
+          <option value="4000000">4 Mbps</option><option value="8000000" selected>8 Mbps</option>
+          <option value="16000000">16 Mbps</option><option value="30000000">30 Mbps</option>
+        </select></div>
+        <div class="export-card"><label>IMAGE QUALITY</label><select id="exportQuality">
+          <option value=".75">Good</option><option value=".9" selected>High</option><option value="1">Maximum</option>
+        </select></div>
+        <div class="export-card"><label>RANGE</label><select id="exportRange">
+          <option value="trim">Trimmed Range</option><option value="full">Full Timeline</option><option value="3sec">3 Second Preview</option>
+        </select></div>
+        <div class="export-card"><label>AUDIO</label><select id="exportAudio">
+          <option value="off">No Audio</option><option value="source">Source Audio When Supported</option>
+        </select></div>
       </div>
       <div class="row" style="margin-top:10px">
         <button class="btn accent grow" id="exportNow">Export</button>
       </div>
-      <p style="font:7px ui-monospace;color:var(--muted);line-height:1.5">PNG/JPEG export the current composited frame. WebM records the composited canvas while the source video plays when MediaRecorder is supported.</p>
+      <div class="export-note" id="exportSupportNote">Compatible options are detected from this browser. PNG/JPEG/WebP export the current composited frame. WebM uses MediaRecorder when supported.</div>
     </div>
   </div>
 </div>
@@ -556,67 +601,93 @@ function applyPunk(data,w,h,s){
   return data;
 }
 function applyShaderFx(c,w,h,s){
-  // Snapshot current source pixels once.
+  const family=(s.family||shaderFamilyFromPath(s.path||s.id||'')).toLowerCase();
+
   const copy=document.createElement('canvas');
   copy.width=w;copy.height=h;
-  const cc=copy.getContext('2d');
+  const cc=copy.getContext('2d',{willReadFrequently:true});
   cc.drawImage(c.canvas,0,0);
 
-  // RGB separation.
-  if(s.rgbShift>0){
-    c.save();
-    c.globalCompositeOperation='screen';
-    c.globalAlpha=.13;
-    c.drawImage(copy,s.rgbShift,0);
-    c.globalAlpha=.10;
-    c.drawImage(copy,-s.rgbShift,0);
+  const scan=(amount=0.3,step=4)=>{
+    c.save();c.globalAlpha=clamp(amount,0,.9);c.fillStyle='#000';
+    for(let y=0;y<h;y+=step)c.fillRect(0,y,w,1);
     c.restore();
-  }
-
-  // Glow/bloom.
-  if(s.glow>0){
-    c.save();
-    c.globalCompositeOperation='screen';
-    c.globalAlpha=clamp(s.glow,0,1);
-    c.filter=`blur(${Math.max(2,10*s.glow)}px)`;
-    c.drawImage(copy,0,0);
-    c.restore();
-  }
-
-  // Scanlines.
-  if(s.scanlines>0){
-    c.save();
-    c.globalAlpha=clamp(s.scanlines,0,.9);
-    c.fillStyle='#000';
-    for(let y=0;y<h;y+=4)c.fillRect(0,y,w,1);
-    c.restore();
-  }
-
-  // Simple CRT curvature impression using darkened corners/edges.
-  if(s.curve>0){
-    const g=c.createRadialGradient(
-      w/2,h/2,Math.min(w,h)*.28,
-      w/2,h/2,Math.max(w,h)*.72
-    );
-    g.addColorStop(0,'rgba(0,0,0,0)');
-    g.addColorStop(1,`rgba(0,0,0,${clamp(s.curve*1.8,0,.65)})`);
-    c.fillStyle=g;
-    c.fillRect(0,0,w,h);
-  }
-
-  // Noise last so it remains visible.
-  if(s.noise>0){
+  };
+  const bloom=(amount=.15,blur=8)=>{
+    c.save();c.globalCompositeOperation='screen';c.globalAlpha=amount;c.filter=`blur(${blur}px)`;c.drawImage(copy,0,0);c.restore();
+  };
+  const rgb=(px=2,alpha=.12)=>{
+    c.save();c.globalCompositeOperation='screen';c.globalAlpha=alpha;c.drawImage(copy,px,0);c.drawImage(copy,-px,0);c.restore();
+  };
+  const noise=(amt=.04)=>{
     try{
-      const img=c.getImageData(0,0,w,h),d=img.data;
-      const amp=255*s.noise;
-      for(let i=0;i<d.length;i+=4){
-        const n=(Math.random()-.5)*amp;
-        d[i]=clamp(d[i]+n,0,255);
-        d[i+1]=clamp(d[i+1]+n,0,255);
-        d[i+2]=clamp(d[i+2]+n,0,255);
-      }
-      c.putImageData(img,0,0);
+      const im=c.getImageData(0,0,w,h),d=im.data,amp=255*amt;
+      for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*amp;d[i]=clamp(d[i]+n,0,255);d[i+1]=clamp(d[i+1]+n,0,255);d[i+2]=clamp(d[i+2]+n,0,255)}
+      c.putImageData(im,0,0)
     }catch(e){}
+  };
+  const mask=(type='grille',strength=.18)=>{
+    c.save();c.globalAlpha=strength;
+    if(type==='slot'){
+      for(let y=0;y<h;y+=6)for(let x=0;x<w;x+=6){c.fillStyle=((x/6+y/6)%2<1)?'#110000':'#000011';c.fillRect(x,y,4,3)}
+    }else{
+      for(let x=0;x<w;x+=3){c.fillStyle=x%9===0?'#2b0808':x%9===3?'#082b08':'#08082b';c.fillRect(x,0,1,h)}
+    }
+    c.restore()
+  };
+  const vignette=(amt=.2)=>{
+    const g=c.createRadialGradient(w/2,h/2,Math.min(w,h)*.25,w/2,h/2,Math.max(w,h)*.7);
+    g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(0,0,0,${amt})`);c.fillStyle=g;c.fillRect(0,0,w,h)
+  };
+  const sharpen=()=>{
+    try{
+      const im=c.getImageData(0,0,w,h),src=new Uint8ClampedArray(im.data),d=im.data;
+      const k=[0,-1,0,-1,5,-1,0,-1,0];
+      for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)for(let ch=0;ch<3;ch++){
+        let sum=0,n=0;
+        for(let ky=-1;ky<=1;ky++)for(let kx=-1;kx<=1;kx++){sum+=src[((y+ky)*w+x+kx)*4+ch]*k[n++]}
+        d[(y*w+x)*4+ch]=clamp(sum,0,255)
+      }
+      c.putImageData(im,0,0)
+    }catch(e){}
+  };
+
+  if(family==='crt-royale'){
+    bloom(Math.max(.12,s.glow||.18),10);
+    scan(Math.max(.28,s.scanlines||.34),3);
+    mask('grille',.16);
+    rgb(Math.max(1,s.rgbShift||1.4),.08);
+    vignette(.24);
+  }else if(family==='crt-geom'){
+    bloom(Math.max(.08,s.glow||.12),6);
+    scan(Math.max(.24,s.scanlines||.3),4);
+    rgb(Math.max(1.5,s.rgbShift||2),.11);
+    vignette(Math.max(.22,(s.curve||.12)*1.8));
+  }else if(family==='guest-advanced'){
+    bloom(.2,7);scan(.32,3);mask('slot',.12);rgb(2.2,.1);noise(.012);vignette(.18);
+  }else if(family==='vhs'||family==='ntsc'){
+    c.save();c.globalAlpha=.16;
+    for(let y=0;y<h;y+=10){
+      const jitter=(Math.random()-.5)*10;
+      c.drawImage(copy,0,y,w,7,jitter,y,w,7)
+    }
+    c.restore();rgb(Math.max(3,s.rgbShift||4),.18);noise(Math.max(.05,s.noise||.07));scan(.1,5);
+  }else if(family==='lcd'||family==='handheld'){
+    scan(.08,3);
+    c.save();c.globalAlpha=.12;
+    for(let x=0;x<w;x+=4)c.fillRect(x,0,1,h);
+    c.restore();
+    c.save();c.globalCompositeOperation='screen';c.globalAlpha=.05;c.fillStyle='#a7ffd0';c.fillRect(0,0,w,h);c.restore();
+  }else if(family==='blur'||family==='soften'||family==='denoise'){
+    c.save();c.filter='blur(1.5px)';c.globalAlpha=.85;c.drawImage(copy,0,0);c.restore();
+  }else if(family==='sharpen'||family==='scale'||family==='anti-alias'){
+    sharpen();
+  }else{
+    if((s.rgbShift||0)>0)rgb(s.rgbShift,.1);
+    if((s.glow||0)>0)bloom(s.glow,Math.max(2,10*s.glow));
+    if((s.scanlines||0)>0)scan(s.scanlines,4);
+    if((s.curve||0)>0)vignette(clamp(s.curve*1.8,0,.55));
+    if((s.noise||0)>0)noise(s.noise);
   }
 }
 function drawLayer(c,l,w,h){
@@ -724,7 +795,7 @@ function setSourceImage(file){
 function setSourceVideo(file){
   const url=URL.createObjectURL(file);objectUrls.add(url);const v=document.createElement('video');v.src=url;v.muted=true;v.loop=true;v.playsInline=true;v.preload='auto';
   v.addEventListener('loadedmetadata',()=>{state.trimEnd=v.duration;updateSourceUI();v.play().catch(()=>{});state.playing=true});
-  state.source={type:'video',name:file.name,url,image:null,video:v};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderTimelineTracks()
+  state.source={type:'video',name:file.name,url,image:null,video:v,speed:1};state.trimStart=0;state.trimEnd=null;updateSourceUI();renderTimelineTracks()
 }
 function updateSourceUI(){
   $('#currentSourceLabel').textContent=state.source.name;
@@ -732,23 +803,68 @@ function updateSourceUI(){
   $$('.source-card').forEach(x=>x.classList.remove('active'));
   renderTimelineTracks();
 }
-function syncTransport(){
-  const v=state.source.video;
-  if(state.source.type==='video'&&v&&v.duration){
-    $('#timeNow').textContent=fmt(v.currentTime);
-    $('#timeDur').textContent=fmt(v.duration);
-    $('#seek').value=Math.round(v.currentTime/v.duration*1000);
-    $('#playBtn').textContent=v.paused?'▶':'Ⅱ';
 
-    if(state.trimEnd!=null&&v.currentTime>=state.trimEnd){
-      v.currentTime=state.trimStart;
-      if(!v.paused)v.play().catch(()=>{});
+function allTimelineVideos(){
+  const arr=[];
+  if(state.source.type==='video'&&state.source.video)arr.push({id:'source',video:state.source.video,trimStart:state.trimStart||0,trimEnd:state.trimEnd,speed:state.source.speed||1});
+  state.layers.filter(l=>l.type==='video'&&l.el).forEach(l=>arr.push({id:l.id,video:l.el,trimStart:l.trimStart||0,trimEnd:l.trimEnd,speed:l.speed||1}));
+  return arr;
+}
+function masterDuration(){
+  const ds=allTimelineVideos().map(x=>x.video.duration||0).filter(Boolean);
+  return ds.length?Math.max(...ds):0;
+}
+function masterClockVideo(){
+  if(state.source.type==='video'&&state.source.video?.duration)return state.source.video;
+  return allTimelineVideos().find(x=>x.video.duration)?.video||null;
+}
+function masterTime(){
+  const v=masterClockVideo();return v?.currentTime||0;
+}
+function seekAllVideos(t){
+  allTimelineVideos().forEach(x=>{
+    const d=x.video.duration||0;if(!d)return;
+    const start=x.trimStart||0,end=x.trimEnd??d;
+    let target=t;
+    if(target<start)target=start;
+    if(target>end)target=end;
+    try{x.video.currentTime=clamp(target,0,d)}catch(e){}
+  });
+}
+function setAllPlayback(play){
+  allTimelineVideos().forEach(x=>{
+    x.video.playbackRate=clamp(x.speed||1,.25,4);
+    if(play)x.video.play().catch(()=>{});else x.video.pause();
+  });
+}
+function syncLayerVideos(){
+  const t=masterTime();
+  const master=masterClockVideo();
+  allTimelineVideos().forEach(x=>{
+    if(x.video===master)return;
+    const d=x.video.duration||0;if(!d)return;
+    const start=x.trimStart||0,end=x.trimEnd??d;
+    const target=clamp(t,start,end);
+    if(Math.abs(x.video.currentTime-target)>.12){try{x.video.currentTime=target}catch(e){}}
+    if(master && !master.paused && x.video.paused)x.video.play().catch(()=>{});
+    if(master && master.paused && !x.video.paused)x.video.pause();
+  });
+}
+function syncTransport(){
+  syncLayerVideos();
+  const d=masterDuration(),t=masterTime(),master=masterClockVideo();
+  if(d){
+    $('#timeNow').textContent=fmt(t);
+    $('#timeDur').textContent=fmt(d);
+    $('#seek').value=Math.round(clamp(t/d,0,1)*1000);
+    $('#playBtn').textContent=(master&&master.paused)?'▶':'Ⅱ';
+
+    if(state.source.type==='video'&&state.source.video&&state.trimEnd!=null&&state.source.video.currentTime>=state.trimEnd){
+      seekAllVideos(state.trimStart||0);
+      if(master&&!master.paused)setAllPlayback(true);
     }
   }else{
-    $('#timeNow').textContent='00:00';
-    $('#timeDur').textContent='00:00';
-    $('#seek').value=0;
-    $('#playBtn').textContent='▶';
+    $('#timeNow').textContent='00:00';$('#timeDur').textContent='00:00';$('#seek').value=0;$('#playBtn').textContent='▶';
   }
   updateTimelinePlayheads();
 }
@@ -778,7 +894,7 @@ function renderTimelineTracks(){
   // Each user layer gets an independent track.
   state.layers.slice().sort((a,b)=>b.z-a.z).forEach(l=>rows.push({
     id:l.id,name:l.name,type:l.type,url:l.url,
-    meta:`${l.type.toUpperCase()} • Z${l.z}`,
+    meta:l.type==='video'?`${fmt(l.trimStart||0)} → ${fmt(l.trimEnd ?? (l.el?.duration || 0))} • ${l.speed||1}×`:`${l.type.toUpperCase()} • Z${l.z}`,
     cls:'layer-track'
   }));
 
@@ -802,25 +918,23 @@ function renderTimelineTracks(){
 
   box.querySelectorAll('[data-seek-track]').forEach(track=>{
     track.addEventListener('click',e=>{
-      const v=state.source.video;
-      if(!v||!v.duration)return;
+      const d=masterDuration();if(!d)return;
       const r=track.getBoundingClientRect();
       const p=clamp((e.clientX-r.left)/r.width,0,1);
-      v.currentTime=p*v.duration;
+      seekAllVideos(p*d);
     });
   });
 }
 function updateTimelinePlayheads(){
-  const v=state.source.video;
-  const p=(v&&v.duration)?clamp(v.currentTime/v.duration,0,1):0;
+  const d=masterDuration(),t=masterTime(),p=d?clamp(t/d,0,1):0;
   $$('[data-playhead]').forEach(ph=>{
     const track=ph.parentElement;
     const width=Math.max(0,track.clientWidth-14);
     ph.style.left=(7+p*width)+'px';
   });
 }
-$('#playBtn').onclick=()=>{const v=state.source.video;if(!v)return;v.paused?v.play().catch(()=>{}):v.pause()}
-$('#seek').oninput=e=>{const v=state.source.video;if(v&&v.duration)v.currentTime=(+e.target.value/1000)*v.duration}
+$('#playBtn').onclick=()=>{const vids=allTimelineVideos();if(!vids.length)return;const anyPlaying=vids.some(x=>!x.video.paused);setAllPlayback(!anyPlaying)}
+$('#seek').oninput=e=>{const d=masterDuration();if(d)seekAllVideos((+e.target.value/1000)*d)}
 $('#splitBtn').onclick=()=>{const v=state.source.video;if(!v)return toast('Split marker '+fmt(v.currentTime)),state.splits.push(v.currentTime)}
 $('#trimBtn').onclick=()=>{const v=state.source.video;if(!v)return; if(!state._trimArmed){state.trimStart=v.currentTime;state._trimArmed=true;toast('Trim start '+fmt(v.currentTime))}else{state.trimEnd=Math.max(state.trimStart+.05,v.currentTime);state._trimArmed=false;toast('Trim range saved')}}
 $('#deleteSourceBtn').onclick=()=>setSourceTest();
@@ -846,7 +960,7 @@ function makeLayer(file){
   snapshot();const id='layer_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),type=file.type.startsWith('video/')?'video':'image',url=URL.createObjectURL(file);objectUrls.add(url);
   let el;if(type==='image'){el=new Image();el.src=url}else{el=document.createElement('video');el.src=url;el.muted=true;el.loop=true;el.playsInline=true;el.play().catch(()=>{})}
   const z=state.layers.length?Math.max(...state.layers.map(l=>l.z))+1:1;
-  const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z};
+  const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z,trimStart:0,trimEnd:null,speed:1,volume:1};
   state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();renderTimelineTracks();toast('Layer added')
 }
 $('#layerImageInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
@@ -928,6 +1042,23 @@ $('#color1').oninput=e=>state.synth.color1=e.target.value;$('#color2').oninput=e
 $('#applySynth').onclick=()=>{state.synth.enabled=true;state.synth.target=$('#synthTarget').value;state.synth.color1=$('#color1').value;state.synth.color2=$('#color2').value;updateFxLabel();toast(state.synth.target==='source'?'Dither applied to source':'Dither applied to selected layer')}
 $('#removeSynth').onclick=()=>{state.synth.enabled=false;updateFxLabel();toast('Dither removed')}
 
+
+function shaderFamilyFromPath(path){
+  const p=(path||'').toLowerCase();
+  if(p.includes('guest')&&p.includes('advanced'))return 'guest-advanced';
+  if(p.includes('royale'))return 'crt-royale';
+  if(p.includes('geom'))return 'crt-geom';
+  if(p.includes('ntsc'))return 'ntsc';
+  if(p.includes('vhs'))return 'vhs';
+  if(p.includes('lcd'))return 'lcd';
+  if(p.includes('handheld')||p.includes('gba')||p.includes('gbc')||p.includes('nds'))return 'handheld';
+  if(p.includes('anti-alias')||p.includes('fxaa')||p.includes('smaa'))return 'anti-alias';
+  if(p.includes('sharpen')||p.includes('xbr')||p.includes('scalefx')||p.includes('scale'))return 'sharpen';
+  if(p.includes('blur'))return 'blur';
+  if(p.includes('denoise'))return 'denoise';
+  if(p.includes('crt'))return 'crt-geom';
+  return 'generic'
+}
 const localShaders=[
  {id:'classic',name:'CRT Classic',desc:'Balanced scanlines and glow',path:'built-in/classic',category:'crt',v:{scanlines:.28,glow:.18,rgbShift:1.5,curve:.08,noise:.02}},
  {id:'royale',name:'CRT Royale',desc:'Dense aperture-style presentation',path:'crt/crt-royale.slangp',category:'crt',v:{scanlines:.38,glow:.12,rgbShift:1.2,curve:.12,noise:.015}},
@@ -983,7 +1114,7 @@ function renderShaders(filter=''){
 }
 function selectShader(id){
   shaderSelected=id;const s=shaderCatalog.find(x=>x.id===id);if(!s)return;
-  Object.assign(state.shader,s.v,{id});
+  Object.assign(state.shader,s.v,{id,path:s.path,family:shaderFamilyFromPath(s.path)});
   $('#shaderName').textContent=s.name;$('#shaderDesc').textContent=s.desc||('Shader preset • '+s.category);$('#shaderPath').textContent=s.path;
   renderShaders($('#shaderSearch').value);renderShaderParams()
 }
@@ -1024,7 +1155,7 @@ $('#shaderSearch').oninput=e=>renderShaders(e.target.value);
 $('#shaderTarget').onchange=e=>state.shader.target=e.target.value;
 $('#syncShaderLibrary').onclick=syncShaderCatalog;
 $('#shaderFavoritesBtn').onclick=e=>{favoritesOnly=!favoritesOnly;e.currentTarget.classList.toggle('accent',favoritesOnly);renderShaders($('#shaderSearch').value)};
-$('#applyShader').onclick=()=>{state.shader.enabled=true;state.shader.target=$('#shaderTarget').value;state.shader.id=shaderSelected;const s=shaderCatalog.find(x=>x.id===shaderSelected);if(s)Object.assign(state.shader,s.v,{id:s.id,target:state.shader.target});updateFxLabel();toast(state.shader.target==='source'?'Shader applied to source':'Shader applied to selected layer')}
+$('#applyShader').onclick=()=>{state.shader.enabled=true;state.shader.target=$('#shaderTarget').value;state.shader.id=shaderSelected;const s=shaderCatalog.find(x=>x.id===shaderSelected);if(s)Object.assign(state.shader,s.v,{id:s.id,target:state.shader.target,path:s.path,family:shaderFamilyFromPath(s.path)});updateFxLabel();toast(state.shader.target==='source'?'Shader applied to source':'Shader applied to selected layer')}
 $('#removeShader').onclick=()=>{state.shader.enabled=false;updateFxLabel();toast('Shader removed')}
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push(state.synth.target==='source'?'Dither: Source':'Dither: Layer');if(state.shader.enabled)a.push(state.shader.target==='source'?'Shader: Source':'Shader: Layer');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader';const p=$('#fxStatusPill');if(p)p.innerHTML='FX: <b>'+(a.length?a.join(' + '):'NONE')+'</b>'}
 
@@ -1040,8 +1171,55 @@ function openSheet(tool){
     body.innerHTML=`<div class="stack"><button class="btn" id="mTest">Test Pattern</button><button class="btn" id="mImage">Load Photo</button><button class="btn accent" id="mVideo">Load Video</button></div><div class="source-card" style="margin-top:9px"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type.toUpperCase()}</small></div>`;
     body.querySelector('#mTest').onclick=setSourceTest;body.querySelector('#mImage').onclick=()=>$('#sourceImageInput').click();body.querySelector('#mVideo').onclick=()=>$('#sourceVideoInput').click();
   }else if(tool==='edit'){
-    body.innerHTML=`<div class="row"><button class="btn grow" id="mSplit">Split</button><button class="btn grow" id="mTrim">Trim</button><button class="btn grow danger" id="mDelete">Delete</button></div><div class="source-card" style="margin-top:9px"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type==='video'?fmt(state.source.video?.duration||0):state.source.type.toUpperCase()}</small></div>`;
-    body.querySelector('#mSplit').onclick=()=>$('#splitBtn').click();body.querySelector('#mTrim').onclick=()=>$('#trimBtn').click();body.querySelector('#mDelete').onclick=()=>$('#deleteSourceBtn').click();
+    const targets=[{id:'source',name:'Source',type:state.source.type},...state.layers.map(l=>({id:l.id,name:l.name,type:l.type}))];
+    body.innerHTML=`
+      <div class="edit-grid">
+        <div class="edit-card"><label>EDIT TARGET</label><select id="editTarget">${targets.map(t=>`<option value="${t.id}">${escapeHtml(t.name)} (${t.type})</option>`).join('')}</select></div>
+        <div class="edit-card"><label>PLAYBACK SPEED</label><select id="editSpeed"><option value=".25">0.25×</option><option value=".5">0.5×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option><option value="3">3×</option><option value="4">4×</option></select></div>
+        <div class="edit-card"><label>TRIM IN (SECONDS)</label><input id="editTrimIn" type="number" min="0" step=".01" value="0"></div>
+        <div class="edit-card"><label>TRIM OUT (SECONDS)</label><input id="editTrimOut" type="number" min="0" step=".01" value="${masterDuration().toFixed(2)}"></div>
+      </div>
+      <div class="edit-actions">
+        <button class="btn" id="editSetIn">Set In at Playhead</button>
+        <button class="btn" id="editSetOut">Set Out at Playhead</button>
+        <button class="btn" id="editSplit">Add Split</button>
+        <button class="btn accent" id="editApply">Apply Edit</button>
+        <button class="btn" id="editReset">Reset Trim</button>
+        <button class="btn danger" id="editDelete">Delete Target</button>
+      </div>
+      <div class="edit-status" id="editStatus">Choose Source or an individual video layer. Trim, speed and transport remain synchronized across the timeline.</div>`;
+
+    const target=body.querySelector('#editTarget'),speed=body.querySelector('#editSpeed'),tin=body.querySelector('#editTrimIn'),tout=body.querySelector('#editTrimOut');
+    function editObj(){
+      if(target.value==='source')return {kind:'source',video:state.source.video,data:state};
+      const l=state.layers.find(x=>x.id===target.value);return l?{kind:'layer',video:l.type==='video'?l.el:null,data:l}:null;
+    }
+    function loadEditVals(){
+      const o=editObj();if(!o)return;
+      if(o.kind==='source'){tin.value=state.trimStart||0;tout.value=state.trimEnd??(state.source.video?.duration||0);speed.value=state.source.speed||1}
+      else{tin.value=o.data.trimStart||0;tout.value=o.data.trimEnd??(o.video?.duration||0);speed.value=o.data.speed||1}
+    }
+    target.onchange=loadEditVals;loadEditVals();
+    body.querySelector('#editSetIn').onclick=()=>tin.value=masterTime().toFixed(2);
+    body.querySelector('#editSetOut').onclick=()=>tout.value=masterTime().toFixed(2);
+    body.querySelector('#editSplit').onclick=()=>{state.splits.push({target:target.value,time:masterTime()});body.querySelector('#editStatus').textContent='Split marker added at '+fmt(masterTime())};
+    body.querySelector('#editApply').onclick=()=>{
+      const o=editObj();if(!o)return;
+      const a=Math.max(0,+tin.value||0),b=Math.max(a,+tout.value||0),sp=clamp(+speed.value||1,.25,4);
+      if(o.kind==='source'){state.trimStart=a;state.trimEnd=b;state.source.speed=sp;if(state.source.video)state.source.video.playbackRate=sp}
+      else{o.data.trimStart=a;o.data.trimEnd=b;o.data.speed=sp;if(o.video)o.video.playbackRate=sp}
+      renderTimelineTracks();body.querySelector('#editStatus').textContent=`Applied: ${a.toFixed(2)}s → ${b.toFixed(2)}s at ${sp}×`;toast('Edit applied')
+    };
+    body.querySelector('#editReset').onclick=()=>{
+      const o=editObj();if(!o)return;
+      if(o.kind==='source'){state.trimStart=0;state.trimEnd=state.source.video?.duration||null;state.source.speed=1}
+      else{o.data.trimStart=0;o.data.trimEnd=o.video?.duration||null;o.data.speed=1}
+      loadEditVals();renderTimelineTracks()
+    };
+    body.querySelector('#editDelete').onclick=()=>{
+      if(target.value==='source')setSourceTest();else deleteLayer(target.value);
+      $('#sheet').classList.remove('open');setTimeout(()=>$('#sheet').style.display='none',220)
+    };
   }else if(tool==='effects'){
     body.innerHTML=quickDefs.map(d=>paramHTML(d[0],d[1],state.effects[d[1]],d[2],d[3],d[4])).join('');
     body.querySelectorAll('[data-fx]').forEach(r=>r.oninput=()=>{state.effects[r.dataset.fx]=+r.value;r.previousElementSibling.querySelector('b').textContent=(+r.value).toFixed(+r.step<1?2:0)});
@@ -1051,17 +1229,63 @@ function openSheet(tool){
 $$('.tool').forEach(b=>b.onclick=()=>openSheet(b.dataset.tool));
 $('#closeSheet').onclick=()=>{$('#sheet').classList.remove('open');setTimeout(()=>$('#sheet').style.display='none',220)};
 
+function populateExportCodecs(){
+  const sel=$('#exportCodec');if(!sel)return;
+  const codecs=[
+    ['video/webm;codecs=vp9','WebM VP9'],
+    ['video/webm;codecs=vp8','WebM VP8'],
+    ['video/webm','WebM Default']
+  ];
+  sel.innerHTML=codecs.filter(([mime])=>!window.MediaRecorder||MediaRecorder.isTypeSupported(mime)).map(([mime,label])=>`<option value="${mime}">${label}</option>`).join('');
+  if(!sel.options.length)sel.innerHTML='<option value="video/webm">WebM</option>';
+}
+populateExportCodecs();
+
 $('#exportNow').onclick=async()=>{
   const type=$('#exportType').value,res=$('#exportRes').value,q=+$('#exportQuality').value,fps=+$('#exportFps').value;
+  const bitrate=+$('#exportBitrate').value,range=$('#exportRange').value,audioMode=$('#exportAudio').value;
   let w=stage.width,h=stage.height;if(res!=='source'){[w,h]=res.split('x').map(Number)}
-  if(type==='png'||type==='jpeg'){
+
+  if(type==='project'){
+    const project={version:1,source:{type:state.source.type,name:state.source.name},layers:state.layers.map(({el,...l})=>l),effects:state.effects,synth:state.synth,shader:state.shader,trimStart:state.trimStart,trimEnd:state.trimEnd,splits:state.splits};
+    const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crtizer-project.json';a.click();return;
+  }
+
+  if(['png','jpeg','webp'].includes(type)){
     const c=document.createElement('canvas');c.width=w;c.height=h;const cc=c.getContext('2d',{willReadFrequently:true});renderTo(cc,w,h);
-    c.toBlob(blob=>{if(!blob)return;const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crtizer.'+(type==='jpeg'?'jpg':'png');a.click()},'image/'+type,q)
-  }else{
-    if(!window.MediaRecorder||!stage.captureStream)return toast('WebM recording not supported here');
-    const stream=stage.captureStream(fps),rec=new MediaRecorder(stream,{mimeType:MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm'}),chunks=[];
-    rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);rec.onstop=()=>{const blob=new Blob(chunks,{type:'video/webm'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crtizer.webm';a.click()};
-    rec.start();const v=state.source.video;if(v){v.currentTime=state.trimStart||0;v.play().catch(()=>{});setTimeout(()=>rec.stop(),Math.max(500,((state.trimEnd ?? v.duration)-state.trimStart)*1000))}else setTimeout(()=>rec.stop(),3000)
+    const mime=type==='jpeg'?'image/jpeg':type==='webp'?'image/webp':'image/png';
+    c.toBlob(blob=>{if(!blob)return;const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crtizer.'+(type==='jpeg'?'jpg':type);a.click()},mime,q);
+    return;
+  }
+
+  if(type==='webm'){
+    if(!window.MediaRecorder||!stage.captureStream)return toast('WebM recording is not supported by this browser');
+    const mime=$('#exportCodec').value||'video/webm';
+    const stream=stage.captureStream(fps);
+
+    // Add source audio only when the browser exposes captureStream on the source media element.
+    if(audioMode==='source'&&state.source.video&&typeof state.source.video.captureStream==='function'){
+      try{state.source.video.captureStream().getAudioTracks().forEach(t=>stream.addTrack(t))}catch(e){}
+    }
+
+    let rec;
+    try{rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:bitrate})}
+    catch(e){rec=new MediaRecorder(stream,{videoBitsPerSecond:bitrate})}
+
+    const chunks=[];
+    rec.ondataavailable=e=>e.data.size&&chunks.push(e.data);
+    rec.onstop=()=>{const blob=new Blob(chunks,{type:rec.mimeType||'video/webm'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='crtizer.webm';a.click()};
+
+    let start=0,end=3;
+    const d=masterDuration();
+    if(range==='trim'){start=state.trimStart||0;end=state.trimEnd??d}
+    else if(range==='full'){start=0;end=d||3}
+    else{start=masterTime();end=Math.min(d||start+3,start+3)}
+
+    if(d)seekAllVideos(start);
+    setAllPlayback(true);
+    rec.start();
+    setTimeout(()=>{rec.stop();setAllPlayback(false)},Math.max(250,(end-start)*1000));
   }
 }
 
