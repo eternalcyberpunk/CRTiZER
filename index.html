@@ -426,6 +426,31 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="irisseg-bottom-prompt-button-css">
+#irisSegPromptsBlock{
+  position:relative;
+}
+#irisSegUsePromptBottom{
+  position:sticky;
+  bottom:0;
+  z-index:6;
+  font-weight:700;
+  letter-spacing:.04em;
+  touch-action:manipulation;
+}
+@media(max-width:900px){
+  #irisSegUsePromptBottom{
+    min-height:52px!important;
+    font-size:14px;
+    border-radius:10px;
+  }
+  #irisSegPromptsBlock{
+    padding-bottom:10px;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -646,9 +671,10 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
         </section>
 
         <aside class="irisseg-pane right">
-          <div class="irisseg-block">
+          <div class="irisseg-block" id="irisSegPromptsBlock">
             <label>PROMPTS</label>
             <div class="irisseg-point-list" id="irisSegPointList"></div>
+            <button class="btn accent" id="irisSegUsePromptBottom" type="button" style="width:100%;margin-top:8px;min-height:46px">Use Prompt</button>
           </div>
 
           <div class="irisseg-block">
@@ -2274,7 +2300,7 @@ async function irisBrowserSegmentCurrent(){
   session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
   session.enabled=true;
   session.points=[...irisSeg.points];
-  session.prompt=$('#irisSegPrompt')?.value?.trim()||'';
+  session.prompt=commitIrisRegPrompt();
   session.model='slimsam-browser';
   session.matte='none';
   setIrisBoot(true,'MASK READY',100,'DONE');
@@ -2319,7 +2345,7 @@ async function irisBrowserTrack(direction='forward'){
     session.frames.push({time:t,url:image.src,image});
   }
   session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
-  session.enabled=true;session.points=[...irisSeg.points];session.prompt=$('#irisSegPrompt')?.value?.trim()||'';session.model='slimsam-browser';
+  session.enabled=true;session.points=[...irisSeg.points];session.prompt=commitIrisRegPrompt();session.model='slimsam-browser';
   setIrisBoot(true,'TRACK COMPLETE',100,'DONE');
   setTimeout(()=>setIrisBoot(false),450);
   if(!wasPaused)v.play().catch(()=>{});
@@ -2401,7 +2427,8 @@ function renderIrisSegPoints(){
 
   const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
   const session=irisSegSession(targetId);
-  const textPrompt=(session.prompt||'').trim();
+  const fieldPrompt=($('#irisSegPrompt')?.value||'').trim();
+  const textPrompt=fieldPrompt || (session.prompt||'').trim();
 
   const rows=[];
 
@@ -2426,6 +2453,9 @@ function renderIrisSegPoints(){
   box.innerHTML=rows.length
     ? rows.join('')
     : '<div class="irisseg-status">No prompts yet.</div>';
+
+  const btn=$('#irisSegUsePromptBottom');
+  if(btn)btn.disabled=!textPrompt;
 }
 function irisSegSetMode(mode){
   irisSeg.mode=mode;
@@ -2512,12 +2542,19 @@ async function irisSegCreatePayload(action,direction='forward'){
   fd.append('model',$('#irisSegModel').value);
   fd.append('matting',$('#irisSegMatte').value);
   fd.append('points',JSON.stringify(irisSeg.points));
-  fd.append('prompt',$('#irisSegPrompt')?.value?.trim()||'');
+  fd.append('prompt',commitIrisRegPrompt());
   fd.append('feather',$('#irisSegFeather').value);
   fd.append('expand',$('#irisSegExpand').value);
   return {target,fd};
 }
 async function irisSegRun(action,direction='forward'){
+  const committedPrompt=commitIrisRegPrompt();
+  if(!committedPrompt && !irisSeg.points.length){
+    setIrisSegConnection(irisSeg.connected?'online':'offline','Add a text prompt or Include / Exclude points before generating.');
+    $('#irisSegPrompt')?.focus();
+    return;
+  }
+
   if(!irisSeg.connected)throw new Error('Launch IrisSeg first.');
 
   if(irisSeg.engine==='browser'){
@@ -2558,7 +2595,7 @@ async function irisSegRun(action,direction='forward'){
 
     const session=irisSegSession(target.id);
     session.points=[...irisSeg.points];
-    session.prompt=$('#irisSegPrompt')?.value?.trim()||'';
+    session.prompt=commitIrisRegPrompt();
     session.model=$('#irisSegModel').value;
     session.matte=$('#irisSegMatte').value;
     session.feather=+$('#irisSegFeather').value;
@@ -2616,9 +2653,49 @@ function syncIrisSegPrompt(){
   const session=irisSegSession(targetId);
   session.prompt=field.value;
 }
+function commitIrisRegPrompt(){
+  const field=$('#irisSegPrompt');
+  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
+  const session=irisSegSession(targetId);
+
+  const prompt=(field?.value||'').trim();
+  session.prompt=prompt;
+  state.roto.activeTarget=targetId;
+
+  // Keep the lower PROMPTS panel authoritative.
+  renderIrisSegPoints();
+
+  return prompt;
+}
+
+
+$('#irisSegUsePromptBottom')?.addEventListener('click',()=>{
+  const prompt=commitIrisRegPrompt();
+
+  if(!prompt){
+    setIrisSegConnection(
+      irisSeg.connected?'online':'offline',
+      'Enter a text prompt above before generating.'
+    );
+    $('#irisSegPrompt')?.focus();
+    return;
+  }
+
+  const btn=$('#irisSegUsePromptBottom');
+  if(btn){
+    const old=btn.textContent;
+    btn.textContent='Prompt Ready';
+    setTimeout(()=>btn.textContent=old,900);
+  }
+
+  setIrisSegConnection(
+    irisSeg.connected?'online':'offline',
+    `IrisReg prompt ready: "${prompt.slice(0,80)}${prompt.length>80?'…':''}"`
+  );
+});
 $('#irisSegPrompt')?.addEventListener('input',()=>{
   syncIrisSegPrompt();
-  renderIrisSegPoints();
+  commitIrisRegPrompt();
 
   const prompt=$('#irisSegPrompt')?.value?.trim()||'';
   setIrisSegConnection(
