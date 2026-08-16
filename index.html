@@ -1265,7 +1265,9 @@ function loop(){
   renderTo(ctx,stage.width,stage.height);
   if($('#layersModal').classList.contains('open'))renderTo(layerCtx,layerPreview.width,layerPreview.height);
   if($('#synthModal').classList.contains('open'))renderTo(synthCtx,synthPreview.width,synthPreview.height);
-  if($('#shaderModal').classList.contains('open'))renderTo(shaderCtx,shaderPreview.width,shaderPreview.height);if($('#irissegModal').classList.contains('open'))drawIrisSegFrame();
+  if($('#shaderModal').classList.contains('open'))renderTo(shaderCtx,shaderPreview.width,shaderPreview.height);if($('#irissegModal').classList.contains('open')){
+    if(!irisIsMobile() || ((performance.now()/120|0)%2===0))drawIrisSegFrame();
+  }
   syncTransport();requestAnimationFrame(loop)
 }
 requestAnimationFrame(loop);
@@ -2248,12 +2250,13 @@ function irisBrowserCall(type,data={}){
     irisBrowserWorker.postMessage({id,type,data});
   });
 }
-function canvasDataURLFromTarget(){
+async function canvasURLFromTarget(workWidth){
   const target=irisSegTargetObject();
   const c=document.createElement('canvas');
-  c.width=Math.min(1280,state.projectWidth||1280);
-  c.height=Math.max(1,Math.round(c.width/((state.projectWidth||1280)/(state.projectHeight||720))));
-  const cc=c.getContext('2d');
+  const aspect=(state.projectWidth||1280)/(state.projectHeight||720);
+  c.width=Math.min(workWidth||960,state.projectWidth||1280);
+  c.height=Math.max(1,Math.round(c.width/aspect));
+  const cc=c.getContext('2d',{alpha:false,desynchronized:true});
 
   if(target?.id==='source'){
     drawBase(cc,c.width,c.height);
@@ -2262,15 +2265,27 @@ function canvasDataURLFromTarget(){
   }else{
     drawBase(cc,c.width,c.height);
   }
-  return c.toDataURL('image/jpeg',.9);
+
+  return await new Promise((resolve,reject)=>{
+    c.toBlob(blob=>{
+      if(!blob)return reject(new Error('Could not prepare IrisReg frame'));
+      resolve(URL.createObjectURL(blob));
+    },'image/jpeg',.82);
+  });
 }
-async function irisBrowserEncodeCurrentFrame(force=false){
+async function irisBrowserEncodeCurrentFrame(force=false,workWidth=null){
+  const cfg=irisTrackingConfig();
   const key=(irisSegTargetObject()?.id||'source')+':'+masterTime().toFixed(3)+':'+irisSeg.points.length;
   if(!force && irisBrowserEncodedKey===key)return;
+
   setIrisBoot(true,'ENCODING CURRENT FRAME',72,'ENCODE');
-  const url=canvasDataURLFromTarget();
-  await irisBrowserCall('encode',{url});
-  irisBrowserEncodedKey=key;
+  const url=await canvasURLFromTarget(workWidth||cfg.workWidth);
+  try{
+    await irisBrowserCall('encode',{url});
+    irisBrowserEncodedKey=key;
+  }finally{
+    try{URL.revokeObjectURL(url)}catch(e){}
+  }
 }
 function maskBufferToImage(width,height,buffer){
   return new Promise((resolve,reject)=>{
@@ -2309,69 +2324,188 @@ function ensureIrisBrowserSeed(){
 }
 
 async function irisBrowserSegmentCurrent(){
-  if(!irisSeg.points.length)throw new Error('Add at least one Include/Exclude point.');
-  await irisBrowserEncodeCurrentFrame(true);
+  if(!ensureIrisBrowserSeed())throw new Error('Enter a text prompt or add an Include / Exclude point.');
+
+  const cfg=irisTrackingConfig();
+  await irisBrowserEncodeCurrentFrame(true,cfg.workWidth);
+
   setIrisBoot(true,'DECODING MASK',88,'MASK');
   const result=await irisBrowserCall('decode',{points:irisSeg.points});
-  const image=await maskBufferToImage(result.width,result.height,result.data);
+
+  const url=await maskBufferToObjectURL(result.width,result.height,result.data);
+  const image=await imageFromObjectURL(url);
+
   const target=irisSegTargetObject();
   const session=irisSegSession(target.id);
   const time=masterTime();
+
   const existing=session.frames.find(f=>Math.abs((f.time||0)-time)<.02);
-  if(existing){existing.image=image;existing.url=image.src}else session.frames.push({time,url:image.src,image});
+  if(existing){
+    if(existing.url && String(existing.url).startsWith('blob:'))try{URL.revokeObjectURL(existing.url)}catch(e){}
+    existing.image=image;existing.url=url;
+  }else{
+    session.frames.push({time,url,image});
+  }
+
   session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
   session.enabled=true;
   session.points=[...irisSeg.points];
   session.prompt=commitIrisRegPrompt();
   session.model='slimsam-browser';
   session.matte='none';
+
+  disposeOldBrowserMasks(session,irisIsMobile()?24:64);
+
   setIrisBoot(true,'MASK READY',100,'DONE');
   setTimeout(()=>setIrisBoot(false),350);
   drawIrisSegFrame();
   return session;
+}
+
+function irisIsMobile(){
+  return matchMedia('(max-width: 900px)').matches || /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+function irisTrackingConfig(){
+  const mobile=irisIsMobile();
+  return {
+    sampleFps: mobile ? 2 : 4,
+    maxFrames: mobile ? 24 : 72,
+    workWidth: mobile ? 640 : 960,
+    settleMs: mobile ? 55 : 28
+  };
+}
+async function irisYield(){
+  await new Promise(r=>setTimeout(r,0));
+}
+function disposeOldBrowserMasks(session,keep=32){
+  if(!session?.frames || session.frames.length<=keep)return;
+  const extra=session.frames.splice(0,session.frames.length-keep);
+  for(const f of extra){
+    if(f?.url && String(f.url).startsWith('blob:')){
+      try{URL.revokeObjectURL(f.url)}catch(e){}
+    }
+    f.image=null;
+  }
+}
+function maskBufferToObjectURL(width,height,buffer){
+  return new Promise((resolve,reject)=>{
+    try{
+      const c=document.createElement('canvas');
+      c.width=width;c.height=height;
+      const cc=c.getContext('2d',{alpha:true});
+      const bytes=new Uint8Array(buffer);
+      const img=cc.createImageData(width,height);
+      for(let i=0,j=0;i<bytes.length;i++,j+=4){
+        const v=bytes[i];
+        img.data[j]=255;img.data[j+1]=255;img.data[j+2]=255;img.data[j+3]=v;
+      }
+      cc.putImageData(img,0,0);
+      c.toBlob(blob=>{
+        if(!blob)return reject(new Error('Mask encode failed'));
+        resolve(URL.createObjectURL(blob));
+      },'image/png');
+    }catch(e){reject(e)}
+  });
+}
+async function imageFromObjectURL(url){
+  return await new Promise((resolve,reject)=>{
+    const im=new Image();
+    im.onload=()=>resolve(im);
+    im.onerror=reject;
+    im.src=url;
+  });
 }
 async function irisBrowserTrack(direction='forward'){
   const target=irisSegTargetObject();
   if(!target || target.type!=='video')throw new Error('Browser tracking requires a video source or video layer.');
   if(!ensureIrisBrowserSeed())throw new Error('Enter a text prompt or add an Include / Exclude point before tracking.');
 
+  const cfg=irisTrackingConfig();
   const v=target.el;
   const start=Math.max(0,+$('#irisSegIn').value||0);
   const end=Math.min(v.duration||masterDuration(),+$('#irisSegOut').value||v.duration||0);
-  const fpsSample=6; // intentionally sparse for mobile/browser viability
-  const step=1/fpsSample;
+
+  if(!Number.isFinite(end) || end<=start)throw new Error('Set a valid In / Out range before tracking.');
+
+  const step=1/cfg.sampleFps;
   const times=[];
+
   if(direction==='backward'){
     for(let t=Math.min(masterTime(),end);t>=start;t-=step)times.push(t);
   }else{
     for(let t=Math.max(masterTime(),start);t<=end;t+=step)times.push(t);
   }
-  // Cap browser workload. The user can run another range if needed.
-  const capped=times.slice(0,120);
-  const wasPaused=v.paused;v.pause();
+
+  const capped=times.slice(0,cfg.maxFrames);
+  if(!capped.length)throw new Error('No frames available in the selected range.');
+
+  const wasPaused=v.paused;
+  v.pause();
+
   const session=irisSegSession(target.id);
+  session.frames=session.frames||[];
 
   for(let i=0;i<capped.length;i++){
     const t=capped[i];
+
     v.currentTime=t;
     await new Promise(res=>{
-      if(Math.abs(v.currentTime-t)<.02 && v.readyState>=2)return setTimeout(res,18);
-      const done=()=>{v.removeEventListener('seeked',done);setTimeout(res,18)};
-      v.addEventListener('seeked',done,{once:true});
+      if(Math.abs(v.currentTime-t)<.03 && v.readyState>=2){
+        return setTimeout(res,cfg.settleMs);
+      }
+      const onSeek=()=>{
+        v.removeEventListener('seeked',onSeek);
+        setTimeout(res,cfg.settleMs);
+      };
+      v.addEventListener('seeked',onSeek,{once:true});
+      setTimeout(()=>{
+        try{v.removeEventListener('seeked',onSeek)}catch(e){}
+        res();
+      },1200);
     });
+
     const pct=8+(i/Math.max(1,capped.length))*88;
-    setIrisBoot(true,`TRACKING FRAME ${i+1} / ${capped.length}`,pct,'TRACK');
-    await irisBrowserEncodeCurrentFrame(true);
+    setIrisBoot(true,`TRACKING ${i+1} / ${capped.length}`,pct,'TRACK');
+
+    await irisBrowserEncodeCurrentFrame(true,cfg.workWidth);
     const result=await irisBrowserCall('decode',{points:irisSeg.points});
-    const image=await maskBufferToImage(result.width,result.height,result.data);
-    session.frames.push({time:t,url:image.src,image});
+
+    const url=await maskBufferToObjectURL(result.width,result.height,result.data);
+    const image=await imageFromObjectURL(url);
+
+    const existing=session.frames.find(f=>Math.abs((f.time||0)-t)<step*.45);
+    if(existing){
+      if(existing.url && String(existing.url).startsWith('blob:'))try{URL.revokeObjectURL(existing.url)}catch(e){}
+      existing.time=t;existing.url=url;existing.image=image;
+    }else{
+      session.frames.push({time:t,url,image});
+    }
+
+    session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
+    session.enabled=true;
+    session.points=[...irisSeg.points];
+    session.prompt=commitIrisRegPrompt();
+    session.model='slimsam-browser';
+
+    disposeOldBrowserMasks(session,irisIsMobile()?24:64);
+
+    // Critical on mobile: yield so Safari can reclaim temporary canvases/buffers.
+    await irisYield();
   }
-  session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
-  session.enabled=true;session.points=[...irisSeg.points];session.prompt=commitIrisRegPrompt();session.model='slimsam-browser';
+
   setIrisBoot(true,'TRACK COMPLETE',100,'DONE');
   setTimeout(()=>setIrisBoot(false),450);
+
   if(!wasPaused)v.play().catch(()=>{});
   drawIrisSegFrame();
+
+  if(times.length>capped.length){
+    setIrisSegConnection(
+      'online',
+      `Mobile-safe track complete • ${capped.length} frames processed. Shorten the range or run again for the remaining section.`
+    );
+  }
+
   return session;
 }
 const irisSeg={
@@ -2658,7 +2792,7 @@ $('#irisSegEngine')?.addEventListener('change',e=>{
   $('#irisSegMatte').disabled=browser;
   $('#irisSegConnect').textContent=browser?'Launch IrisSeg':'Connect Sammie';
   $('#irisSegEngineNote').textContent=browser
-    ? 'Runs a compact SAM-style segmentation model locally. First launch downloads and caches model files.'
+    ? 'Runs a compact SAM-style segmentation model locally. Mobile tracking is throttled to protect memory and stability.'
     : 'Uses the full Sammie-Roto workflow through a local or RunPod HTTP bridge.';
   irisSeg.connected=false;
   setIrisSegConnection('offline',browser?'Browser engine not launched.':'Sammie bridge not connected.');
@@ -2898,7 +3032,16 @@ $('#publishDrive')?.addEventListener('click',()=>platformPublish('drive'));
 $('#publishYouTube')?.addEventListener('click',()=>platformPublish('youtube'));
 $('#publishTikTok')?.addEventListener('click',()=>platformPublish('tiktok'));
 $('#publishInstagram')?.addEventListener('click',()=>platformPublish('instagram'));
-window.addEventListener('beforeunload',()=>{objectUrls.forEach(u=>URL.revokeObjectURL(u));if(irisBrowserWorker){irisBrowserWorker.terminate();if(irisBrowserWorker._blobURL)URL.revokeObjectURL(irisBrowserWorker._blobURL)}});
+window.addEventListener('beforeunload',()=>{
+  objectUrls.forEach(u=>URL.revokeObjectURL(u));
+  Object.values(state.roto.sessions||{}).forEach(s=>(s.frames||[]).forEach(f=>{
+    if(f?.url && String(f.url).startsWith('blob:'))try{URL.revokeObjectURL(f.url)}catch(e){}
+  }));
+  if(irisBrowserWorker){
+    irisBrowserWorker.terminate();
+    if(irisBrowserWorker._blobURL)URL.revokeObjectURL(irisBrowserWorker._blobURL);
+  }
+});
 </script>
 </body>
 </html>
