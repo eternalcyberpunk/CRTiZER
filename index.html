@@ -453,7 +453,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
         </aside>
         <section class="workpane">
           <canvas class="effect-preview" id="shaderPreview" width="960" height="540"></canvas>
-          <div class="source-card"><b id="shaderName">CRT Classic</b><small id="shaderDesc">Scanlines, glow and RGB separation</small><div class="shader-detail-path" id="shaderPath">built-in/classic</div></div>
+          <div class="source-card"><b id="shaderName">CRT Classic</b><small id="shaderDesc">Scanlines, glow and RGB separation</small><div class="shader-detail-path" id="shaderPath">built-in/classic</div><div class="shader-sync-status" id="shaderDefinitionStatus" style="margin-top:5px">Local emulation profile</div></div>
           <div class="shader-target-row">
             <label>APPLY SHADER TO</label>
             <select id="shaderTarget"></select>
@@ -601,94 +601,118 @@ function applyPunk(data,w,h,s){
   return data;
 }
 function applyShaderFx(c,w,h,s){
-  const family=(s.family||shaderFamilyFromPath(s.path||s.id||'')).toLowerCase();
+  const shader=shaderCatalog?.find?.(x=>x.id===s.id)||null;
+  const def=s.definition||null;
+  const sig=signatureFromDefinition(def,shader);
+  const path=sig.path;
 
   const copy=document.createElement('canvas');
   copy.width=w;copy.height=h;
   const cc=copy.getContext('2d',{willReadFrequently:true});
   cc.drawImage(c.canvas,0,0);
 
-  const scan=(amount=0.3,step=4)=>{
+  function scan(amount=.28,step=4,thickness=1){
     c.save();c.globalAlpha=clamp(amount,0,.9);c.fillStyle='#000';
-    for(let y=0;y<h;y+=step)c.fillRect(0,y,w,1);
-    c.restore();
-  };
-  const bloom=(amount=.15,blur=8)=>{
-    c.save();c.globalCompositeOperation='screen';c.globalAlpha=amount;c.filter=`blur(${blur}px)`;c.drawImage(copy,0,0);c.restore();
-  };
-  const rgb=(px=2,alpha=.12)=>{
-    c.save();c.globalCompositeOperation='screen';c.globalAlpha=alpha;c.drawImage(copy,px,0);c.drawImage(copy,-px,0);c.restore();
-  };
-  const noise=(amt=.04)=>{
+    for(let y=0;y<h;y+=step)c.fillRect(0,y,w,thickness);
+    c.restore()
+  }
+  function bloom(amount=.16,blur=8){
+    c.save();c.globalCompositeOperation='screen';c.globalAlpha=clamp(amount,0,.75);c.filter=`blur(${blur}px)`;c.drawImage(copy,0,0);c.restore()
+  }
+  function rgb(px=2,alpha=.1){
+    c.save();c.globalCompositeOperation='screen';c.globalAlpha=alpha;c.drawImage(copy,px,0);c.drawImage(copy,-px,0);c.restore()
+  }
+  function addNoise(amt=.04){
     try{
       const im=c.getImageData(0,0,w,h),d=im.data,amp=255*amt;
       for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*amp;d[i]=clamp(d[i]+n,0,255);d[i+1]=clamp(d[i+1]+n,0,255);d[i+2]=clamp(d[i+2]+n,0,255)}
       c.putImageData(im,0,0)
     }catch(e){}
-  };
-  const mask=(type='grille',strength=.18)=>{
-    c.save();c.globalAlpha=strength;
-    if(type==='slot'){
-      for(let y=0;y<h;y+=6)for(let x=0;x<w;x+=6){c.fillStyle=((x/6+y/6)%2<1)?'#110000':'#000011';c.fillRect(x,y,4,3)}
+  }
+  function grille(str=.14,slot=false){
+    c.save();c.globalAlpha=str;
+    if(slot){
+      for(let y=0;y<h;y+=6)for(let x=0;x<w;x+=6){
+        const n=((x/6|0)+(y/6|0))%3;c.fillStyle=n===0?'#31090b':n===1?'#09300c':'#0a0a31';c.fillRect(x,y,4,3)
+      }
     }else{
-      for(let x=0;x<w;x+=3){c.fillStyle=x%9===0?'#2b0808':x%9===3?'#082b08':'#08082b';c.fillRect(x,0,1,h)}
+      for(let x=0;x<w;x+=3){const n=(x/3|0)%3;c.fillStyle=n===0?'#36090a':n===1?'#09360c':'#090a36';c.fillRect(x,0,1,h)}
     }
     c.restore()
-  };
-  const vignette=(amt=.2)=>{
-    const g=c.createRadialGradient(w/2,h/2,Math.min(w,h)*.25,w/2,h/2,Math.max(w,h)*.7);
+  }
+  function vignette(amt=.22){
+    const g=c.createRadialGradient(w/2,h/2,Math.min(w,h)*.26,w/2,h/2,Math.max(w,h)*.72);
     g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,`rgba(0,0,0,${amt})`);c.fillStyle=g;c.fillRect(0,0,w,h)
-  };
-  const sharpen=()=>{
+  }
+  function ntsc(){
+    c.save();c.globalAlpha=.18;
+    for(let y=0;y<h;y+=8){
+      const j=Math.sin((y+performance.now()*.05)*.18)*3+(Math.random()-.5)*3;
+      c.drawImage(copy,0,y,w,6,j,y,w,6)
+    }
+    c.restore();rgb(4,.18);addNoise(.055)
+  }
+  function afterglow(){
+    c.save();c.globalCompositeOperation='screen';c.globalAlpha=.17;c.filter='blur(3px)';c.drawImage(copy,2,1);c.restore()
+  }
+  function sharpen(){
     try{
-      const im=c.getImageData(0,0,w,h),src=new Uint8ClampedArray(im.data),d=im.data;
-      const k=[0,-1,0,-1,5,-1,0,-1,0];
-      for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)for(let ch=0;ch<3;ch++){
-        let sum=0,n=0;
-        for(let ky=-1;ky<=1;ky++)for(let kx=-1;kx<=1;kx++){sum+=src[((y+ky)*w+x+kx)*4+ch]*k[n++]}
-        d[(y*w+x)*4+ch]=clamp(sum,0,255)
-      }
+      const im=c.getImageData(0,0,w,h),src=new Uint8ClampedArray(im.data),d=im.data,k=[0,-1,0,-1,5,-1,0,-1,0];
+      for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++)for(let ch=0;ch<3;ch++){let sum=0,n=0;for(let ky=-1;ky<=1;ky++)for(let kx=-1;kx<=1;kx++)sum+=src[((y+ky)*w+x+kx)*4+ch]*k[n++];d[(y*w+x)*4+ch]=clamp(sum,0,255)}
       c.putImageData(im,0,0)
     }catch(e){}
-  };
-
-  if(family==='crt-royale'){
-    bloom(Math.max(.12,s.glow||.18),10);
-    scan(Math.max(.28,s.scanlines||.34),3);
-    mask('grille',.16);
-    rgb(Math.max(1,s.rgbShift||1.4),.08);
-    vignette(.24);
-  }else if(family==='crt-geom'){
-    bloom(Math.max(.08,s.glow||.12),6);
-    scan(Math.max(.24,s.scanlines||.3),4);
-    rgb(Math.max(1.5,s.rgbShift||2),.11);
-    vignette(Math.max(.22,(s.curve||.12)*1.8));
-  }else if(family==='guest-advanced'){
-    bloom(.2,7);scan(.32,3);mask('slot',.12);rgb(2.2,.1);noise(.012);vignette(.18);
-  }else if(family==='vhs'||family==='ntsc'){
-    c.save();c.globalAlpha=.16;
-    for(let y=0;y<h;y+=10){
-      const jitter=(Math.random()-.5)*10;
-      c.drawImage(copy,0,y,w,7,jitter,y,w,7)
-    }
-    c.restore();rgb(Math.max(3,s.rgbShift||4),.18);noise(Math.max(.05,s.noise||.07));scan(.1,5);
-  }else if(family==='lcd'||family==='handheld'){
-    scan(.08,3);
-    c.save();c.globalAlpha=.12;
-    for(let x=0;x<w;x+=4)c.fillRect(x,0,1,h);
-    c.restore();
-    c.save();c.globalCompositeOperation='screen';c.globalAlpha=.05;c.fillStyle='#a7ffd0';c.fillRect(0,0,w,h);c.restore();
-  }else if(family==='blur'||family==='soften'||family==='denoise'){
-    c.save();c.filter='blur(1.5px)';c.globalAlpha=.85;c.drawImage(copy,0,0);c.restore();
-  }else if(family==='sharpen'||family==='scale'||family==='anti-alias'){
-    sharpen();
-  }else{
-    if((s.rgbShift||0)>0)rgb(s.rgbShift,.1);
-    if((s.glow||0)>0)bloom(s.glow,Math.max(2,10*s.glow));
-    if((s.scanlines||0)>0)scan(s.scanlines,4);
-    if((s.curve||0)>0)vignette(clamp(s.curve*1.8,0,.55));
-    if((s.noise||0)>0)noise(s.noise);
   }
+  function frameTexture(){
+    c.save();c.strokeStyle='rgba(12,12,16,.95)';c.lineWidth=Math.max(8,Math.min(w,h)*.035);c.strokeRect(0,0,w,h);c.restore()
+  }
+
+  // Pass-driven emulation. Each preset gets a recipe based on its ACTUAL .slangp structure.
+  for(const kind of sig.kinds){
+    if(kind==='ntsc-encode'||kind==='ntsc-decode')ntsc();
+    else if(kind==='afterglow')afterglow();
+    else if(kind==='bloom')bloom(.10+Math.min(.18,sig.passCount*.006),7);
+    else if(kind==='halation')bloom(.08,12);
+    else if(kind==='blur-h'||kind==='blur-v'||kind==='blur'){c.save();c.globalAlpha=.32;c.filter='blur(1.6px)';c.drawImage(copy,0,0);c.restore()}
+    else if(kind==='scanline')scan(.22,4,1);
+    else if(kind==='mask-resize'||kind==='mask')grille(.10,path.includes('slot'));
+    else if(kind==='geometry')vignette(.20);
+    else if(kind==='sharpen')sharpen();
+    else if(kind==='convergence')rgb(2.2,.1);
+    else if(kind==='interlace')scan(.14,6,2);
+    else if(kind==='accumulate')afterglow();
+  }
+
+  // Texture/parameter-driven features.
+  if(sig.hasMask && !sig.kinds.some(k=>k==='mask'||k==='mask-resize'))grille(.12,path.includes('slot'));
+  if(sig.hasBloom && !sig.kinds.includes('bloom'))bloom(.14,8);
+  if(sig.hasHalation)bloom(.08,11);
+  if(sig.hasGeometry)vignette(.18);
+  if(sig.hasNTSC && !sig.kinds.some(k=>k.startsWith('ntsc')))ntsc();
+  if(sig.hasAfterglow&&!sig.kinds.includes('afterglow'))afterglow();
+  if(sig.hasSharpen&&!sig.kinds.includes('sharpen'))sharpen();
+  if(sig.hasFrameTexture)frameTexture();
+
+  // Named preset signatures from upstream definitions.
+  if(path.includes('crt-royale')){
+    scan(.30,3,1);grille(.15,path.includes('slot'));bloom(.14,9);rgb(1.4,.07);vignette(.2)
+  }
+  if(path.includes('guest-advanced')){
+    scan(.27,3,1);grille(.11,true);afterglow();bloom(.16,6);rgb(2,.1);addNoise(.012)
+  }
+  if(path.includes('newpixie')){
+    afterglow();c.save();c.globalAlpha=.22;c.filter='blur(2.4px)';c.drawImage(copy,0,0);c.restore();scan(.22,4,1);frameTexture()
+  }
+  if(path.includes('lcd')||path.includes('handheld')){
+    scan(.07,3,1);c.save();c.globalAlpha=.09;for(let x=0;x<w;x+=4)c.fillRect(x,0,1,h);c.restore()
+  }
+  if(path.includes('vhs')&&!sig.hasNTSC){ntsc();scan(.08,5,1)}
+
+  // Local/manual slider controls still add on top of the actual preset signature.
+  if((s.rgbShift||0)>0)rgb(s.rgbShift,.045);
+  if((s.glow||0)>0)bloom(Math.min(.12,s.glow*.45),Math.max(2,8*s.glow));
+  if((s.scanlines||0)>0)scan(Math.min(.18,s.scanlines*.5),4,1);
+  if((s.curve||0)>0)vignette(Math.min(.16,s.curve));
+  if((s.noise||0)>0)addNoise(Math.min(.025,s.noise*.35));
 }
 function drawLayer(c,l,w,h){
   if(!l.visible||!l.el)return;
@@ -1043,6 +1067,97 @@ $('#applySynth').onclick=()=>{state.synth.enabled=true;state.synth.target=$('#sy
 $('#removeSynth').onclick=()=>{state.synth.enabled=false;updateFxLabel();toast('Dither removed')}
 
 
+
+const shaderDefinitionCache=new Map();
+
+function rawShaderURL(path){
+  return 'https://raw.githubusercontent.com/libretro/slang-shaders/master/'+path.split('/').map(encodeURIComponent).join('/');
+}
+function parseSlangPreset(text,path){
+  const lines=text.split(/\r?\n/);
+  const passes=[],textures=[],params=[];
+  let shaderCount=0;
+  for(const raw of lines){
+    const line=raw.trim();
+    if(!line || line.startsWith('#')) continue;
+    let m=line.match(/^shaders\s*=\s*"?(\d+)"?/i);
+    if(m){shaderCount=+m[1];continue}
+    m=line.match(/^shader(\d+)\s*=\s*"?([^"]+)"?/i);
+    if(m){passes[+m[1]]=m[2].trim();continue}
+    m=line.match(/^textures\s*=\s*"?([^"]+)"?/i);
+    if(m){m[1].split(';').map(x=>x.trim()).filter(Boolean).forEach(x=>textures.push(x));continue}
+    m=line.match(/^parameters\s*=\s*"?([^"]+)"?/i);
+    if(m){m[1].split(';').map(x=>x.trim()).filter(Boolean).forEach(x=>params.push(x));continue}
+  }
+  return {
+    path,
+    shaderCount:shaderCount||passes.filter(Boolean).length,
+    passes:passes.filter(Boolean),
+    textures,
+    params
+  };
+}
+async function loadShaderDefinition(shader){
+  if(!shader || !shader.path || shader.path.startsWith('built-in/')) return null;
+  if(shaderDefinitionCache.has(shader.path)) return shaderDefinitionCache.get(shader.path);
+  const promise=(async()=>{
+    try{
+      const res=await fetch(rawShaderURL(shader.path));
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const text=await res.text();
+      return parseSlangPreset(text,shader.path);
+    }catch(e){
+      return {path:shader.path,shaderCount:0,passes:[],textures:[],params:[],error:String(e)};
+    }
+  })();
+  shaderDefinitionCache.set(shader.path,promise);
+  return promise;
+}
+function classifyPass(pass){
+  const p=(pass||'').toLowerCase();
+  if(p.includes('ntsc-pass1'))return'ntsc-encode';
+  if(p.includes('ntsc-pass2')||p.includes('ntsc-pass3'))return'ntsc-decode';
+  if(p.includes('afterglow'))return'afterglow';
+  if(p.includes('bloom'))return'bloom';
+  if(p.includes('halation'))return'halation';
+  if(p.includes('blur_horiz')||p.includes('blur-horizontal')||p.includes('blur5fast-horizontal'))return'blur-h';
+  if(p.includes('blur_vert')||p.includes('blur-vertical')||p.includes('blur5fast-vertical'))return'blur-v';
+  if(p.includes('blur'))return'blur';
+  if(p.includes('scanline'))return'scanline';
+  if(p.includes('mask-resize')||p.includes('mask_resize'))return'mask-resize';
+  if(p.includes('mask'))return'mask';
+  if(p.includes('geometry')||p.includes('geom'))return'geometry';
+  if(p.includes('grade')||p.includes('color'))return'grade';
+  if(p.includes('sharpen'))return'sharpen';
+  if(p.includes('fxaa')||p.includes('smaa')||p.includes('anti-alias'))return'antialias';
+  if(p.includes('accumulate'))return'accumulate';
+  if(p.includes('newpixie'))return'newpixie';
+  if(p.includes('stock')||p.includes('linearize'))return'stock';
+  if(p.includes('interlac'))return'interlace';
+  if(p.includes('deconverge')||p.includes('convergence'))return'convergence';
+  return'generic';
+}
+function signatureFromDefinition(def,shader){
+  const kinds=(def?.passes||[]).map(classifyPass);
+  const tex=(def?.textures||[]).map(x=>x.toLowerCase());
+  const params=(def?.params||[]).map(x=>x.toLowerCase());
+  return {
+    kinds,
+    passCount:def?.shaderCount||kinds.length,
+    hasMask:kinds.includes('mask')||kinds.includes('mask-resize')||tex.some(x=>x.includes('mask')),
+    hasBloom:kinds.includes('bloom'),
+    hasHalation:kinds.includes('halation')||params.some(x=>x.includes('halation')),
+    hasGeometry:kinds.includes('geometry')||params.some(x=>x.includes('geom_')),
+    hasNTSC:kinds.some(x=>x.startsWith('ntsc'))||params.some(x=>x.includes('signal')),
+    hasAfterglow:kinds.includes('afterglow'),
+    hasAccum:kinds.includes('accumulate'),
+    hasFrameTexture:tex.some(x=>x.includes('frame')),
+    hasLUT:tex.some(x=>x.includes('lut'))||params.some(x=>x.includes('lut')),
+    hasSharpen:kinds.includes('sharpen'),
+    hasAA:kinds.includes('antialias'),
+    path:(def?.path||shader?.path||'').toLowerCase()
+  };
+}
 function shaderFamilyFromPath(path){
   const p=(path||'').toLowerCase();
   if(p.includes('guest')&&p.includes('advanced'))return 'guest-advanced';
@@ -1060,12 +1175,12 @@ function shaderFamilyFromPath(path){
   return 'generic'
 }
 const localShaders=[
- {id:'classic',name:'CRT Classic',desc:'Balanced scanlines and glow',path:'built-in/classic',category:'crt',v:{scanlines:.28,glow:.18,rgbShift:1.5,curve:.08,noise:.02}},
- {id:'royale',name:'CRT Royale',desc:'Dense aperture-style presentation',path:'crt/crt-royale.slangp',category:'crt',v:{scanlines:.38,glow:.12,rgbShift:1.2,curve:.12,noise:.015}},
- {id:'geom',name:'CRT Geom',desc:'Curved monitor feel',path:'crt/crt-geom.slangp',category:'crt',v:{scanlines:.3,glow:.14,rgbShift:2,curve:.18,noise:.02}},
- {id:'vhs',name:'VHS Signal',desc:'Noise and RGB offset',path:'vhs/',category:'vhs',v:{scanlines:.16,glow:.08,rgbShift:4,curve:.03,noise:.08}},
- {id:'lcd',name:'LCD Grid',desc:'Sharper low-glow display',path:'handheld/',category:'handheld',v:{scanlines:.1,glow:.02,rgbShift:.4,curve:0,noise:0}},
- {id:'arcade',name:'Arcade Glow',desc:'Bright bloom and scanlines',path:'built-in/arcade',category:'crt',v:{scanlines:.32,glow:.28,rgbShift:1.8,curve:.1,noise:.01}}
+ {id:'classic',name:'CRT Classic',desc:'Balanced CRT starter profile',path:'crt/crt-geom.slangp',category:'crt',v:{scanlines:0,glow:0,rgbShift:0,curve:0,noise:0}},
+ {id:'royale',name:'CRT Royale Intel',desc:'10-pass Royale aperture/mask pipeline',path:'crt/crt-royale-intel.slangp',category:'crt',v:{scanlines:0,glow:0,rgbShift:0,curve:0,noise:0}},
+ {id:'guest',name:'CRT Guest Advanced HD',desc:'12-pass Guest Advanced with LUTs',path:'crt/crt-guest-advanced-hd.slangp',category:'crt',v:{scanlines:0,glow:0,rgbShift:0,curve:0,noise:0}},
+ {id:'newpixie',name:'NewPixie CRT',desc:'Accumulation + blur + frame-texture CRT',path:'crt/newpixie-crt.slangp',category:'crt',v:{scanlines:0,glow:0,rgbShift:0,curve:0,noise:0}},
+ {id:'kurozumi',name:'CRT Royale Kurozumi',desc:'13-pass Royale grading/bloom/geometry preset',path:'presets/crt-royale-kurozumi.slangp',category:'presets',v:{scanlines:0,glow:0,rgbShift:0,curve:0,noise:0}},
+ {id:'vhs',name:'VHS Signal',desc:'Analog signal-style profile',path:'vhs/',category:'vhs',v:{scanlines:0,glow:0,rgbShift:0,curve:0,noise:0}}
 ];
 let shaderCatalog=[...localShaders], shaderSelected='classic', shaderCategory='all', shaderFavorites=new Set(JSON.parse(localStorage.getItem('crtizer_shader_favs')||'[]')), favoritesOnly=false;
 
@@ -1112,11 +1227,30 @@ function renderShaders(filter=''){
   $$('[data-fav]').forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.fav;shaderFavorites.has(id)?shaderFavorites.delete(id):shaderFavorites.add(id);localStorage.setItem('crtizer_shader_favs',JSON.stringify([...shaderFavorites]));renderShaders($('#shaderSearch').value)});
   renderShaderCategories();
 }
-function selectShader(id){
-  shaderSelected=id;const s=shaderCatalog.find(x=>x.id===id);if(!s)return;
-  Object.assign(state.shader,s.v,{id,path:s.path,family:shaderFamilyFromPath(s.path)});
-  $('#shaderName').textContent=s.name;$('#shaderDesc').textContent=s.desc||('Shader preset • '+s.category);$('#shaderPath').textContent=s.path;
-  renderShaders($('#shaderSearch').value);renderShaderParams()
+async function selectShader(id){
+  shaderSelected=id;
+  const s=shaderCatalog.find(x=>x.id===id);
+  if(!s)return;
+
+  Object.assign(state.shader,s.v,{id,path:s.path,family:shaderFamilyFromPath(s.path),definition:null});
+  $('#shaderName').textContent=s.name;
+  $('#shaderDesc').textContent=s.desc||('Shader preset • '+s.category);
+  $('#shaderPath').textContent=s.path;
+  $('#shaderDefinitionStatus').textContent='Loading original preset definition…';
+  renderShaders($('#shaderSearch').value);
+  renderShaderParams();
+
+  const def=await loadShaderDefinition(s);
+  state.shader.definition=def;
+
+  if(def?.error){
+    $('#shaderDefinitionStatus').textContent='Preset definition unavailable; using path-based emulation.';
+  }else if(def){
+    const tex=def.textures.length?` • ${def.textures.length} textures`:'';
+    $('#shaderDefinitionStatus').textContent=`Original preset: ${def.shaderCount} passes${tex} • ${def.params.length} exposed parameters`;
+  }else{
+    $('#shaderDefinitionStatus').textContent='Local built-in emulation profile';
+  }
 }
 function renderShaderParams(){
   const defs=[['Scanlines','scanlines',0,.7,.01],['Glow','glow',0,.5,.01],['RGB Shift','rgbShift',0,8,.1],['Curve','curve',0,.3,.01],['Noise','noise',0,.15,.005]];
@@ -1135,7 +1269,7 @@ async function syncShaderCatalog(){
       desc:'RetroArch Slang preset',
       path:x.path,
       category:shaderCategoryOf(x.path),
-      v:catalogFxFor(x.path)
+      v:{scanlines:0,glow:0,rgbShift:0,curve:0,noise:0}
     }));
     const dedupe=new Map([...localShaders,...presets].map(s=>[s.id,s]));
     shaderCatalog=[...dedupe.values()];
@@ -1155,11 +1289,20 @@ $('#shaderSearch').oninput=e=>renderShaders(e.target.value);
 $('#shaderTarget').onchange=e=>state.shader.target=e.target.value;
 $('#syncShaderLibrary').onclick=syncShaderCatalog;
 $('#shaderFavoritesBtn').onclick=e=>{favoritesOnly=!favoritesOnly;e.currentTarget.classList.toggle('accent',favoritesOnly);renderShaders($('#shaderSearch').value)};
-$('#applyShader').onclick=()=>{state.shader.enabled=true;state.shader.target=$('#shaderTarget').value;state.shader.id=shaderSelected;const s=shaderCatalog.find(x=>x.id===shaderSelected);if(s)Object.assign(state.shader,s.v,{id:s.id,target:state.shader.target,path:s.path,family:shaderFamilyFromPath(s.path)});updateFxLabel();toast(state.shader.target==='source'?'Shader applied to source':'Shader applied to selected layer')}
+$('#applyShader').onclick=async()=>{
+  const target=$('#shaderTarget').value;
+  const s=shaderCatalog.find(x=>x.id===shaderSelected);
+  if(!s)return;
+  const def=await loadShaderDefinition(s);
+  state.shader.enabled=true;
+  Object.assign(state.shader,s.v,{id:s.id,target,path:s.path,family:shaderFamilyFromPath(s.path),definition:def});
+  updateFxLabel();
+  toast(target==='source'?'Original-profile shader applied to source':'Original-profile shader applied to layer')
+}
 $('#removeShader').onclick=()=>{state.shader.enabled=false;updateFxLabel();toast('Shader removed')}
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push(state.synth.target==='source'?'Dither: Source':'Dither: Layer');if(state.shader.enabled)a.push(state.shader.target==='source'?'Shader: Source':'Shader: Layer');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader';const p=$('#fxStatusPill');if(p)p.innerHTML='FX: <b>'+(a.length?a.join(' + '):'NONE')+'</b>'}
 
-function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
+function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();selectShader(shaderSelected);if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
 function closeModal(name){$('#'+name+'Modal')?.classList.remove('open')}
 $$('[data-open]').forEach(b=>b.onclick=()=>openModal(b.dataset.open));$$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 
