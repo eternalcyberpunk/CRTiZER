@@ -435,6 +435,54 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
 }
 </style>
 
+
+<style id="crtizer-live-layer-video-upgrade">
+.live-layer-preview{
+  aspect-ratio:16/9;
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:#020305;
+  margin-bottom:12px;
+  box-shadow:inset 0 0 40px rgba(101,231,255,.03);
+}
+.live-layer-preview iframe{
+  width:100%;height:100%;border:0;background:#020305;display:block;
+}
+.live-layer-preview-label{
+  position:absolute;left:8px;top:8px;z-index:5;
+  font:7px ui-monospace,monospace;color:var(--cyan);
+  padding:4px 6px;border:1px solid rgba(101,231,255,.2);
+  background:rgba(0,0,0,.55);pointer-events:none;
+}
+.media-toolbar{
+  display:grid;grid-template-columns:1fr auto auto auto;gap:7px;
+  margin-bottom:10px;align-items:center
+}
+.media-name{
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  font:8px ui-monospace,monospace;color:var(--muted)
+}
+.media-btn{
+  border:1px solid var(--line);background:#080b10;color:#c1d0d5;
+  padding:7px 9px;font:8px ui-monospace,monospace;cursor:pointer
+}
+.media-btn.active{color:var(--cyan);border-color:rgba(101,231,255,.4)}
+.video-controls{
+  display:none;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;
+  margin:8px 0 12px;padding:8px;border:1px solid var(--line);background:rgba(255,255,255,.015)
+}
+.video-controls.show{display:grid}
+.video-controls input[type="range"]{width:100%}
+.video-time{font:7px ui-monospace,monospace;color:var(--muted);white-space:nowrap}
+@media(max-width:900px){
+  .live-layer-preview{display:block;aspect-ratio:16/9;min-height:180px}
+  .layer-main{height:60%;overflow:auto}
+  .media-toolbar{grid-template-columns:1fr auto auto}
+  .media-toolbar .media-name{grid-column:1/-1}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -667,10 +715,25 @@ void main() {
           <div class="layer-tip">Select an object, then drag it directly inside the main preview. Position, scale, rotation, opacity, visibility and stack order remain editable here.</div>
         </aside>
         <section class="layer-main">
-          <div class="layer-edit-preview">
-            <div class="mini-stage">
-              <div class="layer-node" style="left:8%;top:12%;width:84%;height:70%">FRAME OBJECT PREVIEW</div>
-            </div>
+          <div class="media-toolbar">
+            <div class="media-name" id="mediaName">NO MEDIA LOADED</div>
+            <button class="media-btn" id="loadImageBtn">IMAGE</button>
+            <button class="media-btn" id="loadVideoBtn">VIDEO</button>
+            <button class="media-btn" id="clearMediaBtn">CLEAR</button>
+            <input id="imageFileInput" type="file" accept="image/*" hidden>
+            <input id="videoFileInput" type="file" accept="video/*" hidden>
+          </div>
+          <div class="live-layer-preview" id="liveLayerPreview">
+<video id="sourceVideo" playsinline muted loop style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0"></video>
+<img id="sourceImage" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0">
+
+            <div class="live-layer-preview-label">LIVE COMPOSITION</div>
+            <iframe id="liveLayerFrame" title="Live CRTiZER composition preview"></iframe>
+          </div>
+          <div class="video-controls" id="videoControls">
+            <button class="media-btn" id="videoPlayBtn">PLAY</button>
+            <input type="range" id="videoSeek" min="0" max="1000" value="0">
+            <span class="video-time" id="videoTime">00:00 / 00:00</span>
           </div>
           <div class="sectionTitle">TRANSFORM // <span id="layerInspectorName" class="cyan">SUN</span></div>
           <div class="layer-properties" id="layerProperties"></div>
@@ -1364,6 +1427,198 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
     selectedShader:window.crtizerSelectedShader,
     layers:window.crtizerLayerState
   });
+})();
+</script>
+
+
+<script id="crtizer-live-layer-video-js">
+(function(){
+  const liveFrame = document.getElementById('liveLayerFrame');
+  const layersModal = document.getElementById('layersModal');
+  const sourceVideo = document.getElementById('sourceVideo');
+  const sourceImage = document.getElementById('sourceImage');
+  const imageInput = document.getElementById('imageFileInput');
+  const videoInput = document.getElementById('videoFileInput');
+  const mediaName = document.getElementById('mediaName');
+  const videoControls = document.getElementById('videoControls');
+  const videoPlayBtn = document.getElementById('videoPlayBtn');
+  const videoSeek = document.getElementById('videoSeek');
+  const videoTime = document.getElementById('videoTime');
+
+  let mediaObjectURL = null;
+  let mirrorTimer = null;
+
+  function fmt(t){
+    if(!isFinite(t)) return '00:00';
+    const m=Math.floor(t/60), s=Math.floor(t%60);
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+
+  function findMainStage(){
+    return document.querySelector('.stage') ||
+           document.querySelector('.preview') ||
+           document.querySelector('#preview') ||
+           document.querySelector('.canvasWrap') ||
+           document.querySelector('.viewer') ||
+           sourceVideo?.parentElement;
+  }
+
+  function buildLivePreview(){
+    if(!liveFrame) return;
+    const stage = findMainStage();
+    if(!stage) return;
+
+    const clone = stage.cloneNode(true);
+    clone.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    clone.style.width='100%';
+    clone.style.height='100%';
+    clone.style.margin='0';
+    clone.style.maxWidth='none';
+    clone.style.maxHeight='none';
+    clone.style.transform='none';
+    clone.style.position='relative';
+
+    clone.querySelectorAll('button,input,textarea,select').forEach(el=>el.remove());
+
+    const styles = Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
+    const doc = liveFrame.contentDocument || liveFrame.contentWindow.document;
+    doc.open();
+    doc.write(`<!doctype html><html><head><style>
+      html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020305}
+      ${styles}
+      body{display:flex;align-items:center;justify-content:center}
+      *{box-sizing:border-box}
+    </style></head><body></body></html>`);
+    doc.close();
+    doc.body.appendChild(clone);
+
+    // Keep media in sync, because cloned video elements do not share playback state.
+    const mv = clone.querySelector('video');
+    const mi = clone.querySelector('img');
+    if(sourceImage && mi){
+      mi.src=sourceImage.src;
+      mi.style.display=sourceImage.style.display;
+    }
+    if(sourceVideo && mv){
+      mv.src=sourceVideo.src;
+      mv.style.display=sourceVideo.style.display;
+      mv.currentTime = sourceVideo.currentTime || 0;
+      mv.muted = true;
+      if(!sourceVideo.paused) mv.play().catch(()=>{});
+    }
+  }
+
+  function startMirror(){
+    stopMirror();
+    buildLivePreview();
+    mirrorTimer=setInterval(()=>{
+      if(layersModal?.classList.contains('open')) buildLivePreview();
+    }, 120);
+  }
+  function stopMirror(){
+    if(mirrorTimer){ clearInterval(mirrorTimer); mirrorTimer=null; }
+  }
+
+  const mo = new MutationObserver(()=>{
+    if(layersModal?.classList.contains('open')) buildLivePreview();
+  });
+  const stage = findMainStage();
+  if(stage) mo.observe(stage,{attributes:true,subtree:true,childList:true,attributeFilter:['style','class','src']});
+
+  const openLayersOriginal = document.getElementById('layersBtn')?.onclick;
+  if(document.getElementById('layersBtn')){
+    document.getElementById('layersBtn').addEventListener('click',()=>setTimeout(startMirror,0));
+  }
+  document.querySelectorAll('.dock-btn[data-tool="layers"]').forEach(btn=>btn.addEventListener('click',()=>setTimeout(startMirror,0)));
+  document.getElementById('closeLayers')?.addEventListener('click',stopMirror);
+  document.getElementById('onframeDone')?.addEventListener('click',stopMirror);
+
+  function clearObjectURL(){
+    if(mediaObjectURL){ URL.revokeObjectURL(mediaObjectURL); mediaObjectURL=null; }
+  }
+
+  function loadImage(file){
+    clearObjectURL();
+    mediaObjectURL=URL.createObjectURL(file);
+    sourceVideo.pause();
+    sourceVideo.removeAttribute('src');
+    sourceVideo.load();
+    sourceVideo.style.display='none';
+
+    sourceImage.src=mediaObjectURL;
+    sourceImage.style.display='block';
+    mediaName.textContent=file.name;
+    videoControls.classList.remove('show');
+    buildLivePreview();
+    if(window.showToast) showToast('IMAGE LOADED // '+file.name.toUpperCase());
+  }
+
+  function loadVideo(file){
+    clearObjectURL();
+    mediaObjectURL=URL.createObjectURL(file);
+    sourceImage.removeAttribute('src');
+    sourceImage.style.display='none';
+
+    sourceVideo.src=mediaObjectURL;
+    sourceVideo.style.display='block';
+    sourceVideo.load();
+    mediaName.textContent=file.name;
+    videoControls.classList.add('show');
+    sourceVideo.play().catch(()=>{});
+    buildLivePreview();
+    if(window.showToast) showToast('VIDEO LOADED // '+file.name.toUpperCase());
+  }
+
+  document.getElementById('loadImageBtn')?.addEventListener('click',()=>imageInput.click());
+  document.getElementById('loadVideoBtn')?.addEventListener('click',()=>videoInput.click());
+  imageInput?.addEventListener('change',e=>{ const f=e.target.files?.[0]; if(f) loadImage(f); });
+  videoInput?.addEventListener('change',e=>{ const f=e.target.files?.[0]; if(f) loadVideo(f); });
+
+  document.getElementById('clearMediaBtn')?.addEventListener('click',()=>{
+    clearObjectURL();
+    sourceVideo.pause(); sourceVideo.removeAttribute('src'); sourceVideo.load(); sourceVideo.style.display='none';
+    sourceImage.removeAttribute('src'); sourceImage.style.display='none';
+    mediaName.textContent='NO MEDIA LOADED';
+    videoControls.classList.remove('show');
+    buildLivePreview();
+    if(window.showToast) showToast('MEDIA CLEARED');
+  });
+
+  videoPlayBtn?.addEventListener('click',()=>{
+    if(!sourceVideo.src) return;
+    if(sourceVideo.paused) sourceVideo.play().catch(()=>{});
+    else sourceVideo.pause();
+  });
+
+  sourceVideo?.addEventListener('play',()=>{ videoPlayBtn.textContent='PAUSE'; });
+  sourceVideo?.addEventListener('pause',()=>{ videoPlayBtn.textContent='PLAY'; });
+  sourceVideo?.addEventListener('timeupdate',()=>{
+    if(sourceVideo.duration){
+      videoSeek.value=Math.round((sourceVideo.currentTime/sourceVideo.duration)*1000);
+      videoTime.textContent=fmt(sourceVideo.currentTime)+' / '+fmt(sourceVideo.duration);
+    }
+  });
+  sourceVideo?.addEventListener('loadedmetadata',()=>{
+    videoTime.textContent='00:00 / '+fmt(sourceVideo.duration);
+  });
+  videoSeek?.addEventListener('input',()=>{
+    if(sourceVideo.duration) sourceVideo.currentTime=(+videoSeek.value/1000)*sourceVideo.duration;
+  });
+
+  // Refresh live preview whenever layer sliders move.
+  document.getElementById('layerProperties')?.addEventListener('input',buildLivePreview);
+  document.getElementById('layerForward')?.addEventListener('click',buildLivePreview);
+  document.getElementById('layerBackward')?.addEventListener('click',buildLivePreview);
+  document.getElementById('layerCenter')?.addEventListener('click',buildLivePreview);
+  document.getElementById('layerReset')?.addEventListener('click',buildLivePreview);
+  document.getElementById('layerList')?.addEventListener('click',()=>setTimeout(buildLivePreview,0));
+
+  window.CRTIZER_MEDIA = {
+    get type(){ return sourceVideo?.style.display==='block' ? 'video' : sourceImage?.style.display==='block' ? 'image' : 'none'; },
+    video: sourceVideo,
+    image: sourceImage,
+    rebuildLayerPreview: buildLivePreview
+  };
 })();
 </script>
 
