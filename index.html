@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<title>CRTiZER — Reality, Reprocessed.</title>
+<style>
+:root{
+  --bg:#05060a;
+  --panel:rgba(10,13,20,.78);
+  --panel2:rgba(14,18,28,.88);
+  --line:rgba(120,220,255,.16);
+  --line2:rgba(255,80,220,.16);
+  --text:#d7e8ef;
+  --muted:#6f8792;
+  --cyan:#65e7ff;
+  --pink:#ff5bd7;
+  --purple:#9a72ff;
+  --good:#78ffb0;
+  --warn:#ffd66b;
+  --danger:#ff6d87;
+  --shadow:0 0 28px rgba(101,231,255,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:radial-gradient(circle at 50% -20%,#11182a 0,#05060a 44%,#020305 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;
+  background:
+    linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px);
+  background-size:4px 4px,4px 4px;mix-blend-mode:screen
+}
+button,input,select{font:inherit}
+button{color:var(--text)}
+.app{height:100%;display:grid;grid-template-rows:58px 1fr 34px;position:relative}
+.topbar{
+  display:grid;grid-template-columns:250px 1fr auto;align-items:center;padding:0 14px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(14,18,28,.92),rgba(7,9,14,.82));backdrop-filter:blur(18px);box-shadow:var(--shadow);z-index:10
+}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logoMark{width:34px;height:34px;border:1px solid rgba(101,231,255,.35);position:relative;box-shadow:inset 0 0 18px rgba(101,231,255,.08),0 0 18px rgba(101,231,255,.08)}
+.logoMark:before,.logoMark:after{content:"";position:absolute;inset:6px;border:1px solid rgba(255,91,215,.4);transform:rotate(45deg)}
+.logoMark:after{inset:10px;border-color:rgba(154,114,255,.5);transform:rotate(0)}
+.brandText{min-width:0}
+.brandName{font-size:18px;font-weight:800;letter-spacing:.16em;white-space:nowrap}
+.tag{font-size:9px;color:var(--muted);letter-spacing:.18em;margin-top:1px}
+.topStatus{display:flex;justify-content:center;gap:18px;min-width:0}
+.stat{font:10px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--muted);white-space:nowrap}
+.stat b{color:var(--text);font-weight:600}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);margin-right:6px;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35;transform:scale(.75)}}
+.topActions{display:flex;gap:8px}
+.iconBtn,.btn{
+  border:1px solid var(--line);background:rgba(10,15,22,.76);padding:8px 10px;cursor:pointer;transition:.18s ease;
+  box-shadow:inset 0 0 12px rgba(101,231,255,.02)
+}
+.iconBtn:hover,.btn:hover{border-color:rgba(101,231,255,.42);background:rgba(16,24,34,.9);transform:translateY(-1px)}
+.btn.accent{border-color:rgba(101,231,255,.4);color:var(--cyan)}
+.workspace{display:grid;grid-template-columns:250px minmax(0,1fr) 305px;gap:8px;padding:8px;min-height:0}
+.panel{
+  background:linear-gradient(180deg,rgba(11,14,22,.88),rgba(7,9,14,.76));border:1px solid var(--line);min-height:0;overflow:hidden;position:relative;
+  box-shadow:inset 0 0 32px rgba(101,231,255,.025),var(--shadow)
+}
+.panel:before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);opacity:.26}
+.panelHeader{height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--line);font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;color:#adc5cf}
+.panelScroll{height:calc(100% - 42px);overflow:auto;padding:10px}
+.panelScroll::-webkit-scrollbar{width:7px}
+.panelScroll::-webkit-scrollbar-thumb{background:rgba(101,231,255,.16)}
+.section{margin-bottom:16px}
+.sectionTitle{font:700 9px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.16em;color:var(--muted);margin:0 0 8px}
+select,input[type="text"]{width:100%;background:#070a0f;border:1px solid var(--line);color:var(--text);padding:9px 10px;outline:none}
+select:focus,input:focus{border-color:rgba(101,231,255,.45)}
+.miniPreview{aspect-ratio:16/9;border:1px solid var(--line);background:#020304;position:relative;overflow:hidden;margin-bottom:8px}
+.miniPreview:after{content:"SOURCE // LIVE";position:absolute;left:7px;bottom:6px;font:8px ui-monospace,monospace;color:var(--cyan);letter-spacing:.12em}
+.testPattern{
+  position:absolute;inset:0;background:
+  linear-gradient(90deg,#d4d4d4 0 14.2%,#d4d420 14.2% 28.4%,#20d4d4 28.4% 42.6%,#20d420 42.6% 56.8%,#d420d4 56.8% 71%,#d42020 71% 85.2%,#2020d4 85.2% 100%);
+  opacity:.82
+}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kv{padding:8px;border:1px solid var(--line);background:rgba(255,255,255,.015)}
+.kv small{display:block;color:var(--muted);font:8px ui-monospace,monospace;letter-spacing:.12em}
+.kv b{font:11px ui-monospace,monospace}
+.viewportPanel{display:grid;grid-template-rows:42px 1fr 74px;min-width:0}
+.viewportHead{display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid var(--line)}
+.viewportHead .title{font:700 10px ui-monospace,monospace;letter-spacing:.16em}
+.viewportMeta{font:9px ui-monospace,monospace;color:var(--muted)}
+.viewportWrap{position:relative;display:grid;place-items:center;min-height:0;overflow:hidden;background:
+  radial-gradient(circle at center,rgba(80,130,160,.06),transparent 50%),
+  repeating-linear-gradient(0deg,rgba(255,255,255,.012),rgba(255,255,255,.012) 1px,transparent 1px,transparent 4px)}
+.screenFrame{width:min(90%,980px);aspect-ratio:16/9;position:relative}
+.screen{
+  position:absolute;inset:0;overflow:hidden;background:#030405;border:1px solid rgba(101,231,255,.18);
+  border-radius:var(--curve,20px);transform:perspective(1000px) rotateX(0.001deg) scale(var(--scale,1));
+  box-shadow:0 0 calc(10px + var(--bloom,0)*.5px) rgba(101,231,255,.16), inset 0 0 80px rgba(0,0,0,.8);
+  filter:brightness(var(--brightness,1)) contrast(var(--contrast,1)) saturate(var(--saturation,1));
+}
+.visual{
+  position:absolute;inset:-3%;
+  background:
+    radial-gradient(circle at 66% 35%,rgba(255,91,215,.8),transparent 14%),
+    radial-gradient(circle at 34% 55%,rgba(101,231,255,.75),transparent 18%),
+    linear-gradient(140deg,#07111f 0%,#12142c 45%,#09050f 100%);
+  transform:translate(var(--xshift,0px),var(--yshift,0px)) scale(calc(1 + var(--warp,0)*.001));
+  transition:filter .08s linear;
+}
+.cityGrid{
+  position:absolute;inset:0;opacity:.6;
+  background:
+  linear-gradient(90deg,transparent 0 12%,rgba(101,231,255,.18) 12% 12.2%,transparent 12.2% 27%,rgba(255,91,215,.12) 27% 27.2%,transparent 27.2% 100%),
+  linear-gradient(0deg,transparent 0 25%,rgba(101,231,255,.13) 25% 25.2%,transparent 25.2% 52%,rgba(255,91,215,.12) 52% 52.2%,transparent 52.2% 100%);
+}
+.horizon{position:absolute;left:0;right:0;bottom:-12%;height:55%;background:
+  linear-gradient(rgba(101,231,255,.13) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(101,231,255,.12) 1px,transparent 1px);
+  background-size:42px 32px;transform:perspective(340px) rotateX(65deg);transform-origin:center top;opacity:.55}
+.sun{position:absolute;width:22%;aspect-ratio:1;border-radius:50%;left:39%;top:23%;background:radial-gradient(circle,#ffd5f6 0,#ff68db 35%,#a144ff 67%,transparent 70%);filter:blur(.2px);box-shadow:0 0 45px rgba(255,91,215,.35)}
+.tower{position:absolute;bottom:14%;left:44%;width:12%;height:44%;clip-path:polygon(35% 0,65% 0,77% 12%,82% 100%,18% 100%,23% 12%);background:linear-gradient(90deg,#04070c,#111a28 40%,#071018 63%,#020306);box-shadow:0 0 22px rgba(101,231,255,.1)}
+.tower:after{content:"";position:absolute;left:47%;top:-13%;width:5%;height:16%;background:var(--pink);box-shadow:0 0 8px var(--pink)}
+.rgbGhost{position:absolute;inset:0;mix-blend-mode:screen;opacity:var(--rgb,0);pointer-events:none}
+.rgbGhost.r{background:inherit;transform:translateX(calc(var(--rgbShift,0px)*-1));box-shadow:inset 0 0 100px rgba(255,0,60,.16)}
+.rgbGhost.b{background:inherit;transform:translateX(var(--rgbShift,0px));box-shadow:inset 0 0 100px rgba(0,180,255,.16)}
+.scanlines{position:absolute;inset:0;pointer-events:none;opacity:var(--scanOpacity,.25);background:repeating-linear-gradient(0deg,rgba(0,0,0,.62) 0 1px,transparent 1px var(--scanGap,4px));mix-blend-mode:multiply}
+.vignette{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 calc(80px + var(--vignette,0)*1px) rgba(0,0,0,calc(.25 + var(--vignette,0)*.006))}
+.noise{position:absolute;inset:-20%;pointer-events:none;opacity:var(--noise,0);background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");animation:noiseMove .16s steps(2) infinite;mix-blend-mode:screen}
+@keyframes noiseMove{0%{transform:translate(0,0)}25%{transform:translate(-2%,2%)}50%{transform:translate(2%,-1%)}75%{transform:translate(1%,2%)}100%{transform:translate(-1%,-2%)}}
+.glitchBand{position:absolute;left:0;right:0;height:8%;top:var(--glitchY,48%);opacity:var(--glitchOpacity,0);background:linear-gradient(90deg,transparent,rgba(101,231,255,.18),rgba(255,91,215,.25),transparent);transform:translateX(var(--glitchX,0px));mix-blend-mode:screen}
+.signalText{position:absolute;left:16px;top:14px;font:10px ui-monospace,monospace;color:rgba(215,232,239,.72);letter-spacing:.14em;text-shadow:0 0 8px rgba(101,231,255,.3)}
+.reticle{position:absolute;inset:12%;border:1px solid rgba(101,231,255,.11);pointer-events:none}
+.reticle:before,.reticle:after{content:"";position:absolute;background:rgba(101,231,255,.1)}
+.reticle:before{left:50%;top:0;bottom:0;width:1px}.reticle:after{top:50%;left:0;right:0;height:1px}
+.viewportControls{border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:rgba(6,8,13,.78)}
+.transport{display:flex;gap:6px}.zoom{display:flex;gap:4px}
+.smallBtn{font:9px ui-monospace,monospace;border:1px solid var(--line);background:#080b10;padding:7px 8px;cursor:pointer}
+.smallBtn.active{border-color:rgba(101,231,255,.5);color:var(--cyan)}
+.stack{display:flex;flex-direction:column;gap:6px}
+.effect{
+  display:grid;grid-template-columns:20px 1fr auto;align-items:center;padding:9px;border:1px solid var(--line);background:rgba(255,255,255,.018);cursor:pointer;transition:.16s
+}
+.effect:hover,.effect.active{border-color:rgba(101,231,255,.36);background:rgba(101,231,255,.04)}
+.effect.active{box-shadow:inset 2px 0 0 var(--cyan)}
+.drag{color:var(--muted);font:12px ui-monospace,monospace}
+.effectName{font:10px ui-monospace,monospace;letter-spacing:.08em}
+.toggle{width:29px;height:15px;border:1px solid var(--line);position:relative;cursor:pointer}
+.toggle:after{content:"";position:absolute;top:2px;left:2px;width:9px;height:9px;background:var(--muted);transition:.16s}
+.toggle.on{border-color:rgba(120,255,176,.35)}
+.toggle.on:after{left:16px;background:var(--good);box-shadow:0 0 7px var(--good)}
+.inspector{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.param{margin-bottom:11px}
+.paramTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.paramTop span{font:9px ui-monospace,monospace;color:#a9bcc4;letter-spacing:.08em}
+.paramTop b{font:9px ui-monospace,monospace;color:var(--cyan)}
+input[type="range"]{appearance:none;width:100%;height:4px;background:linear-gradient(90deg,rgba(101,231,255,.55) var(--p,50%),rgba(255,255,255,.08) var(--p,50%));outline:none}
+input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px;background:#dceff5;border:1px solid #8ceeff;box-shadow:0 0 8px rgba(101,231,255,.5)}
+.presetGrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.preset{border:1px solid var(--line);background:#070a0f;padding:8px;cursor:pointer;min-height:62px;position:relative;overflow:hidden}
+.preset:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(101,231,255,.12),transparent 40%),radial-gradient(circle at 80% 70%,rgba(255,91,215,.12),transparent 40%)}
+.preset b{position:relative;font:9px ui-monospace,monospace;letter-spacing:.08em}
+.preset small{position:absolute;bottom:7px;left:8px;font:7px ui-monospace,monospace;color:var(--muted)}
+.statusbar{
+  display:grid;grid-template-columns:1fr auto;align-items:center;padding:0 10px;border-top:1px solid var(--line);background:#05070b;font:8px ui-monospace,monospace;color:var(--muted);letter-spacing:.1em
+}
+.statusRight{display:flex;gap:16px}.good{color:var(--good)}.cyan{color:var(--cyan)}
+.mobileTabs{display:none}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;place-items:center;z-index:50;backdrop-filter:blur(8px)}
+.modal.open{display:grid}
+.modalCard{width:min(680px,92vw);max-height:82vh;border:1px solid var(--line);background:#080b11;box-shadow:0 0 60px rgba(0,0,0,.6),0 0 30px rgba(101,231,255,.08)}
+.modalHead{height:45px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 12px;font:700 10px ui-monospace,monospace;letter-spacing:.14em}
+.modalBody{padding:14px;overflow:auto;max-height:calc(82vh - 45px)}
+.code{width:100%;height:320px;background:#030507;border:1px solid var(--line);color:#bfeeff;padding:12px;font:11px/1.5 ui-monospace,monospace;resize:vertical;outline:none}
+.toast{position:fixed;right:14px;bottom:48px;padding:10px 12px;border:1px solid var(--line);background:#080c12;font:9px ui-monospace,monospace;letter-spacing:.1em;opacity:0;transform:translateY(8px);transition:.2s;z-index:100}
+.toast.show{opacity:1;transform:none}
+@media (max-width:900px){
+  html,body{overflow:auto}
+  .app{min-height:100%;height:auto;grid-template-rows:54px auto 32px}
+  .topbar{grid-template-columns:1fr auto;padding:0 10px;position:sticky;top:0}
+  .topStatus{display:none}
+  .brandName{font-size:15px}
+  .topActions .btn{display:none}
+  .workspace{grid-template-columns:1fr;grid-template-rows:auto auto auto;padding:6px;padding-bottom:66px}
+  .panel.left,.panel.right{display:none}
+  .panel.left.show,.panel.right.show{display:block;min-height:calc(100vh - 160px)}
+  .viewportPanel{min-height:calc(100vh - 104px)}
+  .screenFrame{width:96%}
+  .viewportControls{gap:8px;overflow:auto}
+  .mobileTabs{display:grid;position:fixed;left:8px;right:8px;bottom:8px;grid-template-columns:repeat(3,1fr);z-index:20;background:#06090f;border:1px solid var(--line);backdrop-filter:blur(14px)}
+  .mobileTabs button{padding:12px 6px;background:transparent;border:0;color:var(--muted);font:9px ui-monospace,monospace;letter-spacing:.1em}
+  .mobileTabs button.active{color:var(--cyan);background:rgba(101,231,255,.05)}
+  .statusbar{display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logoMark"></div>
+      <div class="brandText"><div class="brandName">CRTiZER</div><div class="tag">REALITY, REPROCESSED.</div></div>
+    </div>
+    <div class="topStatus">
+      <div class="stat"><span class="dot"></span><b>ENGINE ONLINE</b></div>
+      <div class="stat">FPS <b id="fps">60</b></div>
+      <div class="stat">RES <b>1920×1080</b></div>
+      <div class="stat">LAT <b id="lat">2.4ms</b></div>
+    </div>
+    <div class="topActions">
+      <button class="btn" id="importBtn">IMPORT</button>
+      <button class="btn" id="exportBtn">EXPORT</button>
+      <button class="btn accent" id="shaderBtn">SHADER</button>
+      <button class="iconBtn" id="fsBtn">⛶</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="panel left" id="leftPanel">
+      <div class="panelHeader"><span>INPUT // SOURCE</span><span class="cyan">01</span></div>
+      <div class="panelScroll">
+        <div class="section">
+          <div class="sectionTitle">SOURCE TYPE</div>
+          <select id="sourceSelect">
+            <option>TEST PATTERN</option>
+            <option>IMAGE</option>
+            <option>VIDEO</option>
+            <option>DISPLAY (NATIVE BRIDGE)</option>
+            <option>WINDOW (NATIVE BRIDGE)</option>
+          </select>
+        </div>
+        <div class="section">
+          <div class="sectionTitle">SOURCE PREVIEW</div>
+          <div class="miniPreview"><div class="testPattern"></div></div>
+          <button class="btn" style="width:100%" id="loadImageBtn">LOAD IMAGE</button>
+          <input type="file" id="imageInput" accept="image/*" hidden>
+        </div>
+        <div class="section">
+          <div class="sectionTitle">CAPTURE</div>
+          <div class="row">
+            <div class="kv"><small>RESOLUTION</small><b>1920×1080</b></div>
+            <div class="kv"><small>FRAME RATE</small><b>60 FPS</b></div>
+            <div class="kv"><small>ASPECT</small><b>16:9</b></div>
+            <div class="kv"><small>PIPELINE</small><b>WEB FX</b></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="sectionTitle">PRESETS</div>
+          <div class="presetGrid">
+            <div class="preset" data-preset="classic"><b>CRT CLASSIC</b><small>ANALOG</small></div>
+            <div class="preset" data-preset="vhs"><b>VHS 1998</b><small>TAPE</small></div>
+            <div class="preset" data-preset="ghost"><b>GHOST SIGNAL</b><small>NOISE</small></div>
+            <div class="preset" data-preset="evil"><b>EVIL IRIS</b><small>CYBER</small></div>
+            <div class="preset" data-preset="arcade"><b>ARCADE</b><small>PHOSPHOR</small></div>
+            <div class="preset" data-preset="broken"><b>BROKEN SIGNAL</b><small>GLITCH</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel viewportPanel" id="viewPanel">
+      <div class="viewportHead">
+        <div class="title">LIVE OUTPUT // CRTIZER_CORE</div>
+        <div class="viewportMeta">SIGNAL LOCKED // FRAME <span id="frame">000001</span></div>
+      </div>
+
+      <div class="viewportWrap" id="viewportWrap">
+        <div class="screenFrame">
+          <div class="screen" id="screen">
+            <div class="visual" id="visual">
+              <div class="cityGrid"></div>
+              <div class="sun"></div>
+              <div class="tower"></div>
+              <div class="horizon"></div>
+            </div>
+            <div class="rgbGhost r"></div><div class="rgbGhost b"></div>
+            <div class="scanlines"></div>
+            <div class="noise"></div>
+            <div class="glitchBand"></div>
+            <div class="vignette"></div>
+            <div class="reticle"></div>
+            <div class="signalText">CRTiZER // SIGNAL LOCKED // 60FPS</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="viewportControls">
+        <div class="transport">
+          <button class="smallBtn" id="playBtn">▶ PLAY</button>
+          <button class="smallBtn" id="pauseBtn">Ⅱ PAUSE</button>
+          <button class="smallBtn" id="resetBtn">↺ RESET</button>
+        </div>
+        <div class="zoom">
+          <button class="smallBtn zoomBtn" data-zoom=".75">75%</button>
+          <button class="smallBtn zoomBtn active" data-zoom="1">100%</button>
+          <button class="smallBtn zoomBtn" data-zoom="1.15">115%</button>
+          <button class="smallBtn" id="beforeBtn">BEFORE</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel right" id="rightPanel">
+      <div class="panelHeader"><span>EFFECT STACK</span><span class="cyan">06 ACTIVE</span></div>
+      <div class="panelScroll">
+        <div class="stack" id="effectStack">
+          <div class="effect active" data-effect="crt"><div class="drag">⋮⋮</div><div class="effectName">CRT CORE</div><div class="toggle on"></div></div>
+          <div class="effect" data-effect="scan"><div class="drag">⋮⋮</div><div class="effectName">SCANLINES</div><div class="toggle on"></div></div>
+          <div class="effect" data-effect="rgb"><div class="drag">⋮⋮</div><div class="effectName">RGB SHIFT</div><div class="toggle on"></div></div>
+          <div class="effect" data-effect="vhs"><div class="drag">⋮⋮</div><div class="effectName">VHS</div><div class="toggle on"></div></div>
+          <div class="effect" data-effect="glitch"><div class="drag">⋮⋮</div><div class="effectName">GLITCH</div><div class="toggle on"></div></div>
+          <div class="effect" data-effect="color"><div class="drag">⋮⋮</div><div class="effectName">COLOR</div><div class="toggle on"></div></div>
+        </div>
+
+        <div class="inspector">
+          <div class="sectionTitle">PARAMETERS // <span id="inspectorName" class="cyan">CRT CORE</span></div>
+          <div id="params"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="statusbar">
+    <div>CRTiZER 1.0.0 // EXPERIMENTAL WEB CORE</div>
+    <div class="statusRight"><span class="good">SHADER CORE READY</span><span class="cyan">SIGNAL LOCKED</span><span>GPU PIPELINE // BROWSER</span></div>
+  </footer>
+</div>
+
+<div class="mobileTabs">
+  <button data-tab="source">SOURCE</button>
+  <button class="active" data-tab="view">VIEW</button>
+  <button data-tab="fx">EFFECTS</button>
+</div>
+
+<div class="modal" id="shaderModal">
+  <div class="modalCard">
+    <div class="modalHead"><span>SHADER LAB // CRTIZER_CORE</span><button class="iconBtn" id="closeShader">×</button></div>
+    <div class="modalBody">
+      <div class="sectionTitle">FRAGMENT SHADER // PREVIEW STUB</div>
+      <textarea class="code" spellcheck="false">precision mediump float;
+uniform sampler2D uTexture;
+uniform float uCurvature;
+uniform float uScanlines;
+uniform float uNoise;
+uniform float uRgbShift;
+
+void main() {
+  // CRTiZER browser prototype shader placeholder.
+  // Native build can replace this layer with HLSL / DX11.
+}</textarea>
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn accent" id="compileBtn">COMPILE</button>
+        <button class="btn">RESET</button>
+        <div class="stat" style="margin-left:auto;align-self:center"><span class="dot"></span><b id="compileStatus">COMPILED</b></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const screen = document.getElementById('screen');
+const visual = document.getElementById('visual');
+const paramsEl = document.getElementById('params');
+const inspectorName = document.getElementById('inspectorName');
+const toast = document.getElementById('toast');
+
+const state = {
+  active:'crt', playing:true, before:false,
+  crt:{curvature:20,bloom:18,vignette:35,brightness:100,contrast:110},
+  scan:{density:60,opacity:32},
+  rgb:{shift:5,intensity:45},
+  vhs:{jitter:10,warp:8,noise:12},
+  glitch:{intensity:12,displacement:14,chaos:20},
+  color:{saturation:115,brightness:100,contrast:110}
+};
+
+const defs = {
+  crt:[
+    ['CURVATURE','curvature',0,50],
+    ['BLOOM','bloom',0,100],
+    ['VIGNETTE','vignette',0,100],
+    ['BRIGHTNESS','brightness',50,150],
+    ['CONTRAST','contrast',50,170]
+  ],
+  scan:[
+    ['DENSITY','density',10,100],
+    ['OPACITY','opacity',0,100]
+  ],
+  rgb:[
+    ['RGB SHIFT','shift',0,30],
+    ['INTENSITY','intensity',0,100]
+  ],
+  vhs:[
+    ['JITTER','jitter',0,50],
+    ['WARP','warp',0,50],
+    ['TAPE NOISE','noise',0,60]
+  ],
+  glitch:[
+    ['INTENSITY','intensity',0,100],
+    ['DISPLACEMENT','displacement',0,100],
+    ['CHAOS','chaos',0,100]
+  ],
+  color:[
+    ['SATURATION','saturation',0,200],
+    ['BRIGHTNESS','brightness',50,150],
+    ['CONTRAST','contrast',50,170]
+  ]
+};
+const names={crt:'CRT CORE',scan:'SCANLINES',rgb:'RGB SHIFT',vhs:'VHS',glitch:'GLITCH',color:'COLOR'};
+
+function showToast(msg){
+  toast.textContent=msg; toast.classList.add('show');
+  clearTimeout(showToast.t); showToast.t=setTimeout(()=>toast.classList.remove('show'),1600);
+}
+
+function renderInspector(){
+  inspectorName.textContent=names[state.active];
+  paramsEl.innerHTML='';
+  for(const [label,key,min,max] of defs[state.active]){
+    const value=state[state.active][key];
+    const wrap=document.createElement('div');
+    wrap.className='param';
+    wrap.innerHTML=`<div class="paramTop"><span>${label}</span><b>${value}</b></div>
+      <input type="range" min="${min}" max="${max}" value="${value}" data-key="${key}">`;
+    paramsEl.appendChild(wrap);
+  }
+  paramsEl.querySelectorAll('input').forEach(r=>{
+    setRangeFill(r);
+    r.addEventListener('input',e=>{
+      state[state.active][e.target.dataset.key]=+e.target.value;
+      e.target.previousElementSibling.querySelector('b').textContent=e.target.value;
+      setRangeFill(e.target); apply();
+    });
+  });
+}
+function setRangeFill(r){
+  const p=((r.value-r.min)/(r.max-r.min))*100;
+  r.style.setProperty('--p',p+'%');
+}
+
+function apply(){
+  if(state.before){
+    screen.style.cssText='';
+    screen.style.setProperty('--curve','0px');
+    screen.style.setProperty('--scanOpacity','0');
+    screen.style.setProperty('--rgb','0');
+    screen.style.setProperty('--noise','0');
+    screen.style.setProperty('--vignette','0');
+    return;
+  }
+  screen.style.setProperty('--curve',state.crt.curvature+'px');
+  screen.style.setProperty('--bloom',state.crt.bloom);
+  screen.style.setProperty('--vignette',state.crt.vignette);
+  screen.style.setProperty('--brightness',(state.color.brightness/100));
+  screen.style.setProperty('--contrast',(state.color.contrast/100));
+  screen.style.setProperty('--saturation',(state.color.saturation/100));
+  screen.style.setProperty('--scanOpacity',(state.scan.opacity/100));
+  const gap=Math.max(2,Math.round(8-state.scan.density/18));
+  screen.style.setProperty('--scanGap',gap+'px');
+  screen.style.setProperty('--rgb',(state.rgb.intensity/100));
+  screen.style.setProperty('--rgbShift',state.rgb.shift+'px');
+  screen.style.setProperty('--noise',Math.max(state.vhs.noise,state.glitch.intensity*.25)/100);
+  screen.style.setProperty('--warp',state.vhs.warp);
+  screen.style.setProperty('--glitchOpacity',state.glitch.intensity/100);
+}
+
+document.querySelectorAll('.effect').forEach(el=>{
+  el.addEventListener('click',e=>{
+    if(e.target.classList.contains('toggle')) return;
+    document.querySelectorAll('.effect').forEach(x=>x.classList.remove('active'));
+    el.classList.add('active'); state.active=el.dataset.effect; renderInspector();
+  });
+  el.querySelector('.toggle').addEventListener('click',e=>{
+    e.stopPropagation(); e.currentTarget.classList.toggle('on');
+    el.style.opacity=e.currentTarget.classList.contains('on')?'1':'.42';
+    showToast(`${names[el.dataset.effect]} ${e.currentTarget.classList.contains('on')?'ENABLED':'BYPASSED'}`);
+  });
+});
+
+function preset(name){
+  const p={
+    classic:{crt:[28,22,42,100,116],scan:[74,42],rgb:[3,24],vhs:[3,4,6],glitch:[3,5,4],color:[92,98,116]},
+    vhs:{crt:[16,14,30,96,104],scan:[48,22],rgb:[8,55],vhs:[28,22,35],glitch:[18,24,26],color:[82,96,108]},
+    ghost:{crt:[24,34,55,103,124],scan:[80,46],rgb:[12,75],vhs:[18,18,40],glitch:[34,38,68],color:[72,102,126]},
+    evil:{crt:[30,42,58,102,132],scan:[68,32],rgb:[13,88],vhs:[10,12,16],glitch:[48,58,72],color:[150,104,138]},
+    arcade:{crt:[36,55,50,107,125],scan:[88,54],rgb:[2,16],vhs:[2,3,2],glitch:[2,2,2],color:[138,108,126]},
+    broken:{crt:[22,18,46,98,130],scan:[55,38],rgb:[18,92],vhs:[32,34,46],glitch:[82,88,94],color:[92,94,140]}
+  }[name];
+  const keys=['crt','scan','rgb','vhs','glitch','color'];
+  keys.forEach((k,i)=>{
+    const vals=p[i]||p[k];
+  });
+  [state.crt.curvature,state.crt.bloom,state.crt.vignette,state.crt.brightness,state.crt.contrast]=p.crt;
+  [state.scan.density,state.scan.opacity]=p.scan;
+  [state.rgb.shift,state.rgb.intensity]=p.rgb;
+  [state.vhs.jitter,state.vhs.warp,state.vhs.noise]=p.vhs;
+  [state.glitch.intensity,state.glitch.displacement,state.glitch.chaos]=p.glitch;
+  [state.color.saturation,state.color.brightness,state.color.contrast]=p.color;
+  renderInspector(); apply(); showToast('PRESET LOADED // '+name.toUpperCase());
+}
+document.querySelectorAll('.preset').forEach(x=>x.onclick=()=>preset(x.dataset.preset));
+
+let tick=0,last=performance.now(),frames=0;
+function loop(now){
+  requestAnimationFrame(loop);
+  if(!state.playing) return;
+  frames++; tick++;
+  document.getElementById('frame').textContent=String(tick).padStart(6,'0');
+  if(now-last>1000){
+    document.getElementById('fps').textContent=frames;
+    document.getElementById('lat').textContent=(1.6+Math.random()*1.5).toFixed(1)+'ms';
+    frames=0;last=now;
+  }
+  const jitter=(Math.random()-.5)*state.vhs.jitter*.18;
+  screen.style.setProperty('--xshift',jitter+'px');
+  screen.style.setProperty('--yshift',((Math.random()-.5)*state.vhs.jitter*.08)+'px');
+  if(Math.random() < state.glitch.chaos/900){
+    screen.style.setProperty('--glitchY',(10+Math.random()*80)+'%');
+    screen.style.setProperty('--glitchX',((Math.random()-.5)*state.glitch.displacement)+'px');
+  }
+}
+requestAnimationFrame(loop);
+
+document.getElementById('playBtn').onclick=()=>{state.playing=true;showToast('PLAYBACK ACTIVE')};
+document.getElementById('pauseBtn').onclick=()=>{state.playing=false;showToast('PLAYBACK PAUSED')};
+document.getElementById('resetBtn').onclick=()=>{preset('classic');showToast('SYSTEM RESET')};
+
+document.querySelectorAll('.zoomBtn').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.zoomBtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  screen.style.setProperty('--scale',b.dataset.zoom);
+});
+
+document.getElementById('beforeBtn').onclick=()=>{
+  state.before=!state.before; document.getElementById('beforeBtn').classList.toggle('active',state.before); apply();
+  showToast(state.before?'BYPASS // ORIGINAL':'FX CHAIN // ACTIVE');
+};
+
+document.getElementById('shaderBtn').onclick=()=>document.getElementById('shaderModal').classList.add('open');
+document.getElementById('closeShader').onclick=()=>document.getElementById('shaderModal').classList.remove('open');
+document.getElementById('compileBtn').onclick=()=>{
+  const s=document.getElementById('compileStatus');s.textContent='COMPILING...';
+  setTimeout(()=>{s.textContent='COMPILED';showToast('SHADER COMPILED SUCCESSFULLY')},450);
+};
+document.getElementById('fsBtn').onclick=()=>{
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.();
+};
+
+document.getElementById('loadImageBtn').onclick=()=>document.getElementById('imageInput').click();
+document.getElementById('imageInput').onchange=e=>{
+  const file=e.target.files?.[0]; if(!file)return;
+  const url=URL.createObjectURL(file);
+  visual.style.background=`linear-gradient(rgba(8,10,16,.12),rgba(8,10,16,.12)),url("${url}") center/cover no-repeat`;
+  showToast('IMAGE SOURCE LOADED');
+};
+document.getElementById('sourceSelect').onchange=e=>{
+  if(e.target.value.includes('NATIVE BRIDGE')) showToast('NATIVE BRIDGE REQUIRED FOR WINDOWS CAPTURE');
+};
+
+document.getElementById('exportBtn').onclick=()=>{
+  const data=JSON.stringify(state,null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);a.download='crtizer-preset.json';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);showToast('PRESET EXPORTED');
+};
+document.getElementById('importBtn').onclick=()=>{
+  const input=document.createElement('input');input.type='file';input.accept='.json';
+  input.onchange=async()=>{try{
+    const obj=JSON.parse(await input.files[0].text());
+    Object.assign(state,obj);renderInspector();apply();showToast('PRESET IMPORTED');
+  }catch{showToast('INVALID PRESET FILE')}};
+  input.click();
+};
+
+document.querySelectorAll('.mobileTabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.mobileTabs button').forEach(x=>x.classList.remove('active'));b.classList.add('active');
+  const left=document.getElementById('leftPanel'),right=document.getElementById('rightPanel'),view=document.getElementById('viewPanel');
+  left.classList.remove('show');right.classList.remove('show');view.style.display='none';
+  if(b.dataset.tab==='source') left.classList.add('show');
+  if(b.dataset.tab==='fx') right.classList.add('show');
+  if(b.dataset.tab==='view') view.style.display='grid';
+});
+
+window.addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();state.playing=!state.playing;showToast(state.playing?'PLAYBACK ACTIVE':'PLAYBACK PAUSED')}
+  if(e.key.toLowerCase()==='b'){state.before=!state.before;apply()}
+  if(e.key==='F11'){e.preventDefault();document.getElementById('fsBtn').click()}
+});
+
+renderInspector();apply();
+</script>
+</body>
+</html>
