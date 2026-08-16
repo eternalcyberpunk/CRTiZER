@@ -397,17 +397,6 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 
 
 <style id="irisseg-use-prompt-mobile-css">
-#irisSegPromptApply{
-  min-height:44px;
-  font-size:8px;
-  font-weight:700;
-  letter-spacing:.04em;
-  touch-action:manipulation;
-}
-#irisSegPromptClear{
-  min-height:44px;
-  touch-action:manipulation;
-}
 .irisseg-prompt-text{
   display:flex;
   align-items:flex-start;
@@ -430,16 +419,6 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
   overflow-wrap:anywhere;
 }
 @media(max-width:900px){
-  #irisSegPromptApply{
-    min-height:50px;
-    font-size:14px;
-    border-radius:10px;
-  }
-  #irisSegPromptClear{
-    min-height:50px;
-    font-size:13px;
-    border-radius:10px;
-  }
   .irisseg-prompt-text{
     font-size:11px;
     padding:9px 10px;
@@ -613,11 +592,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
               aria-label="IrisReg prompt"
               style="width:100%;min-height:88px;border:1px solid var(--line);background:#080b0f;color:#dce5e8;border-radius:7px;padding:10px;resize:vertical;font-size:14px;line-height:1.4;pointer-events:auto;user-select:text;-webkit-user-select:text;touch-action:manipulation"
             ></textarea>
-            <div class="row" style="margin-top:6px">
-              <button class="btn grow" id="irisSegPromptClear" type="button">Clear</button>
-              <button class="btn grow" id="irisSegPromptApply" type="button">Use Prompt</button>
-            </div>
-            <div class="irisseg-note"><span id="irisSegPromptCount">0</span>/500 characters • Prompt is saved per target.</div>
+            <div class="irisseg-note"><span id="irisSegPromptCount">0</span>/500 characters • Live updates the PROMPTS box and saves per target.</div>
           </div>
 
           <div class="irisseg-block">
@@ -2643,9 +2618,15 @@ function syncIrisSegPrompt(){
 }
 $('#irisSegPrompt')?.addEventListener('input',()=>{
   syncIrisSegPrompt();
-  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
-  const session=irisSegSession(targetId);
-  if(session.prompt)renderIrisSegPoints();
+  renderIrisSegPoints();
+
+  const prompt=$('#irisSegPrompt')?.value?.trim()||'';
+  setIrisSegConnection(
+    irisSeg.connected?'online':'offline',
+    prompt
+      ? `IrisReg live prompt: "${prompt.slice(0,80)}${prompt.length>80?'…':''}"`
+      : 'Type a prompt or add Include / Exclude points.'
+  );
 });
 $('#irisSegPrompt')?.addEventListener('change',syncIrisSegPrompt);
 $('#irisSegPrompt')?.addEventListener('focus',e=>{
@@ -2658,57 +2639,6 @@ $('#irisSegPrompt')?.addEventListener('focus',e=>{
 $('#irisSegPrompt')?.addEventListener('pointerdown',e=>e.stopPropagation());
 $('#irisSegPrompt')?.addEventListener('touchstart',e=>e.stopPropagation(),{passive:true});
 
-$('#irisSegPromptClear')?.addEventListener('click',()=>{
-  const field=$('#irisSegPrompt');
-  if(!field)return;
-
-  field.value='';
-  syncIrisSegPrompt();
-
-  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
-  irisSegSession(targetId).prompt='';
-
-  renderIrisSegPoints();
-  field.focus();
-});
-$('#irisSegPromptApply')?.addEventListener('click',()=>{
-  syncIrisSegPrompt();
-
-  const field=$('#irisSegPrompt');
-  const prompt=field?.value?.trim()||'';
-
-  if(!prompt){
-    setIrisSegConnection(irisSeg.connected?'online':'offline','Enter a prompt first.');
-    field?.focus();
-    return;
-  }
-
-  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
-  const session=irisSegSession(targetId);
-  session.prompt=prompt;
-
-  renderIrisSegPoints();
-
-  setIrisSegConnection(
-    irisSeg.connected?'online':'offline',
-    `IrisReg text prompt active: "${prompt.slice(0,80)}${prompt.length>80?'…':''}"`
-  );
-
-  // Mobile UX: dismiss keyboard after the explicit action.
-  field?.blur();
-
-  // Brief visual confirmation on the button.
-  const btn=$('#irisSegPromptApply');
-  if(btn){
-    const old=btn.textContent;
-    btn.textContent='Prompt Added';
-    btn.classList.add('accent');
-    setTimeout(()=>{
-      btn.textContent=old;
-      btn.classList.remove('accent');
-    },900);
-  }
-});
 $('#irisSegTarget')?.addEventListener('change',()=>{
   state.roto.activeTarget=$('#irisSegTarget').value;
   const session=rotoForTarget(state.roto.activeTarget);
