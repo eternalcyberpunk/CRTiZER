@@ -2323,43 +2323,97 @@ function ensureIrisBrowserSeed(){
   return false;
 }
 
-async function irisBrowserSegmentCurrent(){
-  if(!ensureIrisBrowserSeed())throw new Error('Enter a text prompt or add an Include / Exclude point.');
 
-  const cfg=irisTrackingConfig();
-  await irisBrowserEncodeCurrentFrame(true,cfg.workWidth);
+let irisGenerateBusy=false;
 
-  setIrisBoot(true,'DECODING MASK',88,'MASK');
-  const result=await irisBrowserCall('decode',{points:irisSeg.points});
-
-  const url=await maskBufferToObjectURL(result.width,result.height,result.data);
-  const image=await imageFromObjectURL(url);
-
-  const target=irisSegTargetObject();
-  const session=irisSegSession(target.id);
-  const time=masterTime();
-
-  const existing=session.frames.find(f=>Math.abs((f.time||0)-time)<.02);
-  if(existing){
-    if(existing.url && String(existing.url).startsWith('blob:'))try{URL.revokeObjectURL(existing.url)}catch(e){}
-    existing.image=image;existing.url=url;
-  }else{
-    session.frames.push({time,url,image});
+function irisIsIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+}
+function irisMobileSafeMode(){
+  return irisIsMobile() || irisIsIOS();
+}
+function irisDeviceBudget(){
+  const mem=Number(navigator.deviceMemory||0);
+  if(irisIsIOS()) return 'low';
+  if(mem && mem<=4) return 'low';
+  if(mem && mem<=8) return 'medium';
+  return 'high';
+}
+function disposeIrisBrowserWorker(){
+  if(irisBrowserWorker){
+    try{irisBrowserWorker.terminate()}catch(e){}
+    try{
+      if(irisBrowserWorker._blobURL)URL.revokeObjectURL(irisBrowserWorker._blobURL);
+    }catch(e){}
   }
+  irisBrowserWorker=null;
+  irisBrowserReady=false;
+  irisBrowserEncodedKey=null;
+  irisBrowserPending.forEach(({reject})=>{
+    try{reject(new Error('IrisSeg worker reset'))}catch(e){}
+  });
+  irisBrowserPending.clear();
+}
+async function irisCooldown(){
+  await new Promise(r=>setTimeout(r,120));
+}
+async function irisBrowserSegmentCurrent(){
+  if(irisGenerateBusy)throw new Error('IrisReg is already processing.');
+  irisGenerateBusy=true;
 
-  session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
-  session.enabled=true;
-  session.points=[...irisSeg.points];
-  session.prompt=commitIrisRegPrompt();
-  session.model='slimsam-browser';
-  session.matte='none';
+  try{
+    if(!ensureIrisBrowserSeed())throw new Error('Enter a text prompt or add an Include / Exclude point.');
 
-  disposeOldBrowserMasks(session,irisIsMobile()?24:64);
+    const cfg=irisTrackingConfig();
+    const safeWidth=irisMobileSafeMode()?384:cfg.workWidth;
 
-  setIrisBoot(true,'MASK READY',100,'DONE');
-  setTimeout(()=>setIrisBoot(false),350);
-  drawIrisSegFrame();
-  return session;
+    await irisCooldown();
+    await irisBrowserEncodeCurrentFrame(true,safeWidth);
+
+    setIrisBoot(true,'DECODING MASK',88,'MASK');
+    const result=await irisBrowserCall('decode',{points:irisSeg.points});
+
+    const url=await maskBufferToObjectURL(result.width,result.height,result.data);
+    const image=await imageFromObjectURL(url);
+
+    const target=irisSegTargetObject();
+    const session=irisSegSession(target.id);
+    const time=masterTime();
+
+    const existing=session.frames.find(f=>Math.abs((f.time||0)-time)<.02);
+    if(existing){
+      if(existing.url && String(existing.url).startsWith('blob:')){
+        try{URL.revokeObjectURL(existing.url)}catch(e){}
+      }
+      existing.image=image;
+      existing.url=url;
+    }else{
+      session.frames.push({time,url,image});
+    }
+
+    session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
+    session.enabled=true;
+    session.points=[...irisSeg.points];
+    session.prompt=commitIrisRegPrompt();
+    session.model='slimsam-browser';
+    session.matte='none';
+
+    disposeOldBrowserMasks(session,irisMobileSafeMode()?8:64);
+
+    setIrisBoot(true,'MASK READY',100,'DONE');
+    setTimeout(()=>setIrisBoot(false),300);
+    drawIrisSegFrame();
+
+    // On mobile/iOS, release model memory immediately after inference.
+    if(irisMobileSafeMode()){
+      setTimeout(()=>disposeIrisBrowserWorker(),250);
+    }
+
+    return session;
+  }finally{
+    irisGenerateBusy=false;
+  }
 }
 
 function irisIsMobile(){
@@ -2368,10 +2422,10 @@ function irisIsMobile(){
 function irisTrackingConfig(){
   const mobile=irisIsMobile();
   return {
-    sampleFps: mobile ? 2 : 4,
-    maxFrames: mobile ? 24 : 72,
-    workWidth: mobile ? 640 : 960,
-    settleMs: mobile ? 55 : 28
+    sampleFps: mobile ? 1 : 4,
+    maxFrames: mobile ? 8 : 72,
+    workWidth: mobile ? 384 : 960,
+    settleMs: mobile ? 90 : 28
   };
 }
 async function irisYield(){
@@ -2416,6 +2470,14 @@ async function imageFromObjectURL(url){
   });
 }
 async function irisBrowserTrack(direction='forward'){
+  if(irisMobileSafeMode()){
+    const session=await irisBrowserSegmentCurrent();
+    setIrisSegConnection(
+      'online',
+      'Mobile Safe Mode: generated a single-frame roto mask without full local tracking. Use the Sammie bridge for full-video tracking on mobile.'
+    );
+    return session;
+  }
   const target=irisSegTargetObject();
   if(!target || target.type!=='video')throw new Error('Browser tracking requires a video source or video layer.');
   if(!ensureIrisBrowserSeed())throw new Error('Enter a text prompt or add an Include / Exclude point before tracking.');
@@ -2715,7 +2777,14 @@ async function irisSegRun(action,direction='forward'){
 
   if(irisSeg.engine==='browser'){
     try{
-      if(action==='segment'){
+      if(irisMobileSafeMode()){
+        setIrisSegConnection('busy','Mobile Safe Mode • generating current-frame roto mask…');
+        const session=await irisBrowserSegmentCurrent();
+        setIrisSegConnection(
+          'online',
+          `Mobile-safe mask ready • ${session.frames.length} retained mask frame${session.frames.length===1?'':'s'}. Full-video tracking is disabled locally on mobile to prevent browser crashes.`
+        );
+      }else if(action==='segment'){
         setIrisSegConnection('busy','Running local segmentation…');
         const session=await irisBrowserSegmentCurrent();
         setIrisSegConnection('online',`Local mask ready • ${session.frames.length} mask frame${session.frames.length===1?'':'s'}.`);
@@ -2727,6 +2796,7 @@ async function irisSegRun(action,direction='forward'){
       }
     }catch(e){
       setIrisBoot(false);
+      disposeIrisBrowserWorker();
       setIrisSegConnection('offline',e?.message||String(e));
     }
     return;
@@ -2780,6 +2850,14 @@ function prepareIrisSeg(){
   renderIrisSegPoints();
   $('#irisSegModel').disabled=irisSeg.engine==='browser';
   $('#irisSegMatte').disabled=irisSeg.engine==='browser';
+  if(irisMobileSafeMode()){
+    const gen=$('#irisSegGenerate');
+    if(gen)gen.textContent='Generate Roto Frame';
+    const fwd=$('#irisSegForward');
+    const back=$('#irisSegBack');
+    if(fwd){fwd.disabled=true;fwd.title='Full local tracking disabled on mobile for stability';}
+    if(back){back.disabled=true;back.title='Full local tracking disabled on mobile for stability';}
+  }
   requestAnimationFrame(drawIrisSegFrame);
 }
 
@@ -2792,7 +2870,7 @@ $('#irisSegEngine')?.addEventListener('change',e=>{
   $('#irisSegMatte').disabled=browser;
   $('#irisSegConnect').textContent=browser?'Launch IrisSeg':'Connect Sammie';
   $('#irisSegEngineNote').textContent=browser
-    ? 'Runs a compact SAM-style segmentation model locally. Mobile tracking is throttled to protect memory and stability.'
+    ? 'Runs locally. On mobile/iOS, IrisSeg uses single-frame safe mode and releases model memory after each generation to prevent tab crashes.'
     : 'Uses the full Sammie-Roto workflow through a local or RunPod HTTP bridge.';
   irisSeg.connected=false;
   setIrisSegConnection('offline',browser?'Browser engine not launched.':'Sammie bridge not connected.');
