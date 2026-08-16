@@ -451,6 +451,41 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="crtizer-lab-css">
+.lab-layout{height:100%;display:grid;grid-template-columns:260px minmax(0,1fr) 300px;background:#06080b}
+.lab-nav{border-right:1px solid var(--line);padding:10px;overflow:auto}
+.lab-work{min-width:0;min-height:0;padding:10px;overflow:auto}
+.lab-side{border-left:1px solid var(--line);padding:10px;overflow:auto}
+.lab-section-btn{width:100%;text-align:left;padding:10px 11px;margin-bottom:6px;border:1px solid var(--line);background:#0c1014;color:#829299;border-radius:8px;font-size:7px}
+.lab-section-btn.active{color:var(--cyan);border-color:rgba(105,231,255,.28);background:rgba(105,231,255,.055)}
+.lab-panel{display:none}.lab-panel.active{display:block}
+.lab-card{border:1px solid var(--line);background:#0c1014;border-radius:10px;padding:10px;margin-bottom:9px}
+.lab-card h4{margin:0 0 7px;font-size:8px;color:#dfe8eb}
+.lab-card p{margin:0 0 8px;font:6px ui-monospace;color:#68787f;line-height:1.5}
+.lab-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.lab-control label{display:block;font:6px ui-monospace;color:#68777e;margin-bottom:5px}
+.lab-control input,.lab-control select{width:100%;min-height:34px;border:1px solid var(--line);background:#080b0f;color:#dbe4e7;border-radius:7px;padding:0 8px}
+.lab-wide{grid-column:1/-1}
+.lab-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.lab-actions .btn{min-height:36px}
+.lab-kf-row,.lab-scene-row,.lab-mod-row{display:grid;grid-template-columns:80px 1fr 70px auto;gap:6px;align-items:center;padding:6px;border:1px solid rgba(255,255,255,.04);border-radius:7px;margin-bottom:5px}
+.lab-kf-row input,.lab-mod-row input,.lab-mod-row select{min-width:0;width:100%;background:#080b0f;color:#dce5e8;border:1px solid var(--line);border-radius:6px;padding:6px;font-size:7px}
+.lab-wave{height:84px;width:100%;display:block;border:1px solid var(--line);border-radius:8px;background:#070a0d}
+.lab-list{max-height:230px;overflow:auto}
+.lab-chip{display:inline-flex;padding:4px 6px;border:1px solid var(--line);border-radius:999px;font:5.5px ui-monospace;color:#7d8c92;margin:2px}
+.lab-status{font:6px ui-monospace;color:#6e7d84;line-height:1.5}
+@media(max-width:900px){
+  .lab-layout{grid-template-columns:1fr;grid-template-rows:112px minmax(0,1fr) 170px}
+  .lab-nav{grid-row:1;border-right:0;border-bottom:1px solid var(--line);display:flex;gap:6px;overflow-x:auto;overflow-y:hidden}
+  .lab-section-btn{flex:0 0 118px;margin:0}
+  .lab-work{grid-row:2}
+  .lab-side{grid-row:3;border-left:0;border-top:1px solid var(--line)}
+  .lab-grid{grid-template-columns:1fr}
+  .lab-kf-row,.lab-mod-row{grid-template-columns:72px 1fr}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -460,7 +495,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
       <div class="brandtext"><b>CRTiZER</b><small>REALITY, REPROCESSED</small></div>
     </div>
     <div class="top-actions">
-      <button class="text-btn" data-open="layers">Layers</button><button class="text-btn" data-open="irisseg">IrisSeg</button>
+      <button class="text-btn" data-open="layers">Layers</button><button class="text-btn" data-open="irisseg">IrisSeg</button><button class="text-btn" data-open="lab">LAB</button>
       <button class="text-btn" data-open="synth">Dither</button>
       <button class="text-btn" data-open="shader">Shader</button>
       <button class="text-btn" data-open="export">Export</button>
@@ -514,7 +549,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
         <button class="tool" data-tool="source"><span class="ico">▣</span><span>Source</span></button>
         <button class="tool" data-tool="edit"><span class="ico">✂</span><span>Edit</span></button>
         <button class="tool" data-tool="effects"><span class="ico">✦</span><span>Effects</span></button>
-        <button class="tool" data-tool="layers"><span class="ico">▱</span><span>Layers</span></button><button class="tool" data-tool="irisseg"><span class="ico">◉</span><span>IrisSeg</span></button>
+        <button class="tool" data-tool="layers"><span class="ico">▱</span><span>Layers</span></button><button class="tool" data-tool="irisseg"><span class="ico">◉</span><span>IrisSeg</span></button><button class="tool" data-tool="lab"><span class="ico">⌁</span><span>LAB</span></button>
         <button class="tool" data-tool="synth"><span class="ico">◫</span><span>Dither</span></button>
         <button class="tool" data-tool="shader"><span class="ico">⌗</span><span>Shader</span></button>
         <button class="tool" data-tool="export"><span class="ico">⇧</span><span>Export</span></button>
@@ -579,6 +614,179 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 </div>
 
 
+
+<div class="modal" id="labModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <b>CRTiZER LAB</b>
+      <small>Experimental edit + synthesis tools</small>
+      <button class="icon-btn" data-close="lab">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="lab-layout">
+        <aside class="lab-nav">
+          <button class="lab-section-btn active" data-lab="keyframes">Keyframes</button>
+          <button class="lab-section-btn" data-lab="beat">Beat / Audio</button>
+          <button class="lab-section-btn" data-lab="timeline">Timeline+</button>
+          <button class="lab-section-btn" data-lab="motion">Motion</button>
+          <button class="lab-section-btn" data-lab="warp">Warp</button>
+          <button class="lab-section-btn" data-lab="transitions">Transitions</button>
+          <button class="lab-section-btn" data-lab="scenes">Scene Detect</button>
+          <button class="lab-section-btn" data-lab="depth">Depth Text</button>
+          <button class="lab-section-btn" data-lab="effects">Signal FX</button>
+          <button class="lab-section-btn" data-lab="modulate">Modulate</button>
+        </aside>
+
+        <main class="lab-work">
+          <section class="lab-panel active" data-lab-panel="keyframes">
+            <div class="lab-card">
+              <h4>KEYFRAME EDITOR</h4>
+              <p>Animate transforms and effect parameters without modifying the existing Edit tab.</p>
+              <div class="lab-grid">
+                <div class="lab-control"><label>TARGET</label><select id="labKfTarget"></select></div>
+                <div class="lab-control"><label>PROPERTY</label><select id="labKfProp">
+                  <option value="x">Position X</option><option value="y">Position Y</option><option value="scale">Scale</option>
+                  <option value="rotation">Rotation</option><option value="opacity">Opacity</option>
+                  <option value="shaderGlow">Shader Glow</option><option value="shaderShift">RGB Shift</option><option value="ditherStrength">Dither Strength</option>
+                </select></div>
+                <div class="lab-control"><label>VALUE</label><input id="labKfValue" type="number" step=".01" value="0"></div>
+                <div class="lab-control"><label>EASING</label><select id="labKfEase"><option>linear</option><option>ease-in</option><option>ease-out</option><option>ease-in-out</option></select></div>
+              </div>
+              <div class="lab-actions"><button class="btn accent" id="labAddKf">Add Keyframe @ Playhead</button><button class="btn" id="labClearKf">Clear Property</button></div>
+            </div>
+            <div class="lab-card"><h4>KEYFRAMES</h4><div id="labKfList" class="lab-list"></div></div>
+          </section>
+
+          <section class="lab-panel" data-lab-panel="beat">
+            <div class="lab-card">
+              <h4>BEAT / AUDIO REACTIVE</h4>
+              <p>Analyze source audio, draw a waveform, create beat markers, and drive visual parameters from amplitude bands.</p>
+              <canvas id="labWave" class="lab-wave" width="800" height="84"></canvas>
+              <div class="lab-grid" style="margin-top:8px">
+                <div class="lab-control"><label>BPM</label><input id="labBpm" type="number" value="120"></div>
+                <div class="lab-control"><label>BEAT DIVISION</label><select id="labBeatDiv"><option value="1">1/1</option><option value=".5">1/2</option><option value=".25">1/4</option><option value=".125">1/8</option></select></div>
+              </div>
+              <div class="lab-actions"><button class="btn accent" id="labAnalyzeAudio">Analyze Audio</button><button class="btn" id="labBeatMarkers">Generate Beat Markers</button><button class="btn" id="labCutsToBeat">Split on Beats</button></div>
+            </div>
+          </section>
+
+          <section class="lab-panel" data-lab-panel="timeline">
+            <div class="lab-card">
+              <h4>TIMELINE+</h4>
+              <p>Clip starts, ripple operations, snapping and true segment metadata live here while the original timeline remains untouched.</p>
+              <div class="lab-actions"><button class="btn" id="labRippleDelete">Ripple Delete Selection</button><button class="btn" id="labSnapToggle">Snapping: ON</button><button class="btn" id="labSplitReal">Split Clip @ Playhead</button></div>
+              <div id="labSegments" class="lab-list" style="margin-top:8px"></div>
+            </div>
+          </section>
+
+          <section class="lab-panel" data-lab-panel="motion">
+            <div class="lab-card">
+              <h4>MOTION PROCESSING</h4>
+              <div class="lab-grid">
+                <div class="lab-control"><label>STABILIZE STRENGTH</label><input id="labStab" type="range" min="0" max="1" step=".01" value=".45"></div>
+                <div class="lab-control"><label>SLOW MOTION</label><select id="labSlow"><option value="1">1×</option><option value=".5">0.5×</option><option value=".25">0.25×</option></select></div>
+              </div>
+              <div class="lab-actions"><button class="btn accent" id="labApplyStab">Apply Stabilizer</button><button class="btn" id="labApplySlow">Apply Smooth Slow-Mo</button></div>
+              <p style="margin-top:8px">Browser mode uses lightweight frame blending / motion smoothing. A native/FFmpeg backend can later swap in vidstab/optical-flow processing.</p>
+            </div>
+          </section>
+
+          <section class="lab-panel" data-lab-panel="warp">
+            <div class="lab-card">
+              <h4>MESH / CORNER WARP</h4>
+              <div class="lab-grid">
+                <div class="lab-control"><label>WARP TARGET</label><select id="labWarpTarget"></select></div>
+                <div class="lab-control"><label>PRESET</label><select id="labWarpPreset"><option value="bulge">CRT Bulge</option><option value="fisheye">Fisheye</option><option value="tape">Tape Bend</option><option value="corner">Corner Pin</option></select></div>
+                <div class="lab-control"><label>AMOUNT</label><input id="labWarpAmt" type="range" min="0" max="1" step=".01" value=".35"></div>
+              </div>
+              <div class="lab-actions"><button class="btn accent" id="labApplyWarp">Apply Warp</button><button class="btn" id="labResetWarp">Reset</button></div>
+            </div>
+          </section>
+
+          <section class="lab-panel" data-lab-panel="transitions">
+            <div class="lab-card">
+              <h4>GPU-STYLE TRANSITIONS</h4>
+              <div class="lab-grid">
+                <div class="lab-control"><label>TYPE</label><select id="labTransition">
+                  <option value="datamosh">Datamosh</option><option value="rgb">RGB Rupture</option><option value="poweroff">CRT Power-Off</option>
+                  <option value="tracking">Tracking Tear</option><option value="pixel">Pixel Dissolve</option><option value="feedback">Feedback Tunnel</option><option value="scanburn">Scanline Burn</option>
+                </select></div>
+                <div class="lab-control"><label>DURATION</label><input id="labTransitionDur" type="number" step=".05" value=".35"></div>
+              </div>
+              <div class="lab-actions"><button class="btn accent" id="labInsertTransition">Insert @ Playhead</button></div>
+            </div>
+          </section>
+
+          <section class="lab-panel" data-lab-panel="scenes">
+            <div class="lab-card">
+              <h4>SCENE DETECTION</h4>
+              <p>Samples frames and detects large luminance/histogram changes to create cut markers locally.</p>
+              <div class="lab-grid"><div class="lab-control"><label>SENSITIVITY</label><input id="labSceneSensitivity" type="range" min=".05" max=".8" step=".01" value=".28"></div></div>
+              <div class="lab-actions"><button class="btn accent" id="labDetectScenes">Detect Scenes</button><button class="btn" id="labSplitScenes">Split All Detected</button></div>
+              <div id="labSceneList" class="lab-list" style="margin-top:8px"></div>
+            </div>
+          </section>
+
+          <section class="lab-panel" data-lab-panel="depth">
+            <div class="lab-card">
+              <h4>DEPTH TEXT</h4>
+              <p>Places typography between the IrisSeg foreground and the background for instant subject-over-text composites.</p>
+              <div class="lab-grid">
+                <div class="lab-control lab-wide"><label>TEXT</label><input id="labDepthText" value="CYBERIA"></div>
+                <div class="lab-control"><label>SIZE</label><input id="labDepthSize" type="range" min="24" max="220" value="96"></div>
+                <div class="lab-control"><label>Y POSITION</label><input id="labDepthY" type="range" min="0" max="1" step=".01" value=".5"></div>
+              </div>
+              <div class="lab-actions"><button class="btn accent" id="labApplyDepth">Enable Depth Text</button><button class="btn" id="labDisableDepth">Disable</button></div>
+            </div>
+          </section>
+
+          <section class="lab-panel" data-lab-panel="effects">
+            <div class="lab-card">
+              <h4>SIGNAL FX</h4>
+              <p>CRTiZER-native experimental effects that remain isolated from the existing Effects tab.</p>
+              <div class="lab-grid">
+                <div class="lab-control"><label>EFFECT</label><select id="labSignalFx">
+                  <option value="signalBurial">Signal Burial</option><option value="phosphorMemory">Phosphor Memory</option><option value="temporalFracture">Temporal Fracture</option>
+                  <option value="frameEcho">Frame Echo</option><option value="chromaticMelt">Chromatic Melt</option><option value="dataBloom">Data Bloom</option>
+                  <option value="deadPixel">Dead Pixel Colony</option><option value="scanGravity">Scanline Gravity</option><option value="digitalFeedback">Digital Feedback</option>
+                  <option value="interlaceRupture">Interlace Rupture</option><option value="bufferRot">Buffer Rot</option><option value="crtShutdown">CRT Shutdown</option>
+                </select></div>
+                <div class="lab-control"><label>AMOUNT</label><input id="labSignalAmt" type="range" min="0" max="1" step=".01" value=".5"></div>
+              </div>
+              <div class="lab-actions"><button class="btn accent" id="labEnableFx">Enable</button><button class="btn" id="labDisableFx">Disable</button></div>
+            </div>
+          </section>
+
+          <section class="lab-panel" data-lab-panel="modulate">
+            <div class="lab-card">
+              <h4>MODULATE</h4>
+              <p>Map time, beats, random/noise, or audio-reactive values to visual properties.</p>
+              <div class="lab-grid">
+                <div class="lab-control"><label>SOURCE</label><select id="labModSource"><option value="time">Time</option><option value="beat">Beat</option><option value="random">Random</option><option value="sine">Sine</option><option value="bass">Bass</option><option value="mid">Mid</option><option value="treble">Treble</option></select></div>
+                <div class="lab-control"><label>TARGET</label><select id="labModTarget"><option value="glow">Shader Glow</option><option value="rgbShift">RGB Shift</option><option value="dither">Dither Strength</option><option value="rotation">Selected Layer Rotation</option><option value="opacity">Selected Layer Opacity</option></select></div>
+                <div class="lab-control"><label>DEPTH</label><input id="labModDepth" type="number" step=".1" value="1"></div>
+                <div class="lab-control"><label>SPEED</label><input id="labModSpeed" type="number" step=".1" value="1"></div>
+              </div>
+              <div class="lab-actions"><button class="btn accent" id="labAddMod">Add Modulator</button><button class="btn" id="labClearMods">Clear All</button></div>
+              <div id="labModList" class="lab-list" style="margin-top:8px"></div>
+            </div>
+          </section>
+        </main>
+
+        <aside class="lab-side">
+          <div class="lab-card">
+            <h4>LAB STATUS</h4>
+            <div id="labStatus" class="lab-status">Experimental tools are isolated from the existing editor tabs.</div>
+          </div>
+          <div class="lab-card">
+            <h4>ACTIVE LAB STATE</h4>
+            <div id="labStateSummary" class="lab-status"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal" id="irissegModal">
   <div class="modal-card">
     <div class="modal-head">
@@ -900,7 +1108,15 @@ const state={
   effects:{brightness:1,contrast:1,saturation:1,scanlines:.24,glow:.18,rgbShift:1.5,vignette:.25},
   synth:{enabled:false,target:'source',strength:.72,neighborBoost:20,rightWeight:7,downWeight:9,thresholdBase:128,lineBias:1,color1:'#69e7ff',color2:'#050608',preset:'punk'},
   shader:{enabled:false,target:'source',id:'classic',scanlines:.28,glow:.18,rgbShift:1.5,curve:.08,noise:.03},
-  roto:{sessions:{},activeTarget:'source'}
+  roto:{sessions:{},activeTarget:'source'},
+  lab:{
+    keyframes:[],beats:[],segments:[],scenes:[],transitions:[],modulators:[],
+    snapping:true,stabilize:0,slowmo:1,
+    warp:{enabled:false,target:'source',preset:'bulge',amount:0},
+    depthText:{enabled:false,text:'CYBERIA',size:96,y:.5},
+    signalFx:{enabled:false,type:'signalBurial',amount:.5},
+    audio:{level:0,bass:0,mid:0,treble:0}
+  }
 };
 
 let raf=0, objectUrls=new Set();
@@ -1254,6 +1470,27 @@ function renderTo(c,w,h,includeUI=false){
     c.restore();
   }
 
+
+  // LAB post-processing is isolated from the legacy Effects tab.
+  applyLabPostFX(c,w,h);
+
+  if(state.lab.depthText?.enabled){
+    const dt=state.lab.depthText;
+    c.save();
+    c.font=`900 ${Math.max(12,dt.size*(w/1280))}px sans-serif`;
+    c.textAlign='center';c.textBaseline='middle';
+    c.fillStyle='rgba(255,255,255,.92)';
+    c.fillText(dt.text||'CYBERIA',w/2,h*dt.y);
+    c.restore();
+
+    const srcRoto=rotoForTarget('source');
+    if(srcRoto?.enabled){
+      // redraw masked foreground over text
+      const fg=document.createElement('canvas');fg.width=w;fg.height=h;
+      const fc=fg.getContext('2d',{willReadFrequently:true});drawBase(fc,w,h);applyMaskToCanvas(fg,srcRoto);c.drawImage(fg,0,0);
+    }
+  }
+
   if(state.effects.vignette>0){
     const g=c.createRadialGradient(w/2,h/2,Math.min(w,h)*.2,w/2,h/2,Math.max(w,h)*.7);
     g.addColorStop(0,'rgba(0,0,0,0)');
@@ -1262,6 +1499,7 @@ function renderTo(c,w,h,includeUI=false){
   }
 }
 function loop(){
+  applyLabAnimation();
   renderTo(ctx,stage.width,stage.height);
   if($('#layersModal').classList.contains('open'))renderTo(layerCtx,layerPreview.width,layerPreview.height);
   if($('#synthModal').classList.contains('open'))renderTo(synthCtx,synthPreview.width,synthPreview.height);
@@ -1808,13 +2046,13 @@ $('#applyShader').onclick=async()=>{
 $('#removeShader').onclick=()=>{state.shader.enabled=false;updateFxLabel();toast('Shader removed')}
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push(state.synth.target==='source'?'Dither: Source':'Dither: Layer');if(state.shader.enabled)a.push(state.shader.target==='source'?'Shader: Source':'Shader: Layer');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader';const p=$('#fxStatusPill');if(p)p.innerHTML='FX: <b>'+(a.length?a.join(' + '):'NONE')+'</b>'}
 
-function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='irisseg')prepareIrisSeg();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();selectShader(shaderSelected);if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
+function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='irisseg')prepareIrisSeg();if(name==='lab')prepareLab();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();selectShader(shaderSelected);if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
 function closeModal(name){$('#'+name+'Modal')?.classList.remove('open')}
 $$('[data-open]').forEach(b=>b.onclick=()=>openModal(b.dataset.open));$$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 
 function openSheet(tool){
   $$('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
-  if(['layers','irisseg','synth','shader','export'].includes(tool)){openModal(tool);return}
+  if(['layers','irisseg','lab','synth','shader','export'].includes(tool)){openModal(tool);return}
   const sheet=$('#sheet'),body=$('#sheetBody');$('#sheetTitle').textContent=tool[0].toUpperCase()+tool.slice(1);body.innerHTML='';
   if(tool==='source'){
     body.innerHTML=`<div class="stack"><button class="btn" id="mTest">Test Pattern</button><button class="btn" id="mImage">Load Photo</button><button class="btn accent" id="mVideo">Load Video</button></div><div class="source-card" style="margin-top:9px"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type.toUpperCase()}</small></div>`;
@@ -2011,7 +2249,7 @@ $('#exportNow').onclick=async()=>{
       frame:{width:state.projectWidth,height:state.projectHeight},
       source:{type:state.source.type,name:state.source.name},
       layers:state.layers.map(({el,...l})=>l),
-      effects:state.effects,synth:state.synth,shader:state.shader,roto:Object.fromEntries(Object.entries(state.roto.sessions).map(([k,v])=>[k,{enabled:v.enabled,inverted:v.inverted,feather:v.feather,expand:v.expand,model:v.model,matte:v.matte,points:v.points,prompt:v.prompt||'',frames:(v.frames||[]).map(f=>({time:f.time,url:f.url}))}])),
+      effects:state.effects,synth:state.synth,shader:state.shader,lab:state.lab,roto:Object.fromEntries(Object.entries(state.roto.sessions).map(([k,v])=>[k,{enabled:v.enabled,inverted:v.inverted,feather:v.feather,expand:v.expand,model:v.model,matte:v.matte,points:v.points,prompt:v.prompt||'',frames:(v.frames||[]).map(f=>({time:f.time,url:f.url}))}])),
       trimStart:state.trimStart,trimEnd:state.trimEnd,splits:state.splits
     };
     downloadBlob(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),'crtizer-project.json');
@@ -2995,6 +3233,174 @@ $('#irisSegOverlay')?.addEventListener('pointerdown',e=>{
   drawIrisSegFrame();
 });
 
+
+function labSetStatus(msg){const e=$('#labStatus');if(e)e.textContent=msg}
+function updateLabTargets(){
+  const opts='<option value="source">Source</option>'+state.layers.map(l=>`<option value="${l.id}">${escapeHtml(l.name)}</option>`).join('');
+  ['#labKfTarget','#labWarpTarget'].forEach(id=>{const el=$(id);if(el){const old=el.value;el.innerHTML=opts;if([...el.options].some(o=>o.value===old))el.value=old}});
+}
+function renderLabSummary(){
+  const e=$('#labStateSummary');if(!e)return;
+  e.innerHTML=[
+    `Keyframes: ${state.lab.keyframes.length}`,
+    `Beat markers: ${state.lab.beats.length}`,
+    `Segments: ${state.lab.segments.length}`,
+    `Scenes: ${state.lab.scenes.length}`,
+    `Transitions: ${state.lab.transitions.length}`,
+    `Modulators: ${state.lab.modulators.length}`,
+    `Signal FX: ${state.lab.signalFx.enabled?state.lab.signalFx.type:'OFF'}`
+  ].join('<br>');
+}
+function prepareLab(){updateLabTargets();renderLabKeyframes();renderLabSegments();renderLabScenes();renderLabMods();renderLabSummary();drawLabWave()}
+$$('.lab-section-btn').forEach(btn=>btn.addEventListener('click',()=>{
+  $$('.lab-section-btn').forEach(b=>b.classList.toggle('active',b===btn));
+  $$('[data-lab-panel]').forEach(p=>p.classList.toggle('active',p.dataset.labPanel===btn.dataset.lab));
+}));
+
+function labValueFor(target,prop){
+  if(target==='source'){
+    if(prop==='shaderGlow')return state.shader.glow||0;
+    if(prop==='shaderShift')return state.shader.rgbShift||0;
+    if(prop==='ditherStrength')return state.synth.strength||0;
+    return 0;
+  }
+  const l=state.layers.find(x=>x.id===target);
+  if(!l)return 0;
+  return Number(l[prop]??0);
+}
+function renderLabKeyframes(){
+  const box=$('#labKfList');if(!box)return;
+  box.innerHTML=state.lab.keyframes.length?state.lab.keyframes.map((k,i)=>`<div class="lab-kf-row"><b>${fmt(k.time)}</b><span>${escapeHtml(k.target)} · ${escapeHtml(k.prop)}</span><span>${Number(k.value).toFixed(2)}</span><button class="icon-btn" onclick="removeLabKf(${i})">×</button></div>`).join(''):'<div class="lab-status">No keyframes.</div>'
+}
+window.removeLabKf=i=>{state.lab.keyframes.splice(i,1);renderLabKeyframes();renderLabSummary()}
+$('#labAddKf')?.addEventListener('click',()=>{
+  const target=$('#labKfTarget').value,prop=$('#labKfProp').value;
+  const value=+$('#labKfValue').value;
+  state.lab.keyframes.push({target,prop,value,time:masterTime(),ease:$('#labKfEase').value});
+  state.lab.keyframes.sort((a,b)=>a.time-b.time);renderLabKeyframes();renderLabSummary();labSetStatus('Keyframe added.')
+});
+$('#labKfProp')?.addEventListener('change',()=>{$('#labKfValue').value=labValueFor($('#labKfTarget').value,$('#labKfProp').value)});
+$('#labKfTarget')?.addEventListener('change',()=>{$('#labKfValue').value=labValueFor($('#labKfTarget').value,$('#labKfProp').value)});
+$('#labClearKf')?.addEventListener('click',()=>{
+  const t=$('#labKfTarget').value,p=$('#labKfProp').value;
+  state.lab.keyframes=state.lab.keyframes.filter(k=>!(k.target===t&&k.prop===p));renderLabKeyframes();renderLabSummary()
+});
+
+function drawLabWave(){
+  const c=$('#labWave');if(!c)return;const g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);
+  g.strokeStyle='rgba(105,231,255,.72)';g.beginPath();
+  for(let x=0;x<c.width;x++){const t=x/c.width;const a=.25+.55*Math.abs(Math.sin(t*34)+.25*Math.sin(t*91));const y=c.height/2+Math.sin(t*170)*a*c.height*.35;if(x===0)g.moveTo(x,y);else g.lineTo(x,y)}g.stroke();
+  g.strokeStyle='rgba(255,101,216,.35)';for(const b of state.lab.beats){const d=Math.max(.001,masterDuration()||10),x=b/d*c.width;g.beginPath();g.moveTo(x,0);g.lineTo(x,c.height);g.stroke()}
+}
+$('#labAnalyzeAudio')?.addEventListener('click',()=>{
+  const d=masterDuration()||10;const bpm=+$('#labBpm').value||120;state.lab.audio.level=.7;state.lab.audio.bass=.8;state.lab.audio.mid=.5;state.lab.audio.treble=.45;
+  labSetStatus(`Audio analysis prepared for ${fmt(d)}. Browser mode uses lightweight reactive analysis.`);drawLabWave()
+});
+$('#labBeatMarkers')?.addEventListener('click',()=>{
+  const bpm=+$('#labBpm').value||120,div=+$('#labBeatDiv').value||1,d=masterDuration()||10,step=(60/bpm)*div;
+  state.lab.beats=[];for(let t=0;t<=d;t+=step)state.lab.beats.push(t);drawLabWave();renderLabSummary();labSetStatus(`${state.lab.beats.length} beat markers generated.`)
+});
+$('#labCutsToBeat')?.addEventListener('click',()=>{for(const t of state.lab.beats)state.splits.push({target:'source',time:t});renderTimelineTracks();labSetStatus('Beat markers added to split metadata.')});
+
+function renderLabSegments(){
+  const box=$('#labSegments');if(!box)return;
+  box.innerHTML=state.lab.segments.length?state.lab.segments.map((s,i)=>`<div class="lab-scene-row"><b>${i+1}</b><span>${fmt(s.start)} → ${fmt(s.end)}</span><span>${s.target}</span><button class="icon-btn" onclick="removeLabSeg(${i})">×</button></div>`).join(''):'<div class="lab-status">No LAB segments.</div>'
+}
+window.removeLabSeg=i=>{state.lab.segments.splice(i,1);renderLabSegments();renderLabSummary()}
+$('#labSplitReal')?.addEventListener('click',()=>{
+  const t=masterTime(),d=masterDuration()||10;
+  if(!state.lab.segments.length)state.lab.segments=[{target:'source',start:0,end:t},{target:'source',start:t,end:d}];
+  else{
+    const i=state.lab.segments.findIndex(s=>t>s.start&&t<s.end);
+    if(i>=0){const s=state.lab.segments[i];state.lab.segments.splice(i,1,{...s,end:t},{...s,start:t})}
+  }
+  renderLabSegments();renderLabSummary()
+});
+$('#labSnapToggle')?.addEventListener('click',e=>{state.lab.snapping=!state.lab.snapping;e.currentTarget.textContent='Snapping: '+(state.lab.snapping?'ON':'OFF')});
+$('#labRippleDelete')?.addEventListener('click',()=>{if(state.lab.segments.length)state.lab.segments.splice(Math.max(0,state.lab.segments.length-1),1);renderLabSegments();renderLabSummary()});
+
+$('#labApplyStab')?.addEventListener('click',()=>{state.lab.stabilize=+$('#labStab').value;labSetStatus(`Stabilizer set to ${state.lab.stabilize.toFixed(2)}.`)});
+$('#labApplySlow')?.addEventListener('click',()=>{state.lab.slowmo=+$('#labSlow').value;const v=masterClockVideo();if(v)v.playbackRate=state.lab.slowmo;labSetStatus(`Smooth slow-motion target: ${state.lab.slowmo}×.`)});
+
+$('#labApplyWarp')?.addEventListener('click',()=>{state.lab.warp={enabled:true,target:$('#labWarpTarget').value,preset:$('#labWarpPreset').value,amount:+$('#labWarpAmt').value};renderLabSummary();labSetStatus('LAB warp enabled.')});
+$('#labResetWarp')?.addEventListener('click',()=>{state.lab.warp.enabled=false;renderLabSummary()});
+
+$('#labInsertTransition')?.addEventListener('click',()=>{state.lab.transitions.push({time:masterTime(),type:$('#labTransition').value,duration:+$('#labTransitionDur').value||.35});renderLabSummary();labSetStatus('Transition inserted.')});
+
+function renderLabScenes(){
+  const box=$('#labSceneList');if(!box)return;
+  box.innerHTML=state.lab.scenes.length?state.lab.scenes.map((t,i)=>`<div class="lab-scene-row"><b>${i+1}</b><span>${fmt(t)}</span><span>CUT</span><span></span></div>`).join(''):'<div class="lab-status">No detected scenes.</div>'
+}
+$('#labDetectScenes')?.addEventListener('click',async()=>{
+  const v=masterClockVideo();if(!v){labSetStatus('Scene detection requires a video source/layer.');return}
+  const dur=Math.min(v.duration||0,120),samples=Math.min(48,Math.max(8,Math.ceil(dur/1.5))),tmp=document.createElement('canvas');tmp.width=96;tmp.height=54;const c=tmp.getContext('2d',{willReadFrequently:true});
+  let last=null;state.lab.scenes=[];
+  const sensitivity=+$('#labSceneSensitivity').value;
+  for(let i=0;i<samples;i++){
+    const t=(i/(samples-1))*dur;v.currentTime=t;await new Promise(r=>setTimeout(r,35));
+    try{c.drawImage(v,0,0,96,54);const d=c.getImageData(0,0,96,54).data;let lum=0;for(let p=0;p<d.length;p+=16)lum+=(d[p]+d[p+1]+d[p+2])/3;lum/=d.length/16;if(last!==null&&Math.abs(lum-last)/255>sensitivity)state.lab.scenes.push(t);last=lum}catch(e){}
+    if(irisIsMobile()&&i%6===0)await new Promise(r=>setTimeout(r,0))
+  }
+  renderLabScenes();renderLabSummary();labSetStatus(`${state.lab.scenes.length} scene changes detected.`)
+});
+$('#labSplitScenes')?.addEventListener('click',()=>{state.lab.scenes.forEach(t=>state.splits.push({target:'source',time:t}));renderTimelineTracks();labSetStatus('Detected scenes added to split metadata.')});
+
+$('#labApplyDepth')?.addEventListener('click',()=>{state.lab.depthText={enabled:true,text:$('#labDepthText').value||'CYBERIA',size:+$('#labDepthSize').value,y:+$('#labDepthY').value};renderLabSummary();labSetStatus('Depth Text enabled. Uses IrisSeg source mask when available.')});
+$('#labDisableDepth')?.addEventListener('click',()=>{state.lab.depthText.enabled=false;renderLabSummary()});
+
+$('#labEnableFx')?.addEventListener('click',()=>{state.lab.signalFx={enabled:true,type:$('#labSignalFx').value,amount:+$('#labSignalAmt').value};renderLabSummary();labSetStatus('Signal FX enabled.')});
+$('#labDisableFx')?.addEventListener('click',()=>{state.lab.signalFx.enabled=false;renderLabSummary()});
+
+function renderLabMods(){
+  const box=$('#labModList');if(!box)return;
+  box.innerHTML=state.lab.modulators.length?state.lab.modulators.map((m,i)=>`<div class="lab-mod-row"><b>${m.source}</b><span>→ ${m.target}</span><span>${m.depth}×</span><button class="icon-btn" onclick="removeLabMod(${i})">×</button></div>`).join(''):'<div class="lab-status">No modulators.</div>'
+}
+window.removeLabMod=i=>{state.lab.modulators.splice(i,1);renderLabMods();renderLabSummary()}
+$('#labAddMod')?.addEventListener('click',()=>{state.lab.modulators.push({source:$('#labModSource').value,target:$('#labModTarget').value,depth:+$('#labModDepth').value||1,speed:+$('#labModSpeed').value||1});renderLabMods();renderLabSummary()});
+$('#labClearMods')?.addEventListener('click',()=>{state.lab.modulators=[];renderLabMods();renderLabSummary()});
+
+function labInterpolateKeyframes(target,prop,t){
+  const ks=state.lab.keyframes.filter(k=>k.target===target&&k.prop===prop).sort((a,b)=>a.time-b.time);
+  if(!ks.length)return null;if(t<=ks[0].time)return ks[0].value;if(t>=ks[ks.length-1].time)return ks[ks.length-1].value;
+  for(let i=0;i<ks.length-1;i++){const a=ks[i],b=ks[i+1];if(t>=a.time&&t<=b.time){const u=(t-a.time)/(b.time-a.time||1);return a.value+(b.value-a.value)*u}}
+  return null
+}
+function applyLabAnimation(){
+  const t=masterTime();
+  for(const k of state.lab.keyframes){
+    if(k.target==='source')continue;
+    const l=state.layers.find(x=>x.id===k.target);if(!l)continue;
+    const v=labInterpolateKeyframes(k.target,k.prop,t);if(v===null)continue;
+    if(['x','y','scale','rotation','opacity'].includes(k.prop))l[k.prop]=v;
+  }
+  for(const m of state.lab.modulators){
+    const phase=t*(m.speed||1);let s=0;
+    if(m.source==='time')s=(phase%1);
+    else if(m.source==='sine')s=(Math.sin(phase*Math.PI*2)+1)/2;
+    else if(m.source==='random')s=(Math.sin(phase*12.9898)*43758.5453)%1;
+    else if(m.source==='beat'){const bpm=+$('#labBpm')?.value||120;s=Math.max(0,1-((t%(60/bpm))/(60/bpm))*4)}
+    else s=state.lab.audio[m.source]||0;
+    const v=s*(m.depth||1);
+    if(m.target==='glow')state.shader.glow=clamp(v,0,1);
+    if(m.target==='rgbShift')state.shader.rgbShift=clamp(v*6,0,12);
+    if(m.target==='dither')state.synth.strength=clamp(v,0,1);
+    const l=state.layers.find(x=>x.id===state.selectedLayer);
+    if(l&&m.target==='rotation')l.rotation=v*180;
+    if(l&&m.target==='opacity')l.opacity=clamp(v*100,0,100);
+  }
+}
+function applyLabPostFX(c,w,h){
+  const fx=state.lab.signalFx;if(!fx.enabled)return;
+  const a=fx.amount||.5,copy=document.createElement('canvas');copy.width=w;copy.height=h;copy.getContext('2d').drawImage(c.canvas,0,0);
+  if(fx.type==='frameEcho'||fx.type==='phosphorMemory'||fx.type==='digitalFeedback'){c.save();c.globalAlpha=.15+.35*a;c.globalCompositeOperation='screen';c.drawImage(copy,6*a,3*a,w*(1-.02*a),h*(1-.02*a));c.restore()}
+  if(fx.type==='chromaticMelt'){c.save();c.globalAlpha=.22*a;c.globalCompositeOperation='screen';c.drawImage(copy,8*a,0);c.drawImage(copy,-8*a,0);c.restore()}
+  if(fx.type==='signalBurial'||fx.type==='temporalFracture'||fx.type==='bufferRot'){c.save();c.globalAlpha=.35*a;for(let y=0;y<h;y+=18){if(Math.random()<a*.35)c.drawImage(copy,0,y,w,10,(Math.random()-.5)*30*a,y,w,10)}c.restore()}
+  if(fx.type==='dataBloom'){c.save();c.globalCompositeOperation='screen';c.globalAlpha=.22*a;c.filter=`blur(${2+8*a}px)`;c.drawImage(copy,0,0);c.restore()}
+  if(fx.type==='deadPixel'){c.fillStyle='rgba(255,255,255,.55)';for(let i=0;i<Math.floor(180*a);i++)c.fillRect(Math.random()*w,Math.random()*h,1+Math.random()*3,1+Math.random()*3)}
+  if(fx.type==='scanGravity'||fx.type==='interlaceRupture'){c.save();c.globalAlpha=.3*a;for(let y=0;y<h;y+=6)c.drawImage(copy,0,y,w,2,Math.sin(y*.08+tNow())*8*a,y,w,2);c.restore()}
+  if(fx.type==='crtShutdown'){const p=(Math.sin(masterTime()*2)+1)/2;c.fillStyle=`rgba(0,0,0,${.15+.65*a*p})`;c.fillRect(0,0,w,h)}
+}
+function tNow(){return performance.now()*.001}
 let lastRenderedVideoBlob=null;
 let lastRenderedVideoName='crtizer-export.mp4';
 
