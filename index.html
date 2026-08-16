@@ -282,6 +282,29 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="crtizer-publish-css">
+.publish-section{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.publish-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.publish-title b{font-size:9px}
+.publish-title small{font:6px ui-monospace;color:var(--muted)}
+.publish-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
+.publish-btn{min-height:48px;border:1px solid var(--line);background:#0d1014;color:#b9c5c9;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:7px}
+.publish-btn span:first-child{font-size:15px;line-height:1}
+.publish-btn.primary{border-color:rgba(105,231,255,.25);color:var(--cyan)}
+.publish-btn:disabled{opacity:.42;cursor:not-allowed}
+.publish-status{margin-top:8px;border:1px solid var(--line);background:#0a0d11;border-radius:8px;padding:8px;font:6px ui-monospace;color:#718088;line-height:1.5}
+.publish-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.publish-field{border:1px solid var(--line);background:#0d1014;border-radius:8px;padding:8px}
+.publish-field label{display:block;font:6px ui-monospace;color:var(--muted);margin-bottom:5px}
+.publish-field input,.publish-field textarea,.publish-field select{width:100%;border:1px solid var(--line);background:#080b0f;color:#dbe4e7;border-radius:7px;padding:7px;font-size:8px}
+.publish-field textarea{min-height:64px;resize:vertical}
+@media(max-width:900px){
+  .publish-grid{grid-template-columns:repeat(3,1fr)}
+  .publish-fields{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -519,6 +542,48 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
       <div class="row" style="margin-top:10px">
         <button class="btn accent grow" id="exportNow">Export</button>
       </div>
+      <div class="publish-section">
+        <div class="publish-title">
+          <b>Publish / Share</b>
+          <small>Uses rendered export output</small>
+        </div>
+
+        <div class="publish-fields">
+          <div class="publish-field">
+            <label>TITLE / CAPTION</label>
+            <input id="publishTitle" type="text" placeholder="Video title or caption">
+          </div>
+          <div class="publish-field">
+            <label>PRIVACY</label>
+            <select id="publishPrivacy">
+              <option value="private">Private</option>
+              <option value="unlisted">Unlisted</option>
+              <option value="public">Public</option>
+            </select>
+          </div>
+          <div class="publish-field">
+            <label>DESCRIPTION</label>
+            <textarea id="publishDescription" placeholder="Description, hashtags, notes"></textarea>
+          </div>
+          <div class="publish-field">
+            <label>FILENAME</label>
+            <input id="publishFilename" type="text" value="crtizer-export.mp4">
+          </div>
+        </div>
+
+        <div class="publish-grid" style="margin-top:8px">
+          <button class="publish-btn primary" id="publishShare"><span>⇧</span><span>Share</span></button>
+          <button class="publish-btn" id="publishDrive"><span>▣</span><span>Drive</span></button>
+          <button class="publish-btn" id="publishYouTube"><span>▶</span><span>YouTube</span></button>
+          <button class="publish-btn" id="publishTikTok"><span>♪</span><span>TikTok</span></button>
+          <button class="publish-btn" id="publishInstagram"><span>◎</span><span>Instagram</span></button>
+        </div>
+
+        <div class="publish-status" id="publishStatus">
+          Render an MP4 first. Share uses the iOS/Android system share sheet when available. Direct platform publishing requires OAuth/backend integration.
+        </div>
+      </div>
+
       <div class="export-note" id="exportSupportNote">MP4 is preferred when this browser exposes H.264/HEVC/AV1 recording. Unsupported video containers/codecs are hidden automatically.</div>
     </div>
   </div>
@@ -1675,8 +1740,22 @@ $('#exportNow').onclick=async()=>{
     recording=false;cancelAnimationFrame(exportRAF);setAllPlayback(false);
     const finalMime=rec.mimeType||selectedMime||(type==='mp4'?'video/mp4':'video/webm');
     const ext=finalMime.includes('mp4')?'mp4':'webm';
-    if(!chunks.length)return toast('Encoder produced no video data');
-    downloadBlob(new Blob(chunks,{type:finalMime}),`crtizer.${ext}`);
+    if(!chunks.length){
+      if(window.__crtizerPublishReject){window.__crtizerPublishReject(new Error('Encoder produced no video data'));window.__crtizerPublishReject=null;window.__crtizerPublishResolve=null}
+      return toast('Encoder produced no video data');
+    }
+    const blob=new Blob(chunks,{type:finalMime});
+    const filename=`crtizer.${ext}`;
+    setLastRenderedVideo(blob,filename);
+
+    if(window.__crtizerPublishResolve){
+      const resolve=window.__crtizerPublishResolve;
+      window.__crtizerPublishResolve=null;
+      window.__crtizerPublishReject=null;
+      resolve({blob,name:filename});
+    }else{
+      downloadBlob(blob,filename);
+    }
     toast(ext.toUpperCase()+' export complete');
   };
 
@@ -1703,6 +1782,122 @@ window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(fitPr
 setProjectFrame(1280,720,'initial');
 requestAnimationFrame(fitPreviewShell);
 
+
+let lastRenderedVideoBlob=null;
+let lastRenderedVideoName='crtizer-export.mp4';
+
+function setPublishStatus(msg){
+  const el=$('#publishStatus');
+  if(el)el.textContent=msg;
+}
+function setLastRenderedVideo(blob,filename){
+  lastRenderedVideoBlob=blob;
+  lastRenderedVideoName=filename||'crtizer-export.mp4';
+  const name=$('#publishFilename');
+  if(name && !name.value)name.value=lastRenderedVideoName;
+}
+async function ensurePublishVideo(){
+  if(lastRenderedVideoBlob)return {blob:lastRenderedVideoBlob,name:lastRenderedVideoName};
+
+  setPublishStatus('No rendered video is cached yet. Exporting a compatible video first…');
+
+  const type=$('#exportType');
+  const prev=type.value;
+  const mp4Opt=type.querySelector('option[value="mp4"]');
+  const webmOpt=type.querySelector('option[value="webm"]');
+
+  if(mp4Opt && !mp4Opt.disabled)type.value='mp4';
+  else if(webmOpt && !webmOpt.disabled)type.value='webm';
+  else throw new Error('This browser cannot create a shareable video container.');
+
+  populateExportCodecs();
+
+  return new Promise((resolve,reject)=>{
+    window.__crtizerPublishResolve=resolve;
+    window.__crtizerPublishReject=reject;
+    $('#exportNow').click();
+    setTimeout(()=>{
+      if(window.__crtizerPublishResolve){
+        window.__crtizerPublishResolve=null;
+        window.__crtizerPublishReject=null;
+        reject(new Error('Timed out waiting for export.'));
+      }
+    },120000);
+  }).finally(()=>{
+    type.value=prev;
+    populateExportCodecs();
+  });
+}
+async function shareBlobNative(blob,name,title,text){
+  if(!navigator.share)throw new Error('Native share sheet is not supported in this browser.');
+  const file=new File([blob],name,{type:blob.type||'video/mp4'});
+  const payload={title:title||'CRTiZER Export',text:text||'',files:[file]};
+  if(navigator.canShare && !navigator.canShare({files:[file]}))throw new Error('This device cannot share exported video files.');
+  await navigator.share(payload);
+}
+async function platformPublish(platform){
+  try{
+    const {blob,name}=await ensurePublishVideo();
+    const title=$('#publishTitle').value.trim()||'CRTiZER Export';
+    const desc=$('#publishDescription').value.trim();
+    const privacy=$('#publishPrivacy').value;
+
+    if(platform==='share'){
+      setPublishStatus('Opening device share sheet…');
+      await shareBlobNative(blob,$('#publishFilename').value.trim()||name,title,desc);
+      setPublishStatus('Share sheet opened successfully.');
+      return;
+    }
+
+    if(platform==='drive'){
+      // Browser-safe handoff: Web Share can expose installed Drive/Files targets.
+      if(navigator.share){
+        setPublishStatus('Opening system share sheet. Choose Google Drive to upload there.');
+        await shareBlobNative(blob,$('#publishFilename').value.trim()||name,title,desc);
+        return;
+      }
+      setPublishStatus('Google Drive direct upload requires Google OAuth + Drive API backend. Downloading the rendered file instead.');
+      downloadBlob(blob,$('#publishFilename').value.trim()||name);
+      return;
+    }
+
+    // Direct social publishing needs credentials/tokens that should not live in a single HTML file.
+    // Expose an integration hook so a future backend can attach cleanly.
+    const payload={
+      platform,
+      blob,
+      filename:$('#publishFilename').value.trim()||name,
+      title,
+      description:desc,
+      privacy
+    };
+
+    if(typeof window.CRTIZER_PLATFORM_PUBLISH==='function'){
+      setPublishStatus(`Sending export to ${platform} integration…`);
+      await window.CRTIZER_PLATFORM_PUBLISH(payload);
+      setPublishStatus(`${platform} publish request completed.`);
+      return;
+    }
+
+    // Mobile-friendly fallback: system share sheet lets installed apps accept the rendered file.
+    if(navigator.share){
+      setPublishStatus(`Direct ${platform} API is not connected. Opening system share sheet instead.`);
+      await shareBlobNative(blob,payload.filename,title,desc);
+      return;
+    }
+
+    setPublishStatus(`Direct ${platform} publishing requires OAuth/backend integration. Downloading the rendered file.`);
+    downloadBlob(blob,payload.filename);
+  }catch(err){
+    setPublishStatus(err?.message||String(err));
+  }
+}
+
+$('#publishShare')?.addEventListener('click',()=>platformPublish('share'));
+$('#publishDrive')?.addEventListener('click',()=>platformPublish('drive'));
+$('#publishYouTube')?.addEventListener('click',()=>platformPublish('youtube'));
+$('#publishTikTok')?.addEventListener('click',()=>platformPublish('tiktok'));
+$('#publishInstagram')?.addEventListener('click',()=>platformPublish('instagram'));
 window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjectURL(u)));
 </script>
 </body>
