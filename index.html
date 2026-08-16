@@ -1146,6 +1146,200 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
 }
 </style>
 
+
+<style id="crtizer-capcut-core-ui-css">
+/* CRTiZER core editor refresh: clearer CapCut-style hierarchy, same visual identity */
+:root{
+  --editor-bg:#050608;
+  --editor-panel:#080a0e;
+  --editor-panel-2:#0c0f14;
+  --editor-line:rgba(255,255,255,.065);
+  --editor-text:#e5edf0;
+  --editor-muted:#718088;
+}
+
+.workspace{
+  background:var(--editor-bg)!important;
+}
+.viewportPanel{
+  background:var(--editor-bg)!important;
+}
+.viewportWrap{
+  background:
+    radial-gradient(circle at 50% 28%,rgba(101,231,255,.035),transparent 38%),
+    #040507!important;
+}
+.screenFrame{
+  border-radius:12px!important;
+  border:1px solid var(--editor-line)!important;
+  box-shadow:0 18px 48px rgba(0,0,0,.42)!important;
+}
+
+/* clearer transport */
+.transport,.transportBar,.viewportControls{
+  background:var(--editor-panel)!important;
+  border-color:var(--editor-line)!important;
+}
+.transport .btn,.viewportControls .btn,.transportBar .btn{
+  border-radius:8px!important;
+}
+.transport .readout,.viewportControls .readout{
+  color:var(--editor-muted)!important;
+}
+
+/* CapCut-like timeline */
+.crt-timeline{
+  display:grid;
+  grid-template-rows:30px 1fr;
+  border-top:1px solid var(--editor-line);
+  border-bottom:1px solid var(--editor-line);
+  background:#07090c;
+  min-height:122px;
+}
+.crt-timeline-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:5px 8px;border-bottom:1px solid var(--editor-line)
+}
+.crt-timeline-head-left,.crt-timeline-head-right{
+  display:flex;align-items:center;gap:6px
+}
+.crt-timeline-title{
+  font:600 8px ui-sans-serif,system-ui;color:#dce5e8
+}
+.crt-timeline-sub{
+  font:6px ui-monospace,monospace;color:#617077
+}
+.crt-tl-btn{
+  min-height:26px;padding:0 9px;border-radius:7px;
+  border:1px solid var(--editor-line);background:#0b0e12;color:#9dacb2;
+  font:7px ui-sans-serif,system-ui
+}
+.crt-tl-btn.active{color:var(--cyan);border-color:rgba(101,231,255,.25)}
+.crt-timeline-body{
+  position:relative;overflow-x:auto;overflow-y:hidden;
+  padding:10px 12px 12px;-webkit-overflow-scrolling:touch
+}
+.crt-timeline-track{
+  position:relative;height:64px;min-width:640px;
+  border-radius:9px;background:#0a0d11;
+  border:1px solid var(--editor-line);overflow:hidden
+}
+.crt-timeline-clip{
+  position:absolute;left:8px;right:8px;top:8px;bottom:8px;
+  border-radius:7px;border:1px solid rgba(101,231,255,.24);
+  background:linear-gradient(90deg,rgba(101,231,255,.08),rgba(255,91,215,.055));
+  display:flex;align-items:center;gap:8px;padding:0 10px;overflow:hidden
+}
+.crt-timeline-clip-thumb{
+  width:54px;height:34px;border-radius:5px;overflow:hidden;background:#030405;flex:0 0 auto
+}
+.crt-timeline-clip-thumb img,.crt-timeline-clip-thumb video{
+  width:100%;height:100%;object-fit:cover;display:block
+}
+.crt-timeline-clip-info{min-width:0}
+.crt-timeline-clip-info b{
+  display:block;font:7px ui-sans-serif,system-ui;color:#dce6e9;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.crt-timeline-clip-info small{
+  display:block;margin-top:2px;font:5.5px ui-monospace,monospace;color:#65747b
+}
+.crt-playhead{
+  position:absolute;top:0;bottom:0;width:2px;background:var(--cyan);
+  left:12px;z-index:5;box-shadow:0 0 10px rgba(101,231,255,.35)
+}
+.crt-playhead:before{
+  content:"";position:absolute;top:0;left:50%;transform:translate(-50%,-50%);
+  width:8px;height:8px;border-radius:50%;background:var(--cyan)
+}
+.crt-trim-handle{
+  position:absolute;top:7px;bottom:7px;width:8px;border-radius:5px;
+  background:rgba(255,255,255,.16);z-index:4
+}
+.crt-trim-handle.left{left:6px}
+.crt-trim-handle.right{right:6px}
+
+/* clearer mobile tool labels */
+.dock-btn{
+  border-radius:9px!important;
+}
+.dock-btn span:last-child{
+  letter-spacing:0!important;
+}
+.dock-btn.active{
+  background:rgba(101,231,255,.055)!important;
+  color:var(--cyan)!important;
+}
+
+/* cleaner sheets */
+.edit-sheet{
+  background:rgba(7,9,12,.985)!important;
+  border-color:var(--editor-line)!important;
+  box-shadow:0 -18px 50px rgba(0,0,0,.42)!important;
+}
+.sheet-head,.edit-sheet .sheetHead{
+  background:#090c10!important;
+  border-color:var(--editor-line)!important;
+}
+.sheet-body,.edit-sheet .sheetBody{
+  background:#07090c!important;
+}
+
+/* source/editor cards */
+.crt-video-tools{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0
+}
+.crt-video-tool{
+  min-height:42px;border-radius:8px;border:1px solid var(--editor-line);
+  background:#0b0e12;color:#aebbc0;font:7px ui-sans-serif,system-ui
+}
+.crt-video-tool.active{color:var(--cyan);border-color:rgba(101,231,255,.25)}
+.crt-video-meta{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0
+}
+.crt-video-meta>div{
+  padding:8px;border:1px solid var(--editor-line);border-radius:8px;background:#0a0d11
+}
+.crt-video-meta small{display:block;font:5.5px ui-monospace,monospace;color:#63727a;margin-bottom:4px}
+.crt-video-meta b{display:block;font:7px ui-sans-serif,system-ui;color:#d2dde0}
+
+/* make shader/synth feel like sibling tools */
+.shader-modal-card,.synth-modal-card{
+  border-radius:12px!important;
+}
+.shader-item,.synth-preset{
+  border-radius:8px!important;
+}
+.shader-item.active,.synth-preset.active{
+  background:rgba(101,231,255,.045)!important;
+  border-color:rgba(101,231,255,.25)!important;
+}
+
+@media(max-width:900px){
+  .viewportPanel{
+    grid-template-rows:1fr 52px 122px calc(var(--mobile-dock,72px) + env(safe-area-inset-bottom,0px))!important;
+  }
+  .crt-timeline{
+    min-height:122px
+  }
+  .crt-timeline-body{
+    padding:8px 8px 10px
+  }
+  .crt-timeline-track{
+    min-width:520px;height:58px
+  }
+  .crt-timeline-head{
+    padding:4px 7px
+  }
+  .crt-tl-btn{
+    min-height:28px;padding:0 8px
+  }
+  .crt-video-tools{
+    grid-template-columns:repeat(2,1fr)
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -2924,6 +3118,200 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
 }
 </style>
 
+
+<style id="crtizer-capcut-core-ui-css">
+/* CRTiZER core editor refresh: clearer CapCut-style hierarchy, same visual identity */
+:root{
+  --editor-bg:#050608;
+  --editor-panel:#080a0e;
+  --editor-panel-2:#0c0f14;
+  --editor-line:rgba(255,255,255,.065);
+  --editor-text:#e5edf0;
+  --editor-muted:#718088;
+}
+
+.workspace{
+  background:var(--editor-bg)!important;
+}
+.viewportPanel{
+  background:var(--editor-bg)!important;
+}
+.viewportWrap{
+  background:
+    radial-gradient(circle at 50% 28%,rgba(101,231,255,.035),transparent 38%),
+    #040507!important;
+}
+.screenFrame{
+  border-radius:12px!important;
+  border:1px solid var(--editor-line)!important;
+  box-shadow:0 18px 48px rgba(0,0,0,.42)!important;
+}
+
+/* clearer transport */
+.transport,.transportBar,.viewportControls{
+  background:var(--editor-panel)!important;
+  border-color:var(--editor-line)!important;
+}
+.transport .btn,.viewportControls .btn,.transportBar .btn{
+  border-radius:8px!important;
+}
+.transport .readout,.viewportControls .readout{
+  color:var(--editor-muted)!important;
+}
+
+/* CapCut-like timeline */
+.crt-timeline{
+  display:grid;
+  grid-template-rows:30px 1fr;
+  border-top:1px solid var(--editor-line);
+  border-bottom:1px solid var(--editor-line);
+  background:#07090c;
+  min-height:122px;
+}
+.crt-timeline-head{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:5px 8px;border-bottom:1px solid var(--editor-line)
+}
+.crt-timeline-head-left,.crt-timeline-head-right{
+  display:flex;align-items:center;gap:6px
+}
+.crt-timeline-title{
+  font:600 8px ui-sans-serif,system-ui;color:#dce5e8
+}
+.crt-timeline-sub{
+  font:6px ui-monospace,monospace;color:#617077
+}
+.crt-tl-btn{
+  min-height:26px;padding:0 9px;border-radius:7px;
+  border:1px solid var(--editor-line);background:#0b0e12;color:#9dacb2;
+  font:7px ui-sans-serif,system-ui
+}
+.crt-tl-btn.active{color:var(--cyan);border-color:rgba(101,231,255,.25)}
+.crt-timeline-body{
+  position:relative;overflow-x:auto;overflow-y:hidden;
+  padding:10px 12px 12px;-webkit-overflow-scrolling:touch
+}
+.crt-timeline-track{
+  position:relative;height:64px;min-width:640px;
+  border-radius:9px;background:#0a0d11;
+  border:1px solid var(--editor-line);overflow:hidden
+}
+.crt-timeline-clip{
+  position:absolute;left:8px;right:8px;top:8px;bottom:8px;
+  border-radius:7px;border:1px solid rgba(101,231,255,.24);
+  background:linear-gradient(90deg,rgba(101,231,255,.08),rgba(255,91,215,.055));
+  display:flex;align-items:center;gap:8px;padding:0 10px;overflow:hidden
+}
+.crt-timeline-clip-thumb{
+  width:54px;height:34px;border-radius:5px;overflow:hidden;background:#030405;flex:0 0 auto
+}
+.crt-timeline-clip-thumb img,.crt-timeline-clip-thumb video{
+  width:100%;height:100%;object-fit:cover;display:block
+}
+.crt-timeline-clip-info{min-width:0}
+.crt-timeline-clip-info b{
+  display:block;font:7px ui-sans-serif,system-ui;color:#dce6e9;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.crt-timeline-clip-info small{
+  display:block;margin-top:2px;font:5.5px ui-monospace,monospace;color:#65747b
+}
+.crt-playhead{
+  position:absolute;top:0;bottom:0;width:2px;background:var(--cyan);
+  left:12px;z-index:5;box-shadow:0 0 10px rgba(101,231,255,.35)
+}
+.crt-playhead:before{
+  content:"";position:absolute;top:0;left:50%;transform:translate(-50%,-50%);
+  width:8px;height:8px;border-radius:50%;background:var(--cyan)
+}
+.crt-trim-handle{
+  position:absolute;top:7px;bottom:7px;width:8px;border-radius:5px;
+  background:rgba(255,255,255,.16);z-index:4
+}
+.crt-trim-handle.left{left:6px}
+.crt-trim-handle.right{right:6px}
+
+/* clearer mobile tool labels */
+.dock-btn{
+  border-radius:9px!important;
+}
+.dock-btn span:last-child{
+  letter-spacing:0!important;
+}
+.dock-btn.active{
+  background:rgba(101,231,255,.055)!important;
+  color:var(--cyan)!important;
+}
+
+/* cleaner sheets */
+.edit-sheet{
+  background:rgba(7,9,12,.985)!important;
+  border-color:var(--editor-line)!important;
+  box-shadow:0 -18px 50px rgba(0,0,0,.42)!important;
+}
+.sheet-head,.edit-sheet .sheetHead{
+  background:#090c10!important;
+  border-color:var(--editor-line)!important;
+}
+.sheet-body,.edit-sheet .sheetBody{
+  background:#07090c!important;
+}
+
+/* source/editor cards */
+.crt-video-tools{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:8px 0
+}
+.crt-video-tool{
+  min-height:42px;border-radius:8px;border:1px solid var(--editor-line);
+  background:#0b0e12;color:#aebbc0;font:7px ui-sans-serif,system-ui
+}
+.crt-video-tool.active{color:var(--cyan);border-color:rgba(101,231,255,.25)}
+.crt-video-meta{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0
+}
+.crt-video-meta>div{
+  padding:8px;border:1px solid var(--editor-line);border-radius:8px;background:#0a0d11
+}
+.crt-video-meta small{display:block;font:5.5px ui-monospace,monospace;color:#63727a;margin-bottom:4px}
+.crt-video-meta b{display:block;font:7px ui-sans-serif,system-ui;color:#d2dde0}
+
+/* make shader/synth feel like sibling tools */
+.shader-modal-card,.synth-modal-card{
+  border-radius:12px!important;
+}
+.shader-item,.synth-preset{
+  border-radius:8px!important;
+}
+.shader-item.active,.synth-preset.active{
+  background:rgba(101,231,255,.045)!important;
+  border-color:rgba(101,231,255,.25)!important;
+}
+
+@media(max-width:900px){
+  .viewportPanel{
+    grid-template-rows:1fr 52px 122px calc(var(--mobile-dock,72px) + env(safe-area-inset-bottom,0px))!important;
+  }
+  .crt-timeline{
+    min-height:122px
+  }
+  .crt-timeline-body{
+    padding:8px 8px 10px
+  }
+  .crt-timeline-track{
+    min-width:520px;height:58px
+  }
+  .crt-timeline-head{
+    padding:4px 7px
+  }
+  .crt-tl-btn{
+    min-height:28px;padding:0 8px
+  }
+  .crt-video-tools{
+    grid-template-columns:repeat(2,1fr)
+  }
+}
+</style>
+
 </head><body>
 <script id="crtizer-synth-media-layers-js">
 (function(){
@@ -4644,6 +5032,219 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
   syncHeight();
   window.addEventListener('resize',syncHeight);
   window.addEventListener('orientationchange',()=>setTimeout(syncHeight,80));
+})();
+</script>
+
+
+<script id="crtizer-capcut-video-editor-js">
+(function(){
+  const mainVideo=document.getElementById('mainSourceVideo');
+  const mainImage=document.getElementById('mainSourceImage');
+  const clip=document.getElementById('crtTimelineClip');
+  const thumb=document.getElementById('crtTimelineThumb');
+  const nameEl=document.getElementById('crtTimelineName');
+  const metaEl=document.getElementById('crtTimelineMeta');
+  const statusEl=document.getElementById('crtTimelineStatus');
+  const playhead=document.getElementById('crtPlayhead');
+  const track=document.getElementById('crtTimelineTrack');
+  const splitBtn=document.getElementById('crtSplitBtn');
+  const trimBtn=document.getElementById('crtTrimBtn');
+  const deleteBtn=document.getElementById('crtDeleteClipBtn');
+
+  let trimMode=false;
+  let trimStart=0;
+  let trimEnd=null;
+  let splitMarks=[];
+
+  function fmt(t){
+    if(!isFinite(t))return'00:00';
+    const m=Math.floor(t/60),s=Math.floor(t%60);
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+
+  function activeSource(){
+    if(mainVideo?.style.display==='block' && mainVideo.src) return {type:'video',el:mainVideo};
+    if(mainImage?.style.display==='block' && mainImage.src) return {type:'image',el:mainImage};
+    return null;
+  }
+
+  function refreshTimeline(){
+    const src=activeSource();
+    if(!src){
+      clip.style.display='none';
+      statusEl.textContent='No clip loaded';
+      return;
+    }
+    clip.style.display='flex';
+    thumb.innerHTML='';
+    if(src.type==='video'){
+      const v=document.createElement('video');
+      v.src=src.el.src;v.muted=true;v.playsInline=true;v.preload='metadata';
+      thumb.appendChild(v);
+      nameEl.textContent='SOURCE VIDEO';
+      const d=src.el.duration||0;
+      metaEl.textContent=fmt(trimStart)+' → '+fmt(trimEnd??d);
+      statusEl.textContent='Video clip';
+    }else{
+      const i=document.createElement('img');i.src=src.el.src;thumb.appendChild(i);
+      nameEl.textContent='SOURCE IMAGE';
+      metaEl.textContent='Still image';
+      statusEl.textContent='Image clip';
+    }
+  }
+
+  function updatePlayhead(){
+    const src=activeSource();
+    if(!src||src.type!=='video'||!src.el.duration)return;
+    const p=Math.max(0,Math.min(1,src.el.currentTime/src.el.duration));
+    const width=track.clientWidth-24;
+    playhead.style.left=(12+p*width)+'px';
+  }
+
+  mainVideo?.addEventListener('loadedmetadata',()=>{
+    trimStart=0;trimEnd=mainVideo.duration;refreshTimeline();
+  });
+  mainVideo?.addEventListener('timeupdate',()=>{
+    updatePlayhead();
+    if(trimEnd!=null && mainVideo.currentTime>=trimEnd){
+      mainVideo.currentTime=trimStart;
+      if(!mainVideo.paused)mainVideo.play().catch(()=>{});
+    }
+  });
+
+  // Click timeline to seek.
+  track?.addEventListener('pointerdown',e=>{
+    const src=activeSource();
+    if(!src||src.type!=='video'||!src.el.duration)return;
+    const r=track.getBoundingClientRect();
+    const x=Math.max(0,Math.min(r.width,e.clientX-r.left));
+    const t=(x/r.width)*src.el.duration;
+    src.el.currentTime=Math.max(trimStart,Math.min(trimEnd??src.el.duration,t));
+  });
+
+  splitBtn?.addEventListener('click',()=>{
+    const src=activeSource();
+    if(!src||src.type!=='video'||!src.el.duration){
+      window.showToast?.('LOAD A VIDEO TO SPLIT');
+      return;
+    }
+    splitMarks.push(src.el.currentTime);
+    statusEl.textContent='Split at '+fmt(src.el.currentTime);
+    splitBtn.classList.add('active');
+    setTimeout(()=>splitBtn.classList.remove('active'),450);
+    window.showToast?.('SPLIT MARK // '+fmt(src.el.currentTime));
+  });
+
+  trimBtn?.addEventListener('click',()=>{
+    const src=activeSource();
+    if(!src||src.type!=='video'||!src.el.duration){
+      window.showToast?.('LOAD A VIDEO TO TRIM');
+      return;
+    }
+    trimMode=!trimMode;
+    trimBtn.classList.toggle('active',trimMode);
+    if(trimMode){
+      trimStart=src.el.currentTime;
+      trimEnd=src.el.duration;
+      statusEl.textContent='Trim start set '+fmt(trimStart);
+      window.showToast?.('TRIM START // '+fmt(trimStart));
+    }else{
+      trimEnd=src.el.currentTime>trimStart?src.el.currentTime:src.el.duration;
+      statusEl.textContent='Trim '+fmt(trimStart)+' → '+fmt(trimEnd);
+      window.showToast?.('TRIM RANGE SAVED');
+    }
+    refreshTimeline();
+  });
+
+  deleteBtn?.addEventListener('click',()=>{
+    const src=activeSource();
+    if(!src)return;
+    if(src.type==='video'){
+      src.el.pause();src.el.removeAttribute('src');src.el.load();src.el.style.display='none';
+    }else{
+      src.el.removeAttribute('src');src.el.style.display='none';
+    }
+    clip.style.display='none';
+    statusEl.textContent='No clip loaded';
+    window.rebuildUnifiedLayerPreview?.(true);
+    window.refreshUnifiedSynth?.();
+    window.showToast?.('SOURCE CLIP REMOVED');
+  });
+
+  // Upgrade mobile SOURCE sheet into a clearer video editor panel without changing global shell.
+  function patchSourceSheet(){
+    const sheet=document.getElementById('editSheet');
+    const body=document.getElementById('sheetBody')||sheet?.querySelector('.sheetBody,.sheet-body');
+    const title=document.getElementById('sheetTitle');
+    if(!sheet||!body||!title)return;
+    if(!sheet.classList.contains('open'))return;
+    if(title.textContent.trim().toUpperCase()!=='SOURCE')return;
+    if(body.querySelector('#crtVideoTools'))return;
+
+    const tools=document.createElement('div');
+    tools.id='crtVideoTools';
+    tools.innerHTML=`
+      <div class="crt-video-tools">
+        <button class="crt-video-tool" id="crtSrcVideo">Video</button>
+        <button class="crt-video-tool" id="crtSrcImage">Photo</button>
+        <button class="crt-video-tool" id="crtSrcSplit">Split</button>
+        <button class="crt-video-tool" id="crtSrcTrim">Trim</button>
+      </div>
+      <div class="crt-video-meta">
+        <div><small>TYPE</small><b id="crtSrcType">None</b></div>
+        <div><small>DURATION</small><b id="crtSrcDuration">00:00</b></div>
+        <div><small>STATUS</small><b id="crtSrcStatus">Ready</b></div>
+      </div>`;
+    body.prepend(tools);
+
+    tools.querySelector('#crtSrcVideo').onclick=()=>document.getElementById('sourceVideoInputV3')?.click();
+    tools.querySelector('#crtSrcImage').onclick=()=>document.getElementById('imageInput')?.click();
+    tools.querySelector('#crtSrcSplit').onclick=()=>splitBtn?.click();
+    tools.querySelector('#crtSrcTrim').onclick=()=>trimBtn?.click();
+
+    const src=activeSource();
+    tools.querySelector('#crtSrcType').textContent=src?.type?.toUpperCase()||'None';
+    tools.querySelector('#crtSrcDuration').textContent=src?.type==='video'?fmt(src.el.duration):'STILL';
+    tools.querySelector('#crtSrcStatus').textContent=src?'Loaded':'Ready';
+  }
+
+  const sheet=document.getElementById('editSheet');
+  if(sheet){
+    const mo=new MutationObserver(()=>setTimeout(patchSourceSheet,0));
+    mo.observe(sheet,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  }
+  document.querySelector('.dock-btn[data-tool="source"]')?.addEventListener('click',()=>setTimeout(patchSourceSheet,20),true);
+
+  // Rename mobile tools for readability, while preserving effects.
+  const labels={
+    adjust:'Adjust',
+    effects:'Effects',
+    presets:'Presets',
+    source:'Source',
+    layers:'Layers',
+    synth:'Dither',
+    shader:'Shader',
+    export:'Export'
+  };
+  document.querySelectorAll('.dock-btn').forEach(btn=>{
+    const key=btn.dataset.tool;
+    if(!key||!labels[key])return;
+    const spans=btn.querySelectorAll('span');
+    if(spans.length)spans[spans.length-1].textContent=labels[key];
+  });
+
+  // Keep timeline in sync with file changes.
+  document.addEventListener('change',e=>{
+    if(e.target.matches('input[type=file]'))setTimeout(refreshTimeline,120);
+  });
+  setInterval(refreshTimeline,700);
+
+  window.CRTIZER_VIDEO_EDITOR={
+    refreshTimeline,
+    get trimStart(){return trimStart},
+    get trimEnd(){return trimEnd},
+    get splitMarks(){return [...splitMarks]}
+  };
 })();
 </script>
 
@@ -6501,6 +7102,219 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
   syncHeight();
   window.addEventListener('resize',syncHeight);
   window.addEventListener('orientationchange',()=>setTimeout(syncHeight,80));
+})();
+</script>
+
+
+<script id="crtizer-capcut-video-editor-js">
+(function(){
+  const mainVideo=document.getElementById('mainSourceVideo');
+  const mainImage=document.getElementById('mainSourceImage');
+  const clip=document.getElementById('crtTimelineClip');
+  const thumb=document.getElementById('crtTimelineThumb');
+  const nameEl=document.getElementById('crtTimelineName');
+  const metaEl=document.getElementById('crtTimelineMeta');
+  const statusEl=document.getElementById('crtTimelineStatus');
+  const playhead=document.getElementById('crtPlayhead');
+  const track=document.getElementById('crtTimelineTrack');
+  const splitBtn=document.getElementById('crtSplitBtn');
+  const trimBtn=document.getElementById('crtTrimBtn');
+  const deleteBtn=document.getElementById('crtDeleteClipBtn');
+
+  let trimMode=false;
+  let trimStart=0;
+  let trimEnd=null;
+  let splitMarks=[];
+
+  function fmt(t){
+    if(!isFinite(t))return'00:00';
+    const m=Math.floor(t/60),s=Math.floor(t%60);
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+
+  function activeSource(){
+    if(mainVideo?.style.display==='block' && mainVideo.src) return {type:'video',el:mainVideo};
+    if(mainImage?.style.display==='block' && mainImage.src) return {type:'image',el:mainImage};
+    return null;
+  }
+
+  function refreshTimeline(){
+    const src=activeSource();
+    if(!src){
+      clip.style.display='none';
+      statusEl.textContent='No clip loaded';
+      return;
+    }
+    clip.style.display='flex';
+    thumb.innerHTML='';
+    if(src.type==='video'){
+      const v=document.createElement('video');
+      v.src=src.el.src;v.muted=true;v.playsInline=true;v.preload='metadata';
+      thumb.appendChild(v);
+      nameEl.textContent='SOURCE VIDEO';
+      const d=src.el.duration||0;
+      metaEl.textContent=fmt(trimStart)+' → '+fmt(trimEnd??d);
+      statusEl.textContent='Video clip';
+    }else{
+      const i=document.createElement('img');i.src=src.el.src;thumb.appendChild(i);
+      nameEl.textContent='SOURCE IMAGE';
+      metaEl.textContent='Still image';
+      statusEl.textContent='Image clip';
+    }
+  }
+
+  function updatePlayhead(){
+    const src=activeSource();
+    if(!src||src.type!=='video'||!src.el.duration)return;
+    const p=Math.max(0,Math.min(1,src.el.currentTime/src.el.duration));
+    const width=track.clientWidth-24;
+    playhead.style.left=(12+p*width)+'px';
+  }
+
+  mainVideo?.addEventListener('loadedmetadata',()=>{
+    trimStart=0;trimEnd=mainVideo.duration;refreshTimeline();
+  });
+  mainVideo?.addEventListener('timeupdate',()=>{
+    updatePlayhead();
+    if(trimEnd!=null && mainVideo.currentTime>=trimEnd){
+      mainVideo.currentTime=trimStart;
+      if(!mainVideo.paused)mainVideo.play().catch(()=>{});
+    }
+  });
+
+  // Click timeline to seek.
+  track?.addEventListener('pointerdown',e=>{
+    const src=activeSource();
+    if(!src||src.type!=='video'||!src.el.duration)return;
+    const r=track.getBoundingClientRect();
+    const x=Math.max(0,Math.min(r.width,e.clientX-r.left));
+    const t=(x/r.width)*src.el.duration;
+    src.el.currentTime=Math.max(trimStart,Math.min(trimEnd??src.el.duration,t));
+  });
+
+  splitBtn?.addEventListener('click',()=>{
+    const src=activeSource();
+    if(!src||src.type!=='video'||!src.el.duration){
+      window.showToast?.('LOAD A VIDEO TO SPLIT');
+      return;
+    }
+    splitMarks.push(src.el.currentTime);
+    statusEl.textContent='Split at '+fmt(src.el.currentTime);
+    splitBtn.classList.add('active');
+    setTimeout(()=>splitBtn.classList.remove('active'),450);
+    window.showToast?.('SPLIT MARK // '+fmt(src.el.currentTime));
+  });
+
+  trimBtn?.addEventListener('click',()=>{
+    const src=activeSource();
+    if(!src||src.type!=='video'||!src.el.duration){
+      window.showToast?.('LOAD A VIDEO TO TRIM');
+      return;
+    }
+    trimMode=!trimMode;
+    trimBtn.classList.toggle('active',trimMode);
+    if(trimMode){
+      trimStart=src.el.currentTime;
+      trimEnd=src.el.duration;
+      statusEl.textContent='Trim start set '+fmt(trimStart);
+      window.showToast?.('TRIM START // '+fmt(trimStart));
+    }else{
+      trimEnd=src.el.currentTime>trimStart?src.el.currentTime:src.el.duration;
+      statusEl.textContent='Trim '+fmt(trimStart)+' → '+fmt(trimEnd);
+      window.showToast?.('TRIM RANGE SAVED');
+    }
+    refreshTimeline();
+  });
+
+  deleteBtn?.addEventListener('click',()=>{
+    const src=activeSource();
+    if(!src)return;
+    if(src.type==='video'){
+      src.el.pause();src.el.removeAttribute('src');src.el.load();src.el.style.display='none';
+    }else{
+      src.el.removeAttribute('src');src.el.style.display='none';
+    }
+    clip.style.display='none';
+    statusEl.textContent='No clip loaded';
+    window.rebuildUnifiedLayerPreview?.(true);
+    window.refreshUnifiedSynth?.();
+    window.showToast?.('SOURCE CLIP REMOVED');
+  });
+
+  // Upgrade mobile SOURCE sheet into a clearer video editor panel without changing global shell.
+  function patchSourceSheet(){
+    const sheet=document.getElementById('editSheet');
+    const body=document.getElementById('sheetBody')||sheet?.querySelector('.sheetBody,.sheet-body');
+    const title=document.getElementById('sheetTitle');
+    if(!sheet||!body||!title)return;
+    if(!sheet.classList.contains('open'))return;
+    if(title.textContent.trim().toUpperCase()!=='SOURCE')return;
+    if(body.querySelector('#crtVideoTools'))return;
+
+    const tools=document.createElement('div');
+    tools.id='crtVideoTools';
+    tools.innerHTML=`
+      <div class="crt-video-tools">
+        <button class="crt-video-tool" id="crtSrcVideo">Video</button>
+        <button class="crt-video-tool" id="crtSrcImage">Photo</button>
+        <button class="crt-video-tool" id="crtSrcSplit">Split</button>
+        <button class="crt-video-tool" id="crtSrcTrim">Trim</button>
+      </div>
+      <div class="crt-video-meta">
+        <div><small>TYPE</small><b id="crtSrcType">None</b></div>
+        <div><small>DURATION</small><b id="crtSrcDuration">00:00</b></div>
+        <div><small>STATUS</small><b id="crtSrcStatus">Ready</b></div>
+      </div>`;
+    body.prepend(tools);
+
+    tools.querySelector('#crtSrcVideo').onclick=()=>document.getElementById('sourceVideoInputV3')?.click();
+    tools.querySelector('#crtSrcImage').onclick=()=>document.getElementById('imageInput')?.click();
+    tools.querySelector('#crtSrcSplit').onclick=()=>splitBtn?.click();
+    tools.querySelector('#crtSrcTrim').onclick=()=>trimBtn?.click();
+
+    const src=activeSource();
+    tools.querySelector('#crtSrcType').textContent=src?.type?.toUpperCase()||'None';
+    tools.querySelector('#crtSrcDuration').textContent=src?.type==='video'?fmt(src.el.duration):'STILL';
+    tools.querySelector('#crtSrcStatus').textContent=src?'Loaded':'Ready';
+  }
+
+  const sheet=document.getElementById('editSheet');
+  if(sheet){
+    const mo=new MutationObserver(()=>setTimeout(patchSourceSheet,0));
+    mo.observe(sheet,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  }
+  document.querySelector('.dock-btn[data-tool="source"]')?.addEventListener('click',()=>setTimeout(patchSourceSheet,20),true);
+
+  // Rename mobile tools for readability, while preserving effects.
+  const labels={
+    adjust:'Adjust',
+    effects:'Effects',
+    presets:'Presets',
+    source:'Source',
+    layers:'Layers',
+    synth:'Dither',
+    shader:'Shader',
+    export:'Export'
+  };
+  document.querySelectorAll('.dock-btn').forEach(btn=>{
+    const key=btn.dataset.tool;
+    if(!key||!labels[key])return;
+    const spans=btn.querySelectorAll('span');
+    if(spans.length)spans[spans.length-1].textContent=labels[key];
+  });
+
+  // Keep timeline in sync with file changes.
+  document.addEventListener('change',e=>{
+    if(e.target.matches('input[type=file]'))setTimeout(refreshTimeline,120);
+  });
+  setInterval(refreshTimeline,700);
+
+  window.CRTIZER_VIDEO_EDITOR={
+    refreshTimeline,
+    get trimStart(){return trimStart},
+    get trimEnd(){return trimEnd},
+    get splitMarks(){return [...splitMarks]}
+  };
 })();
 </script>
 
