@@ -484,39 +484,37 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
 </style>
 
 
-<style id="crtizer-media-layer-synth-upgrade">
+<style id="crtizer-synth-media-layers-css">
 .synth-modal-card{width:min(980px,96vw)}
 .synth-layout{display:grid;grid-template-columns:280px 1fr;min-height:560px}
-.synth-sidebar{border-right:1px solid var(--line);padding:12px}
+.synth-side{border-right:1px solid var(--line);padding:12px}
 .synth-main{padding:12px;overflow:auto}
-.synth-tablist{display:flex;flex-direction:column;gap:6px}
-.synth-tab{
-  border:1px solid var(--line);background:rgba(255,255,255,.015);padding:10px;
-  text-align:left;color:#bccdd4;cursor:pointer;font:9px ui-monospace,monospace
+.synth-preset-list{display:flex;flex-direction:column;gap:6px}
+.synth-preset{
+  border:1px solid var(--line);background:rgba(255,255,255,.015);padding:9px;
+  text-align:left;color:#c9d9df;cursor:pointer
 }
-.synth-tab.active{border-color:rgba(101,231,255,.4);background:rgba(101,231,255,.05);color:var(--cyan)}
-.synth-card{border:1px solid var(--line);background:rgba(255,255,255,.012);padding:12px;margin-bottom:10px}
-.synth-card h3{margin:0 0 6px;font:700 11px ui-monospace,monospace;letter-spacing:.08em}
-.synth-card p{margin:0;color:var(--muted);font:8px/1.55 ui-monospace,monospace}
-.synth-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:10px}
-.synth-control{min-width:0}
-.synth-control label{display:flex;justify-content:space-between;margin-bottom:6px;font:8px ui-monospace,monospace;color:#9eb0b8}
-.synth-control b{color:var(--cyan)}
-.synth-select{width:100%;background:#070a0f;border:1px solid var(--line);color:var(--text);padding:8px;font:8px ui-monospace,monospace}
-.color-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.color-box{border:1px solid var(--line);padding:8px;background:#070a0f}
-.color-box input[type=color]{width:100%;height:38px;border:0;background:transparent;padding:0}
-.synth-preview{aspect-ratio:16/9;border:1px solid var(--line);overflow:hidden;position:relative;background:#020305;margin:10px 0}
-.synth-preview iframe{width:100%;height:100%;border:0;background:#020305}
+.synth-preset.active{border-color:rgba(101,231,255,.42);background:rgba(101,231,255,.05);box-shadow:inset 2px 0 0 var(--cyan)}
+.synth-preset b{display:block;font:9px ui-monospace,monospace;letter-spacing:.08em}
+.synth-preset small{display:block;margin-top:3px;font:7px ui-monospace,monospace;color:var(--muted)}
+.synth-preview-wrap{aspect-ratio:16/9;border:1px solid var(--line);background:#020305;margin-bottom:12px;position:relative;overflow:hidden}
+#synthCanvas{width:100%;height:100%;display:block;background:#020305}
+.synth-overlay-label{position:absolute;left:8px;top:8px;font:7px ui-monospace,monospace;color:var(--cyan);padding:4px 6px;background:rgba(0,0,0,.55);border:1px solid rgba(101,231,255,.2)}
+.synth-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.synth-color-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.synth-color{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:center;border:1px solid var(--line);padding:7px;background:rgba(255,255,255,.012)}
+.synth-color input[type="color"]{width:34px;height:28px;padding:0;border:1px solid var(--line);background:#05070a}
+.synth-color span{font:8px ui-monospace,monospace;color:#a9bbc3}
+.synth-switch{display:flex;align-items:center;justify-content:space-between;padding:8px;border:1px solid var(--line);background:rgba(255,255,255,.012);margin-bottom:10px}
 .media-layer-badge{font:7px ui-monospace,monospace;color:var(--pink);border:1px solid rgba(255,91,215,.25);padding:3px 5px}
 @media(max-width:900px){
   .synth-modal-card{width:100vw;height:100dvh;max-height:none;border:0}
-  .synth-modal-card .modalBody{padding:0;height:calc(100dvh - 50px);max-height:none}
+  .synth-modal-card .modalBody{height:calc(100dvh - 50px);max-height:none;padding:0}
   .synth-layout{display:block;height:100%;min-height:0}
-  .synth-sidebar{height:28%;border-right:0;border-bottom:1px solid var(--line);padding:9px;overflow:auto}
-  .synth-main{height:72%;padding:10px}
-  .synth-tablist{flex-direction:row;overflow-x:auto}
-  .synth-tab{white-space:nowrap;min-width:110px}
+  .synth-side{height:34%;border-right:0;border-bottom:1px solid var(--line);overflow:auto;padding:9px}
+  .synth-main{height:66%;padding:10px}
+  .synth-preset-list{display:grid;grid-template-columns:1fr 1fr}
+  .synth-preview-wrap{margin-bottom:9px}
   .synth-grid{grid-template-columns:1fr}
 }
 </style>
@@ -744,6 +742,39 @@ void main() {
 </div>
 
 
+
+<div class="modal" id="synthModal">
+  <div class="modalCard synth-modal-card">
+    <div class="modalHead"><span>PUNK SYNTH // TWO-COLOR DIFFUSION</span><button class="iconBtn" id="closeSynth">×</button></div>
+    <div class="modalBody">
+      <div class="synth-layout">
+        <aside class="synth-side">
+          <div class="sectionTitle">SYNTH PRESETS</div>
+          <div class="synth-preset-list" id="synthPresetList"></div>
+        </aside>
+        <section class="synth-main">
+          <div class="synth-preview-wrap">
+            <canvas id="synthCanvas" width="640" height="360"></canvas>
+            <div class="synth-overlay-label">LIVE SYNTH OUTPUT</div>
+          </div>
+
+          <div class="synth-switch">
+            <span style="font:8px ui-monospace,monospace;color:#a9bbc3">SYNTH ENABLED</span>
+            <div class="toggle on" id="synthToggle"></div>
+          </div>
+
+          <div class="synth-color-row">
+            <label class="synth-color"><input type="color" id="synthColor1" value="#65e7ff"><span>DITHER COLOR 1</span></label>
+            <label class="synth-color"><input type="color" id="synthColor2" value="#05060a"><span>DITHER COLOR 2</span></label>
+          </div>
+
+          <div class="synth-grid" id="synthParams"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="layersModal">
   <div class="modalCard layer-modal-card">
     <div class="modalHead"><span>FRAME EDITOR // LAYERS</span><button class="iconBtn" id="closeLayers">×</button></div>
@@ -757,9 +788,9 @@ void main() {
         <section class="layer-main">
           <div class="media-toolbar">
             <div class="media-name" id="mediaName">NO MEDIA LOADED</div>
-            <button class="media-btn" id="loadImageBtn">IMAGE</button>
-            <button class="media-btn" id="loadVideoBtn">VIDEO</button>
-            <button class="media-btn" id="clearMediaBtn">CLEAR</button>
+            <button class="media-btn" id="layerLoadImageBtn">IMAGE</button>
+            <button class="media-btn" id="layerLoadVideoBtn">VIDEO</button>
+            <button class="media-btn" id="layerClearMediaBtn">CLEAR</button>
             <input id="imageFileInput" type="file" accept="image/*" hidden>
             <input id="videoFileInput" type="file" accept="video/*" hidden>
           </div>
@@ -790,77 +821,6 @@ void main() {
   </div>
 </div>
 
-
-
-<div class="modal" id="synthModal">
-  <div class="modalCard synth-modal-card">
-    <div class="modalHead"><span>PUNK DITHER // SYNTH ENGINE</span><button class="iconBtn" id="closeSynth">×</button></div>
-    <div class="modalBody">
-      <div class="synth-layout">
-        <aside class="synth-sidebar">
-          <div class="sectionTitle">SYNTH MODULES</div>
-          <div class="synth-tablist">
-            <button class="synth-tab active" data-synthtab="dither">DITHER SYNTH</button>
-            <button class="synth-tab" data-synthtab="tone">TONE SYNTH</button>
-            <button class="synth-tab" data-synthtab="motion">MOTION SYNTH</button>
-          </div>
-        </aside>
-        <section class="synth-main">
-          <div class="synth-card">
-            <h3>PUNK DITHER</h3>
-            <p>CRTiZER adaptation of the prior Punk Dither / EternalSynth concept. The browser build approximates the look in real time; the control model is kept ready for a native or After Effects implementation.</p>
-          </div>
-          <div class="synth-preview"><iframe id="synthPreviewFrame" title="Punk Dither live preview"></iframe></div>
-
-          <div id="synthPaneDither">
-            <div class="synth-grid">
-              <div class="synth-control">
-                <label><span>DITHER STRENGTH</span><b id="ditherStrengthVal">49</b></label>
-                <input type="range" id="ditherStrength" min="1" max="99" value="49">
-              </div>
-              <div class="synth-control">
-                <label><span>ALGORITHM</span></label>
-                <select id="ditherAlgorithm" class="synth-select">
-                  <option value="error">ERROR DIFFUSION</option>
-                  <option value="ordered">ORDERED DITHER</option>
-                  <option value="blue">BLUE NOISE</option>
-                </select>
-              </div>
-            </div>
-            <div class="color-row" style="margin-top:10px">
-              <div class="color-box"><div class="sectionTitle">COLOR A</div><input type="color" id="ditherColorA" value="#06070a"></div>
-              <div class="color-box"><div class="sectionTitle">COLOR B</div><input type="color" id="ditherColorB" value="#d9f8ff"></div>
-            </div>
-            <div class="synth-grid">
-              <div class="synth-control">
-                <label><span>STRUCTURE</span><b id="ditherStructureVal">58</b></label>
-                <input type="range" id="ditherStructure" min="0" max="100" value="58">
-              </div>
-              <div class="synth-control">
-                <label><span>NOISE</span><b id="ditherNoiseVal">12</b></label>
-                <input type="range" id="ditherNoise" min="0" max="100" value="12">
-              </div>
-            </div>
-          </div>
-
-          <div id="synthPaneTone" style="display:none">
-            <div class="synth-grid">
-              <div class="synth-control"><label><span>POSTERIZE</span><b id="tonePosterVal">6</b></label><input type="range" id="tonePoster" min="2" max="16" value="6"></div>
-              <div class="synth-control"><label><span>CONTRAST</span><b id="toneContrastVal">118</b></label><input type="range" id="toneContrast" min="50" max="180" value="118"></div>
-            </div>
-          </div>
-
-          <div id="synthPaneMotion" style="display:none">
-            <div class="synth-grid">
-              <div class="synth-control"><label><span>STREAK</span><b id="motionStreakVal">18</b></label><input type="range" id="motionStreak" min="0" max="100" value="18"></div>
-              <div class="synth-control"><label><span>DRIFT</span><b id="motionDriftVal">9</b></label><input type="range" id="motionDrift" min="0" max="100" value="9"></div>
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
-  </div>
-</div>
 
 <div class="onframe-toolbar" id="onframeToolbar">
   <span class="label" id="onframeLayerName">NEON SUN</span>
@@ -1600,236 +1560,335 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
       body{display:flex;align-items:center;justify-content:center}
       *{box-sizing:border-box}
     </style>
-<style id="crtizer-media-layer-synth-upgrade">
+<style id="crtizer-synth-media-layers-css">
 .synth-modal-card{width:min(980px,96vw)}
 .synth-layout{display:grid;grid-template-columns:280px 1fr;min-height:560px}
-.synth-sidebar{border-right:1px solid var(--line);padding:12px}
+.synth-side{border-right:1px solid var(--line);padding:12px}
 .synth-main{padding:12px;overflow:auto}
-.synth-tablist{display:flex;flex-direction:column;gap:6px}
-.synth-tab{
-  border:1px solid var(--line);background:rgba(255,255,255,.015);padding:10px;
-  text-align:left;color:#bccdd4;cursor:pointer;font:9px ui-monospace,monospace
+.synth-preset-list{display:flex;flex-direction:column;gap:6px}
+.synth-preset{
+  border:1px solid var(--line);background:rgba(255,255,255,.015);padding:9px;
+  text-align:left;color:#c9d9df;cursor:pointer
 }
-.synth-tab.active{border-color:rgba(101,231,255,.4);background:rgba(101,231,255,.05);color:var(--cyan)}
-.synth-card{border:1px solid var(--line);background:rgba(255,255,255,.012);padding:12px;margin-bottom:10px}
-.synth-card h3{margin:0 0 6px;font:700 11px ui-monospace,monospace;letter-spacing:.08em}
-.synth-card p{margin:0;color:var(--muted);font:8px/1.55 ui-monospace,monospace}
-.synth-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;margin-top:10px}
-.synth-control{min-width:0}
-.synth-control label{display:flex;justify-content:space-between;margin-bottom:6px;font:8px ui-monospace,monospace;color:#9eb0b8}
-.synth-control b{color:var(--cyan)}
-.synth-select{width:100%;background:#070a0f;border:1px solid var(--line);color:var(--text);padding:8px;font:8px ui-monospace,monospace}
-.color-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.color-box{border:1px solid var(--line);padding:8px;background:#070a0f}
-.color-box input[type=color]{width:100%;height:38px;border:0;background:transparent;padding:0}
-.synth-preview{aspect-ratio:16/9;border:1px solid var(--line);overflow:hidden;position:relative;background:#020305;margin:10px 0}
-.synth-preview iframe{width:100%;height:100%;border:0;background:#020305}
+.synth-preset.active{border-color:rgba(101,231,255,.42);background:rgba(101,231,255,.05);box-shadow:inset 2px 0 0 var(--cyan)}
+.synth-preset b{display:block;font:9px ui-monospace,monospace;letter-spacing:.08em}
+.synth-preset small{display:block;margin-top:3px;font:7px ui-monospace,monospace;color:var(--muted)}
+.synth-preview-wrap{aspect-ratio:16/9;border:1px solid var(--line);background:#020305;margin-bottom:12px;position:relative;overflow:hidden}
+#synthCanvas{width:100%;height:100%;display:block;background:#020305}
+.synth-overlay-label{position:absolute;left:8px;top:8px;font:7px ui-monospace,monospace;color:var(--cyan);padding:4px 6px;background:rgba(0,0,0,.55);border:1px solid rgba(101,231,255,.2)}
+.synth-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.synth-color-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.synth-color{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:center;border:1px solid var(--line);padding:7px;background:rgba(255,255,255,.012)}
+.synth-color input[type="color"]{width:34px;height:28px;padding:0;border:1px solid var(--line);background:#05070a}
+.synth-color span{font:8px ui-monospace,monospace;color:#a9bbc3}
+.synth-switch{display:flex;align-items:center;justify-content:space-between;padding:8px;border:1px solid var(--line);background:rgba(255,255,255,.012);margin-bottom:10px}
 .media-layer-badge{font:7px ui-monospace,monospace;color:var(--pink);border:1px solid rgba(255,91,215,.25);padding:3px 5px}
 @media(max-width:900px){
   .synth-modal-card{width:100vw;height:100dvh;max-height:none;border:0}
-  .synth-modal-card .modalBody{padding:0;height:calc(100dvh - 50px);max-height:none}
+  .synth-modal-card .modalBody{height:calc(100dvh - 50px);max-height:none;padding:0}
   .synth-layout{display:block;height:100%;min-height:0}
-  .synth-sidebar{height:28%;border-right:0;border-bottom:1px solid var(--line);padding:9px;overflow:auto}
-  .synth-main{height:72%;padding:10px}
-  .synth-tablist{flex-direction:row;overflow-x:auto}
-  .synth-tab{white-space:nowrap;min-width:110px}
+  .synth-side{height:34%;border-right:0;border-bottom:1px solid var(--line);overflow:auto;padding:9px}
+  .synth-main{height:66%;padding:10px}
+  .synth-preset-list{display:grid;grid-template-columns:1fr 1fr}
+  .synth-preview-wrap{margin-bottom:9px}
   .synth-grid{grid-template-columns:1fr}
 }
 </style>
 
 </head><body>
-<script id="crtizer-media-layer-synth-js">
+<script id="crtizer-synth-media-layers-js">
 (function(){
-  const layerList = document.getElementById('layerList');
-  const sourceVideo = document.getElementById('sourceVideo');
-  const sourceImage = document.getElementById('sourceImage');
-  const synthModal = document.getElementById('synthModal');
-  const synthPreviewFrame = document.getElementById('synthPreviewFrame');
+  const sourceVideo=document.getElementById('sourceVideo');
+  const sourceImage=document.getElementById('sourceImage');
+  const synthModal=document.getElementById('synthModal');
+  const synthCanvas=document.getElementById('synthCanvas');
+  const ctx=synthCanvas.getContext('2d',{willReadFrequently:true});
+  const synthToggle=document.getElementById('synthToggle');
 
-  // ---- Media layer slots ----
-  function ensureMediaLayers(){
-    if(!window.crtizerLayerState) return;
+  const synthState={
+    enabled:true,
+    strength:0.72,
+    neighborBoost:20,
+    rightWeight:7,
+    downWeight:9,
+    thresholdBase:128,
+    lineBias:1.0,
+    frameSkip:1,
+    color1:'#65e7ff',
+    color2:'#05060a'
+  };
 
-    if(!window.crtizerLayerState.image){
-      window.crtizerLayerState.image = {
-        name:'IMAGE SOURCE', type:'MEDIA', x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0
-      };
-    }
-    if(!window.crtizerLayerState.video){
-      window.crtizerLayerState.video = {
-        name:'VIDEO SOURCE', type:'MEDIA', x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0
-      };
-    }
+  const synthPresets=[
+    {id:'punk',name:'PUNK DITHER',desc:'Original two-color directional diffusion',v:{strength:.72,neighborBoost:20,rightWeight:7,downWeight:9,thresholdBase:128,lineBias:1}},
+    {id:'ominous',name:'OMINOUS LINES',desc:'Longer connected streak clusters',v:{strength:.86,neighborBoost:34,rightWeight:5,downWeight:11,thresholdBase:122,lineBias:1.35}},
+    {id:'terminal',name:'TERMINAL GHOST',desc:'Harsh cyan-black signal treatment',v:{strength:.64,neighborBoost:28,rightWeight:8,downWeight:8,thresholdBase:110,lineBias:.9},c1:'#79f6ff',c2:'#020507'},
+    {id:'violet',name:'VIOLET DECAY',desc:'Purple-black clustered diffusion',v:{strength:.76,neighborBoost:26,rightWeight:7,downWeight:9,thresholdBase:132,lineBias:1.1},c1:'#a36cff',c2:'#07030d'},
+    {id:'warning',name:'WARNING SIGNAL',desc:'High contrast red-black corruption',v:{strength:.82,neighborBoost:18,rightWeight:10,downWeight:6,thresholdBase:118,lineBias:.75},c1:'#ff506f',c2:'#080304'},
+    {id:'whiteout',name:'WHITEOUT',desc:'Monochrome hard diffusion',v:{strength:.68,neighborBoost:14,rightWeight:7,downWeight:9,thresholdBase:138,lineBias:1},c1:'#f2f2ef',c2:'#050505'},
+    {id:'deep',name:'DEEP SCAN',desc:'Dense low-threshold vertical streaking',v:{strength:.92,neighborBoost:38,rightWeight:4,downWeight:12,thresholdBase:104,lineBias:1.5},c1:'#55b8ff',c2:'#00030a'},
+    {id:'acid',name:'ACID SCREEN',desc:'Bright toxic two-tone diffusion',v:{strength:.71,neighborBoost:24,rightWeight:9,downWeight:7,thresholdBase:120,lineBias:.8},c1:'#b9ff35',c2:'#090014'}
+  ];
 
-    // Keep media elements editable through the same layer state.
-    if(window.crtizerLayerElements){
-      window.crtizerLayerElements.image = sourceImage;
-      window.crtizerLayerElements.video = sourceVideo;
+  const paramDefs=[
+    ['STRENGTH','strength',0,1,.01],
+    ['NEIGHBOR BOOST','neighborBoost',0,64,1],
+    ['RIGHT DIFFUSION','rightWeight',0,16,1],
+    ['DOWN DIFFUSION','downWeight',0,16,1],
+    ['THRESHOLD BASE','thresholdBase',32,224,1],
+    ['LINE BIAS','lineBias',.25,2,.05]
+  ];
+
+  function hexToRgb(hex){
+    const n=parseInt(hex.slice(1),16);
+    return {r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+  }
+  function clamp255(v){return Math.max(0,Math.min(255,v|0));}
+
+  // Browser adaptation of the supplied C++ PunkDither algorithm.
+  function punkDitherImageData(img,w,h){
+    if(!synthState.enabled) return img;
+    const d=img.data;
+    const c1=hexToRgb(synthState.color1), c2=hexToRgb(synthState.color2);
+    const strength=Math.max(0,Math.min(1,+synthState.strength));
+    const neighborBoost=+synthState.neighborBoost;
+    const rw=Math.max(0,+synthState.rightWeight*synthState.lineBias);
+    const dw=Math.max(0,+synthState.downWeight*synthState.lineBias);
+    const denom=Math.max(1,rw+dw);
+
+    for(let y=1;y<h-1;y++){
+      for(let x=1;x<w-1;x++){
+        const i=(y*w+x)*4;
+        const intensity=(d[i]+d[i+1]+d[i+2])/3;
+        let threshold=synthState.thresholdBase*strength;
+
+        const li=(y*w+(x-1))*4;
+        const ui=((y-1)*w+x)*4;
+
+        // Preserve the original clustering intent, but compare full RGB instead of red only.
+        const leftIs1=d[li]===c1.r && d[li+1]===c1.g && d[li+2]===c1.b;
+        const upIs1=d[ui]===c1.r && d[ui+1]===c1.g && d[ui+2]===c1.b;
+        if(leftIs1 || upIs1) threshold+=neighborBoost;
+
+        const chosen=intensity>threshold?c1:c2;
+        const er=d[i]-chosen.r, eg=d[i+1]-chosen.g, eb=d[i+2]-chosen.b;
+
+        const ri=(y*w+(x+1))*4;
+        const di=((y+1)*w+x)*4;
+
+        d[ri]=clamp255(d[ri]+er*rw/denom);
+        d[ri+1]=clamp255(d[ri+1]+eg*rw/denom);
+        d[ri+2]=clamp255(d[ri+2]+eb*rw/denom);
+
+        d[di]=clamp255(d[di]+er*dw/denom);
+        d[di+1]=clamp255(d[di+1]+eg*dw/denom);
+        d[di+2]=clamp255(d[di+2]+eb*dw/denom);
+
+        d[i]=chosen.r; d[i+1]=chosen.g; d[i+2]=chosen.b;
+      }
     }
+    return img;
   }
 
-  // Rebuild the visible layer list with explicit image/video slots.
-  function injectMediaRows(){
-    if(!layerList) return;
-    const existing = layerList.querySelector('[data-layer="image"]');
-    if(existing) return;
+  function renderSynthFrame(){
+    const w=synthCanvas.width,h=synthCanvas.height;
+    ctx.fillStyle='#020305';ctx.fillRect(0,0,w,h);
 
-    const mk = (id,name,loaded) => {
-      const row=document.createElement('div');
-      row.className='layer-row';
-      row.dataset.layer=id;
-      row.innerHTML=`
-        <span class="layer-grip">⋮⋮</span>
-        <button class="layer-eye" data-media-eye="${id}">${loaded?'◉':'○'}</button>
-        <div><div class="layer-name">${name}</div><div class="layer-type">MEDIA // ${loaded?'LOADED':'EMPTY'}</div></div>
-        <span class="media-layer-badge">${id.toUpperCase()}</span>`;
-      row.addEventListener('click',e=>{
-        if(e.target.dataset.mediaEye) return;
-        const el=id==='image'?sourceImage:sourceVideo;
-        if(!el || el.style.display==='none'){
-          if(window.showToast) showToast(`${id.toUpperCase()} SLOT EMPTY`);
-          return;
-        }
-        // Use native active layer UI if available by dispatching through visible controls.
-        document.querySelectorAll('.layer-row').forEach(x=>x.classList.remove('active'));
-        row.classList.add('active');
-        if(window.crtizerSelectExternalLayer) window.crtizerSelectExternalLayer(id);
-      });
-      row.querySelector('[data-media-eye]').onclick=e=>{
-        e.stopPropagation();
-        const el=id==='image'?sourceImage:sourceVideo;
-        if(!el || !el.src) return;
-        const hidden = el.style.display==='none';
-        el.style.display = hidden ? 'block' : 'none';
-        e.currentTarget.textContent = hidden ? '◉' : '○';
-        if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview();
-      };
-      return row;
-    };
+    let source=null;
+    if(sourceVideo && sourceVideo.style.display==='block' && sourceVideo.readyState>=2) source=sourceVideo;
+    else if(sourceImage && sourceImage.style.display==='block' && sourceImage.complete) source=sourceImage;
 
-    layerList.prepend(mk('video','VIDEO SOURCE',!!sourceVideo?.src));
-    layerList.prepend(mk('image','IMAGE SOURCE',!!sourceImage?.src));
-  }
-
-  ensureMediaLayers();
-  injectMediaRows();
-
-  // Watch for loads and refresh rows.
-  ['load','loadedmetadata','emptied'].forEach(evt=>{
-    sourceImage?.addEventListener(evt,()=>{ injectMediaRows(); if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview(); });
-    sourceVideo?.addEventListener(evt,()=>{ injectMediaRows(); if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview(); });
-  });
-
-  const mediaName = document.getElementById('mediaName');
-  const mediaObserver = new MutationObserver(()=>{
-    if(layerList){
-      layerList.querySelectorAll('[data-layer="image"],[data-layer="video"]').forEach(x=>x.remove());
-      injectMediaRows();
+    if(source){
+      const sw=source.videoWidth||source.naturalWidth||w;
+      const sh=source.videoHeight||source.naturalHeight||h;
+      const sr=sw/sh, dr=w/h;
+      let dw=w,dh=h,dx=0,dy=0;
+      if(sr>dr){dh=h;dw=h*sr;dx=(w-dw)/2;} else {dw=w;dh=w/sr;dy=(h-dh)/2;}
+      ctx.drawImage(source,dx,dy,dw,dh);
+    }else{
+      const g=ctx.createLinearGradient(0,0,w,h);
+      g.addColorStop(0,'#07111f');g.addColorStop(.5,'#2a123a');g.addColorStop(1,'#05060a');
+      ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+      ctx.fillStyle='#65e7ff';ctx.fillRect(w*.18,h*.25,w*.16,h*.48);
+      ctx.fillStyle='#ff5bd7';ctx.beginPath();ctx.arc(w*.68,h*.42,h*.18,0,Math.PI*2);ctx.fill();
     }
-  });
-  if(mediaName) mediaObserver.observe(mediaName,{childList:true,characterData:true,subtree:true});
 
-  // ---- SYNTH modal / live preview ----
-  function buildSynthPreview(){
-    if(!synthPreviewFrame) return;
-    const stage = document.querySelector('.stage') ||
-                  document.querySelector('.preview') ||
-                  document.querySelector('#preview') ||
-                  sourceVideo?.parentElement;
-    if(!stage) return;
-    const clone=stage.cloneNode(true);
-    clone.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
-    clone.style.width='100%'; clone.style.height='100%'; clone.style.margin='0';
-    const styles=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
-    const doc=synthPreviewFrame.contentDocument || synthPreviewFrame.contentWindow.document;
-    doc.open();
-    doc.write(`<!doctype html><html><head><style>
-      html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020305}
-      ${styles}
-      body{display:flex;align-items:center;justify-content:center}
-    </style></head><body></body></html>`);
-    doc.close(); doc.body.appendChild(clone);
-
-    const a=doc.body.firstElementChild;
-    if(a){
-      const strength=+(document.getElementById('ditherStrength')?.value||49)/100;
-      const structure=+(document.getElementById('ditherStructure')?.value||58);
-      const noise=+(document.getElementById('ditherNoise')?.value||12);
-      const algo=document.getElementById('ditherAlgorithm')?.value||'error';
-      const ca=document.getElementById('ditherColorA')?.value||'#06070a';
-      const cb=document.getElementById('ditherColorB')?.value||'#d9f8ff';
-
-      // Browser approximation of Punk Dither.
-      a.style.filter=`contrast(${1.1+strength*1.7}) saturate(${0.7+strength*.45})`;
-      a.style.backgroundColor=ca;
-      a.style.boxShadow=`inset 0 0 ${12+structure*.35}px ${cb}22`;
-      const overlay=doc.createElement('div');
-      overlay.style.cssText=`position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:${0.08+noise/230};`;
-      overlay.style.backgroundImage = algo==='ordered'
-        ? `repeating-linear-gradient(0deg,${cb}22 0 1px,transparent 1px ${Math.max(2,7-Math.round(strength*5))}px)`
-        : algo==='blue'
-        ? `radial-gradient(circle at 20% 30%,${cb}35 0 1px,transparent 1.5px),radial-gradient(circle at 70% 60%,${cb}2a 0 1px,transparent 1.5px)`
-        : `repeating-linear-gradient(90deg,transparent 0 3px,${cb}18 3px 4px)`;
-      overlay.style.backgroundSize = algo==='blue' ? '9px 11px,13px 15px' : 'auto';
-      doc.body.appendChild(overlay);
-    }
+    try{
+      const image=ctx.getImageData(0,0,w,h);
+      ctx.putImageData(punkDitherImageData(image,w,h),0,0);
+    }catch(e){}
   }
 
-  function openSynth(){
-    synthModal.classList.add('open');
-    setTimeout(buildSynthPreview,0);
+  let raf=0,frame=0;
+  function synthLoop(){
+    raf=requestAnimationFrame(synthLoop);
+    frame++;
+    if(frame%(synthState.frameSkip||1)!==0)return;
+    if(synthModal.classList.contains('open')) renderSynthFrame();
   }
-  document.getElementById('synthBtn')?.addEventListener('click',openSynth);
-  document.getElementById('closeSynth')?.addEventListener('click',()=>synthModal.classList.remove('open'));
+  synthLoop();
+
+  function renderParams(){
+    const box=document.getElementById('synthParams');
+    box.innerHTML=paramDefs.map(([label,key,min,max,step])=>{
+      const v=synthState[key], p=((v-min)/(max-min))*100;
+      return `<div class="param">
+        <div class="paramTop"><span>${label}</span><b>${Number(v).toFixed(step<1?2:0)}</b></div>
+        <input type="range" min="${min}" max="${max}" step="${step}" value="${v}" data-synth="${key}" style="--p:${p}%">
+      </div>`;
+    }).join('');
+    box.querySelectorAll('input').forEach(r=>r.oninput=()=>{
+      synthState[r.dataset.synth]=+r.value;
+      r.previousElementSibling.querySelector('b').textContent=Number(r.value).toFixed(+r.step<1?2:0);
+      if(window.setRangeFill) setRangeFill(r);
+      renderSynthFrame();
+    });
+  }
+
+  function renderPresets(){
+    const list=document.getElementById('synthPresetList');
+    list.innerHTML=synthPresets.map((p,i)=>`<button class="synth-preset ${i===0?'active':''}" data-synthpreset="${p.id}"><b>${p.name}</b><small>${p.desc}</small></button>`).join('');
+    list.querySelectorAll('.synth-preset').forEach(btn=>btn.onclick=()=>{
+      const p=synthPresets.find(x=>x.id===btn.dataset.synthpreset);
+      Object.assign(synthState,p.v);
+      if(p.c1){synthState.color1=p.c1;document.getElementById('synthColor1').value=p.c1}
+      if(p.c2){synthState.color2=p.c2;document.getElementById('synthColor2').value=p.c2}
+      list.querySelectorAll('.synth-preset').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');renderParams();renderSynthFrame();
+      if(window.showToast)showToast('SYNTH PRESET // '+p.name);
+    });
+  }
+
+  document.getElementById('synthColor1').oninput=e=>{synthState.color1=e.target.value;renderSynthFrame()};
+  document.getElementById('synthColor2').oninput=e=>{synthState.color2=e.target.value;renderSynthFrame()};
+  synthToggle.onclick=()=>{synthState.enabled=!synthState.enabled;synthToggle.classList.toggle('on',synthState.enabled);renderSynthFrame()};
+
+  function openSynth(){synthModal.classList.add('open');renderSynthFrame();}
+  document.getElementById('synthBtn').onclick=openSynth;
+  document.getElementById('closeSynth').onclick=()=>synthModal.classList.remove('open');
   document.querySelectorAll('.dock-btn[data-tool="synth"]').forEach(btn=>btn.addEventListener('click',e=>{
-    e.preventDefault(); e.stopPropagation(); openSynth();
+    e.preventDefault();e.stopPropagation();openSynth();
   },true));
 
-  document.querySelectorAll('.synth-tab').forEach(btn=>btn.onclick=()=>{
-    document.querySelectorAll('.synth-tab').forEach(x=>x.classList.remove('active'));
-    btn.classList.add('active');
-    ['dither','tone','motion'].forEach(k=>{
-      const el=document.getElementById('synthPane'+k.charAt(0).toUpperCase()+k.slice(1));
-      if(el) el.style.display = btn.dataset.synthtab===k ? 'block' : 'none';
+  renderPresets();renderParams();
+
+  // ---------- Make loaded media true layer-stack entries ----------
+  function getLayerAPI(){
+    return {
+      state:window.crtizerLayerState||{},
+      list:document.getElementById('layerList')
+    };
+  }
+
+  function mediaLayerId(){return sourceVideo?.style.display==='block'?'media_video':sourceImage?.style.display==='block'?'media_image':null;}
+
+  function ensureMediaLayer(){
+    const api=getLayerAPI();
+    if(!window.crtizerLayerState)return;
+    delete api.state.media_video;delete api.state.media_image;
+
+    const id=mediaLayerId();
+    if(!id){ if(window.renderCRTIZERLayerList) window.renderCRTIZERLayerList(); return; }
+
+    const isVideo=id==='media_video';
+    api.state[id]={
+      name:isVideo?'VIDEO SOURCE':'IMAGE SOURCE',
+      type:'MEDIA',
+      x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0,
+      media:true
+    };
+    patchMediaIntoLayerUI();
+  }
+
+  function patchMediaIntoLayerUI(){
+    const list=document.getElementById('layerList');
+    if(!list||!window.crtizerLayerState)return;
+
+    // Remove previously injected media row.
+    list.querySelectorAll('.media-layer-row').forEach(x=>x.remove());
+
+    const id=mediaLayerId();
+    if(!id)return;
+    const s=window.crtizerLayerState[id];
+    const row=document.createElement('div');
+    row.className='layer-row media-layer-row';
+    row.dataset.layer=id;
+    row.innerHTML=`
+      <span class="layer-grip">⋮⋮</span>
+      <button class="layer-eye" data-media-eye="${id}">◉</button>
+      <div><div class="layer-name">${s.name}</div><div class="layer-type">MEDIA // SOURCE</div></div>
+      <span class="media-layer-badge">${id==='media_video'?'VIDEO':'IMAGE'}</span>`;
+    list.prepend(row);
+
+    row.addEventListener('click',e=>{
+      if(e.target.dataset.mediaEye)return;
+      showMediaLayerInspector(id);
     });
-  });
+    row.querySelector('[data-media-eye]').onclick=e=>{
+      e.stopPropagation();
+      s.visible=!s.visible;
+      const el=id==='media_video'?sourceVideo:sourceImage;
+      el.style.opacity=s.visible?String(s.opacity/100):'0';
+      e.currentTarget.textContent=s.visible?'◉':'○';
+      if(window.CRTIZER_MEDIA?.rebuildLayerPreview)window.CRTIZER_MEDIA.rebuildLayerPreview();
+    };
+  }
 
-  const bindVal=(id,out)=>{
-    const el=document.getElementById(id), o=document.getElementById(out);
-    if(!el)return;
-    const fire=()=>{ if(o)o.textContent=el.value; buildSynthPreview(); };
-    el.addEventListener('input',fire); el.addEventListener('change',fire);
-  };
-  bindVal('ditherStrength','ditherStrengthVal');
-  bindVal('ditherStructure','ditherStructureVal');
-  bindVal('ditherNoise','ditherNoiseVal');
-  bindVal('tonePoster','tonePosterVal');
-  bindVal('toneContrast','toneContrastVal');
-  bindVal('motionStreak','motionStreakVal');
-  bindVal('motionDrift','motionDriftVal');
-  ['ditherAlgorithm','ditherColorA','ditherColorB'].forEach(id=>{
-    document.getElementById(id)?.addEventListener('input',buildSynthPreview);
-    document.getElementById(id)?.addEventListener('change',buildSynthPreview);
-  });
+  function applyMediaLayer(id){
+    const s=window.crtizerLayerState[id];
+    const el=id==='media_video'?sourceVideo:sourceImage;
+    if(!s||!el)return;
+    el.style.translate=`${s.x}px ${s.y}px`;
+    el.style.scale=String(s.scale/100);
+    el.style.rotate=s.rotate+'deg';
+    el.style.opacity=s.visible?String(s.opacity/100):'0';
+    el.style.zIndex=String(s.z);
+    if(window.CRTIZER_MEDIA?.rebuildLayerPreview)window.CRTIZER_MEDIA.rebuildLayerPreview();
+  }
 
-  // Keep a serializable synth state.
-  window.CRTIZER_SYNTH = {
-    getState(){
-      return {
-        ditherStrength:+document.getElementById('ditherStrength').value,
-        algorithm:document.getElementById('ditherAlgorithm').value,
-        colorA:document.getElementById('ditherColorA').value,
-        colorB:document.getElementById('ditherColorB').value,
-        structure:+document.getElementById('ditherStructure').value,
-        noise:+document.getElementById('ditherNoise').value,
-        tonePoster:+document.getElementById('tonePoster').value,
-        toneContrast:+document.getElementById('toneContrast').value,
-        motionStreak:+document.getElementById('motionStreak').value,
-        motionDrift:+document.getElementById('motionDrift').value
+  function showMediaLayerInspector(id){
+    const s=window.crtizerLayerState[id];
+    if(!s)return;
+    document.querySelectorAll('.layer-row').forEach(x=>x.classList.remove('active'));
+    document.querySelector(`.media-layer-row[data-layer="${id}"]`)?.classList.add('active');
+    document.getElementById('layerInspectorName').textContent=s.name;
+    const box=document.getElementById('layerProperties');
+    const defs=[
+      ['X POSITION','x',-400,400],['Y POSITION','y',-300,300],
+      ['SCALE','scale',20,250],['ROTATION','rotate',-180,180],['OPACITY','opacity',0,100]
+    ];
+    box.innerHTML=defs.map(([label,key,min,max])=>`<div class="layer-prop param">
+      <div class="paramTop"><span>${label}</span><b>${s[key]}</b></div>
+      <input type="range" min="${min}" max="${max}" value="${s[key]}" data-mediaprop="${key}">
+    </div>`).join('');
+    box.querySelectorAll('input').forEach(r=>{
+      if(window.setRangeFill)setRangeFill(r);
+      r.oninput=()=>{
+        s[r.dataset.mediaprop]=+r.value;
+        r.previousElementSibling.querySelector('b').textContent=r.value;
+        if(window.setRangeFill)setRangeFill(r);
+        applyMediaLayer(id);
       };
-    },
-    rebuildPreview:buildSynthPreview
-  };
+    });
+  }
+
+  // Watch media source changes and inject layer row after existing layer renderer refreshes.
+  const mediaObs=new MutationObserver(()=>setTimeout(ensureMediaLayer,0));
+  if(sourceVideo)mediaObs.observe(sourceVideo,{attributes:true,attributeFilter:['src','style']});
+  if(sourceImage)mediaObs.observe(sourceImage,{attributes:true,attributeFilter:['src','style']});
+
+  document.getElementById('layerLoadVideoBtn')?.addEventListener('click',()=>setTimeout(ensureMediaLayer,250));
+  document.getElementById('layerLoadImageBtn')?.addEventListener('click',()=>setTimeout(ensureMediaLayer,250));
+  document.getElementById('layerClearMediaBtn')?.addEventListener('click',()=>setTimeout(ensureMediaLayer,20));
+  document.getElementById('imageFileInput')?.addEventListener('change',()=>setTimeout(ensureMediaLayer,80));
+  document.getElementById('videoFileInput')?.addEventListener('change',()=>setTimeout(ensureMediaLayer,80));
+  document.getElementById('layerList')?.addEventListener('DOMSubtreeModified',()=>setTimeout(patchMediaIntoLayerUI,0));
+
+  // Poll lightly because existing layer renderer replaces innerHTML.
+  setInterval(()=>{
+    if(document.getElementById('layersModal')?.classList.contains('open'))patchMediaIntoLayerUI();
+  },400);
+
+  window.CRTIZER_SYNTH={state:synthState,render:renderSynthFrame,punkDitherImageData};
 })();
 </script>
 
@@ -1914,12 +1973,12 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
     if(window.showToast) showToast('VIDEO LOADED // '+file.name.toUpperCase());
   }
 
-  document.getElementById('loadImageBtn')?.addEventListener('click',()=>imageInput.click());
-  document.getElementById('loadVideoBtn')?.addEventListener('click',()=>videoInput.click());
+  document.getElementById('layerLoadImageBtn')?.addEventListener('click',()=>imageInput.click());
+  document.getElementById('layerLoadVideoBtn')?.addEventListener('click',()=>videoInput.click());
   imageInput?.addEventListener('change',e=>{ const f=e.target.files?.[0]; if(f) loadImage(f); });
   videoInput?.addEventListener('change',e=>{ const f=e.target.files?.[0]; if(f) loadVideo(f); });
 
-  document.getElementById('clearMediaBtn')?.addEventListener('click',()=>{
+  document.getElementById('layerClearMediaBtn')?.addEventListener('click',()=>{
     clearObjectURL();
     sourceVideo.pause(); sourceVideo.removeAttribute('src'); sourceVideo.load(); sourceVideo.style.display='none';
     sourceImage.removeAttribute('src'); sourceImage.style.display='none';
@@ -1968,198 +2027,299 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
 </script>
 
 
-<script id="crtizer-media-layer-synth-js">
+<script id="crtizer-synth-media-layers-js">
 (function(){
-  const layerList = document.getElementById('layerList');
-  const sourceVideo = document.getElementById('sourceVideo');
-  const sourceImage = document.getElementById('sourceImage');
-  const synthModal = document.getElementById('synthModal');
-  const synthPreviewFrame = document.getElementById('synthPreviewFrame');
+  const sourceVideo=document.getElementById('sourceVideo');
+  const sourceImage=document.getElementById('sourceImage');
+  const synthModal=document.getElementById('synthModal');
+  const synthCanvas=document.getElementById('synthCanvas');
+  const ctx=synthCanvas.getContext('2d',{willReadFrequently:true});
+  const synthToggle=document.getElementById('synthToggle');
 
-  // ---- Media layer slots ----
-  function ensureMediaLayers(){
-    if(!window.crtizerLayerState) return;
+  const synthState={
+    enabled:true,
+    strength:0.72,
+    neighborBoost:20,
+    rightWeight:7,
+    downWeight:9,
+    thresholdBase:128,
+    lineBias:1.0,
+    frameSkip:1,
+    color1:'#65e7ff',
+    color2:'#05060a'
+  };
 
-    if(!window.crtizerLayerState.image){
-      window.crtizerLayerState.image = {
-        name:'IMAGE SOURCE', type:'MEDIA', x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0
-      };
-    }
-    if(!window.crtizerLayerState.video){
-      window.crtizerLayerState.video = {
-        name:'VIDEO SOURCE', type:'MEDIA', x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0
-      };
-    }
+  const synthPresets=[
+    {id:'punk',name:'PUNK DITHER',desc:'Original two-color directional diffusion',v:{strength:.72,neighborBoost:20,rightWeight:7,downWeight:9,thresholdBase:128,lineBias:1}},
+    {id:'ominous',name:'OMINOUS LINES',desc:'Longer connected streak clusters',v:{strength:.86,neighborBoost:34,rightWeight:5,downWeight:11,thresholdBase:122,lineBias:1.35}},
+    {id:'terminal',name:'TERMINAL GHOST',desc:'Harsh cyan-black signal treatment',v:{strength:.64,neighborBoost:28,rightWeight:8,downWeight:8,thresholdBase:110,lineBias:.9},c1:'#79f6ff',c2:'#020507'},
+    {id:'violet',name:'VIOLET DECAY',desc:'Purple-black clustered diffusion',v:{strength:.76,neighborBoost:26,rightWeight:7,downWeight:9,thresholdBase:132,lineBias:1.1},c1:'#a36cff',c2:'#07030d'},
+    {id:'warning',name:'WARNING SIGNAL',desc:'High contrast red-black corruption',v:{strength:.82,neighborBoost:18,rightWeight:10,downWeight:6,thresholdBase:118,lineBias:.75},c1:'#ff506f',c2:'#080304'},
+    {id:'whiteout',name:'WHITEOUT',desc:'Monochrome hard diffusion',v:{strength:.68,neighborBoost:14,rightWeight:7,downWeight:9,thresholdBase:138,lineBias:1},c1:'#f2f2ef',c2:'#050505'},
+    {id:'deep',name:'DEEP SCAN',desc:'Dense low-threshold vertical streaking',v:{strength:.92,neighborBoost:38,rightWeight:4,downWeight:12,thresholdBase:104,lineBias:1.5},c1:'#55b8ff',c2:'#00030a'},
+    {id:'acid',name:'ACID SCREEN',desc:'Bright toxic two-tone diffusion',v:{strength:.71,neighborBoost:24,rightWeight:9,downWeight:7,thresholdBase:120,lineBias:.8},c1:'#b9ff35',c2:'#090014'}
+  ];
 
-    // Keep media elements editable through the same layer state.
-    if(window.crtizerLayerElements){
-      window.crtizerLayerElements.image = sourceImage;
-      window.crtizerLayerElements.video = sourceVideo;
+  const paramDefs=[
+    ['STRENGTH','strength',0,1,.01],
+    ['NEIGHBOR BOOST','neighborBoost',0,64,1],
+    ['RIGHT DIFFUSION','rightWeight',0,16,1],
+    ['DOWN DIFFUSION','downWeight',0,16,1],
+    ['THRESHOLD BASE','thresholdBase',32,224,1],
+    ['LINE BIAS','lineBias',.25,2,.05]
+  ];
+
+  function hexToRgb(hex){
+    const n=parseInt(hex.slice(1),16);
+    return {r:(n>>16)&255,g:(n>>8)&255,b:n&255};
+  }
+  function clamp255(v){return Math.max(0,Math.min(255,v|0));}
+
+  // Browser adaptation of the supplied C++ PunkDither algorithm.
+  function punkDitherImageData(img,w,h){
+    if(!synthState.enabled) return img;
+    const d=img.data;
+    const c1=hexToRgb(synthState.color1), c2=hexToRgb(synthState.color2);
+    const strength=Math.max(0,Math.min(1,+synthState.strength));
+    const neighborBoost=+synthState.neighborBoost;
+    const rw=Math.max(0,+synthState.rightWeight*synthState.lineBias);
+    const dw=Math.max(0,+synthState.downWeight*synthState.lineBias);
+    const denom=Math.max(1,rw+dw);
+
+    for(let y=1;y<h-1;y++){
+      for(let x=1;x<w-1;x++){
+        const i=(y*w+x)*4;
+        const intensity=(d[i]+d[i+1]+d[i+2])/3;
+        let threshold=synthState.thresholdBase*strength;
+
+        const li=(y*w+(x-1))*4;
+        const ui=((y-1)*w+x)*4;
+
+        // Preserve the original clustering intent, but compare full RGB instead of red only.
+        const leftIs1=d[li]===c1.r && d[li+1]===c1.g && d[li+2]===c1.b;
+        const upIs1=d[ui]===c1.r && d[ui+1]===c1.g && d[ui+2]===c1.b;
+        if(leftIs1 || upIs1) threshold+=neighborBoost;
+
+        const chosen=intensity>threshold?c1:c2;
+        const er=d[i]-chosen.r, eg=d[i+1]-chosen.g, eb=d[i+2]-chosen.b;
+
+        const ri=(y*w+(x+1))*4;
+        const di=((y+1)*w+x)*4;
+
+        d[ri]=clamp255(d[ri]+er*rw/denom);
+        d[ri+1]=clamp255(d[ri+1]+eg*rw/denom);
+        d[ri+2]=clamp255(d[ri+2]+eb*rw/denom);
+
+        d[di]=clamp255(d[di]+er*dw/denom);
+        d[di+1]=clamp255(d[di+1]+eg*dw/denom);
+        d[di+2]=clamp255(d[di+2]+eb*dw/denom);
+
+        d[i]=chosen.r; d[i+1]=chosen.g; d[i+2]=chosen.b;
+      }
     }
+    return img;
   }
 
-  // Rebuild the visible layer list with explicit image/video slots.
-  function injectMediaRows(){
-    if(!layerList) return;
-    const existing = layerList.querySelector('[data-layer="image"]');
-    if(existing) return;
+  function renderSynthFrame(){
+    const w=synthCanvas.width,h=synthCanvas.height;
+    ctx.fillStyle='#020305';ctx.fillRect(0,0,w,h);
 
-    const mk = (id,name,loaded) => {
-      const row=document.createElement('div');
-      row.className='layer-row';
-      row.dataset.layer=id;
-      row.innerHTML=`
-        <span class="layer-grip">⋮⋮</span>
-        <button class="layer-eye" data-media-eye="${id}">${loaded?'◉':'○'}</button>
-        <div><div class="layer-name">${name}</div><div class="layer-type">MEDIA // ${loaded?'LOADED':'EMPTY'}</div></div>
-        <span class="media-layer-badge">${id.toUpperCase()}</span>`;
-      row.addEventListener('click',e=>{
-        if(e.target.dataset.mediaEye) return;
-        const el=id==='image'?sourceImage:sourceVideo;
-        if(!el || el.style.display==='none'){
-          if(window.showToast) showToast(`${id.toUpperCase()} SLOT EMPTY`);
-          return;
-        }
-        // Use native active layer UI if available by dispatching through visible controls.
-        document.querySelectorAll('.layer-row').forEach(x=>x.classList.remove('active'));
-        row.classList.add('active');
-        if(window.crtizerSelectExternalLayer) window.crtizerSelectExternalLayer(id);
-      });
-      row.querySelector('[data-media-eye]').onclick=e=>{
-        e.stopPropagation();
-        const el=id==='image'?sourceImage:sourceVideo;
-        if(!el || !el.src) return;
-        const hidden = el.style.display==='none';
-        el.style.display = hidden ? 'block' : 'none';
-        e.currentTarget.textContent = hidden ? '◉' : '○';
-        if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview();
-      };
-      return row;
-    };
+    let source=null;
+    if(sourceVideo && sourceVideo.style.display==='block' && sourceVideo.readyState>=2) source=sourceVideo;
+    else if(sourceImage && sourceImage.style.display==='block' && sourceImage.complete) source=sourceImage;
 
-    layerList.prepend(mk('video','VIDEO SOURCE',!!sourceVideo?.src));
-    layerList.prepend(mk('image','IMAGE SOURCE',!!sourceImage?.src));
-  }
-
-  ensureMediaLayers();
-  injectMediaRows();
-
-  // Watch for loads and refresh rows.
-  ['load','loadedmetadata','emptied'].forEach(evt=>{
-    sourceImage?.addEventListener(evt,()=>{ injectMediaRows(); if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview(); });
-    sourceVideo?.addEventListener(evt,()=>{ injectMediaRows(); if(window.CRTIZER_MEDIA?.rebuildLayerPreview) window.CRTIZER_MEDIA.rebuildLayerPreview(); });
-  });
-
-  const mediaName = document.getElementById('mediaName');
-  const mediaObserver = new MutationObserver(()=>{
-    if(layerList){
-      layerList.querySelectorAll('[data-layer="image"],[data-layer="video"]').forEach(x=>x.remove());
-      injectMediaRows();
+    if(source){
+      const sw=source.videoWidth||source.naturalWidth||w;
+      const sh=source.videoHeight||source.naturalHeight||h;
+      const sr=sw/sh, dr=w/h;
+      let dw=w,dh=h,dx=0,dy=0;
+      if(sr>dr){dh=h;dw=h*sr;dx=(w-dw)/2;} else {dw=w;dh=w/sr;dy=(h-dh)/2;}
+      ctx.drawImage(source,dx,dy,dw,dh);
+    }else{
+      const g=ctx.createLinearGradient(0,0,w,h);
+      g.addColorStop(0,'#07111f');g.addColorStop(.5,'#2a123a');g.addColorStop(1,'#05060a');
+      ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+      ctx.fillStyle='#65e7ff';ctx.fillRect(w*.18,h*.25,w*.16,h*.48);
+      ctx.fillStyle='#ff5bd7';ctx.beginPath();ctx.arc(w*.68,h*.42,h*.18,0,Math.PI*2);ctx.fill();
     }
-  });
-  if(mediaName) mediaObserver.observe(mediaName,{childList:true,characterData:true,subtree:true});
 
-  // ---- SYNTH modal / live preview ----
-  function buildSynthPreview(){
-    if(!synthPreviewFrame) return;
-    const stage = document.querySelector('.stage') ||
-                  document.querySelector('.preview') ||
-                  document.querySelector('#preview') ||
-                  sourceVideo?.parentElement;
-    if(!stage) return;
-    const clone=stage.cloneNode(true);
-    clone.querySelectorAll('[id]').forEach(x=>x.removeAttribute('id'));
-    clone.style.width='100%'; clone.style.height='100%'; clone.style.margin='0';
-    const styles=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
-    const doc=synthPreviewFrame.contentDocument || synthPreviewFrame.contentWindow.document;
-    doc.open();
-    doc.write(`<!doctype html><html><head><style>
-      html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020305}
-      ${styles}
-      body{display:flex;align-items:center;justify-content:center}
-    </style></head><body></body></html>`);
-    doc.close(); doc.body.appendChild(clone);
-
-    const a=doc.body.firstElementChild;
-    if(a){
-      const strength=+(document.getElementById('ditherStrength')?.value||49)/100;
-      const structure=+(document.getElementById('ditherStructure')?.value||58);
-      const noise=+(document.getElementById('ditherNoise')?.value||12);
-      const algo=document.getElementById('ditherAlgorithm')?.value||'error';
-      const ca=document.getElementById('ditherColorA')?.value||'#06070a';
-      const cb=document.getElementById('ditherColorB')?.value||'#d9f8ff';
-
-      // Browser approximation of Punk Dither.
-      a.style.filter=`contrast(${1.1+strength*1.7}) saturate(${0.7+strength*.45})`;
-      a.style.backgroundColor=ca;
-      a.style.boxShadow=`inset 0 0 ${12+structure*.35}px ${cb}22`;
-      const overlay=doc.createElement('div');
-      overlay.style.cssText=`position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:${0.08+noise/230};`;
-      overlay.style.backgroundImage = algo==='ordered'
-        ? `repeating-linear-gradient(0deg,${cb}22 0 1px,transparent 1px ${Math.max(2,7-Math.round(strength*5))}px)`
-        : algo==='blue'
-        ? `radial-gradient(circle at 20% 30%,${cb}35 0 1px,transparent 1.5px),radial-gradient(circle at 70% 60%,${cb}2a 0 1px,transparent 1.5px)`
-        : `repeating-linear-gradient(90deg,transparent 0 3px,${cb}18 3px 4px)`;
-      overlay.style.backgroundSize = algo==='blue' ? '9px 11px,13px 15px' : 'auto';
-      doc.body.appendChild(overlay);
-    }
+    try{
+      const image=ctx.getImageData(0,0,w,h);
+      ctx.putImageData(punkDitherImageData(image,w,h),0,0);
+    }catch(e){}
   }
 
-  function openSynth(){
-    synthModal.classList.add('open');
-    setTimeout(buildSynthPreview,0);
+  let raf=0,frame=0;
+  function synthLoop(){
+    raf=requestAnimationFrame(synthLoop);
+    frame++;
+    if(frame%(synthState.frameSkip||1)!==0)return;
+    if(synthModal.classList.contains('open')) renderSynthFrame();
   }
-  document.getElementById('synthBtn')?.addEventListener('click',openSynth);
-  document.getElementById('closeSynth')?.addEventListener('click',()=>synthModal.classList.remove('open'));
+  synthLoop();
+
+  function renderParams(){
+    const box=document.getElementById('synthParams');
+    box.innerHTML=paramDefs.map(([label,key,min,max,step])=>{
+      const v=synthState[key], p=((v-min)/(max-min))*100;
+      return `<div class="param">
+        <div class="paramTop"><span>${label}</span><b>${Number(v).toFixed(step<1?2:0)}</b></div>
+        <input type="range" min="${min}" max="${max}" step="${step}" value="${v}" data-synth="${key}" style="--p:${p}%">
+      </div>`;
+    }).join('');
+    box.querySelectorAll('input').forEach(r=>r.oninput=()=>{
+      synthState[r.dataset.synth]=+r.value;
+      r.previousElementSibling.querySelector('b').textContent=Number(r.value).toFixed(+r.step<1?2:0);
+      if(window.setRangeFill) setRangeFill(r);
+      renderSynthFrame();
+    });
+  }
+
+  function renderPresets(){
+    const list=document.getElementById('synthPresetList');
+    list.innerHTML=synthPresets.map((p,i)=>`<button class="synth-preset ${i===0?'active':''}" data-synthpreset="${p.id}"><b>${p.name}</b><small>${p.desc}</small></button>`).join('');
+    list.querySelectorAll('.synth-preset').forEach(btn=>btn.onclick=()=>{
+      const p=synthPresets.find(x=>x.id===btn.dataset.synthpreset);
+      Object.assign(synthState,p.v);
+      if(p.c1){synthState.color1=p.c1;document.getElementById('synthColor1').value=p.c1}
+      if(p.c2){synthState.color2=p.c2;document.getElementById('synthColor2').value=p.c2}
+      list.querySelectorAll('.synth-preset').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');renderParams();renderSynthFrame();
+      if(window.showToast)showToast('SYNTH PRESET // '+p.name);
+    });
+  }
+
+  document.getElementById('synthColor1').oninput=e=>{synthState.color1=e.target.value;renderSynthFrame()};
+  document.getElementById('synthColor2').oninput=e=>{synthState.color2=e.target.value;renderSynthFrame()};
+  synthToggle.onclick=()=>{synthState.enabled=!synthState.enabled;synthToggle.classList.toggle('on',synthState.enabled);renderSynthFrame()};
+
+  function openSynth(){synthModal.classList.add('open');renderSynthFrame();}
+  document.getElementById('synthBtn').onclick=openSynth;
+  document.getElementById('closeSynth').onclick=()=>synthModal.classList.remove('open');
   document.querySelectorAll('.dock-btn[data-tool="synth"]').forEach(btn=>btn.addEventListener('click',e=>{
-    e.preventDefault(); e.stopPropagation(); openSynth();
+    e.preventDefault();e.stopPropagation();openSynth();
   },true));
 
-  document.querySelectorAll('.synth-tab').forEach(btn=>btn.onclick=()=>{
-    document.querySelectorAll('.synth-tab').forEach(x=>x.classList.remove('active'));
-    btn.classList.add('active');
-    ['dither','tone','motion'].forEach(k=>{
-      const el=document.getElementById('synthPane'+k.charAt(0).toUpperCase()+k.slice(1));
-      if(el) el.style.display = btn.dataset.synthtab===k ? 'block' : 'none';
+  renderPresets();renderParams();
+
+  // ---------- Make loaded media true layer-stack entries ----------
+  function getLayerAPI(){
+    return {
+      state:window.crtizerLayerState||{},
+      list:document.getElementById('layerList')
+    };
+  }
+
+  function mediaLayerId(){return sourceVideo?.style.display==='block'?'media_video':sourceImage?.style.display==='block'?'media_image':null;}
+
+  function ensureMediaLayer(){
+    const api=getLayerAPI();
+    if(!window.crtizerLayerState)return;
+    delete api.state.media_video;delete api.state.media_image;
+
+    const id=mediaLayerId();
+    if(!id){ if(window.renderCRTIZERLayerList) window.renderCRTIZERLayerList(); return; }
+
+    const isVideo=id==='media_video';
+    api.state[id]={
+      name:isVideo?'VIDEO SOURCE':'IMAGE SOURCE',
+      type:'MEDIA',
+      x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:0,
+      media:true
+    };
+    patchMediaIntoLayerUI();
+  }
+
+  function patchMediaIntoLayerUI(){
+    const list=document.getElementById('layerList');
+    if(!list||!window.crtizerLayerState)return;
+
+    // Remove previously injected media row.
+    list.querySelectorAll('.media-layer-row').forEach(x=>x.remove());
+
+    const id=mediaLayerId();
+    if(!id)return;
+    const s=window.crtizerLayerState[id];
+    const row=document.createElement('div');
+    row.className='layer-row media-layer-row';
+    row.dataset.layer=id;
+    row.innerHTML=`
+      <span class="layer-grip">⋮⋮</span>
+      <button class="layer-eye" data-media-eye="${id}">◉</button>
+      <div><div class="layer-name">${s.name}</div><div class="layer-type">MEDIA // SOURCE</div></div>
+      <span class="media-layer-badge">${id==='media_video'?'VIDEO':'IMAGE'}</span>`;
+    list.prepend(row);
+
+    row.addEventListener('click',e=>{
+      if(e.target.dataset.mediaEye)return;
+      showMediaLayerInspector(id);
     });
-  });
+    row.querySelector('[data-media-eye]').onclick=e=>{
+      e.stopPropagation();
+      s.visible=!s.visible;
+      const el=id==='media_video'?sourceVideo:sourceImage;
+      el.style.opacity=s.visible?String(s.opacity/100):'0';
+      e.currentTarget.textContent=s.visible?'◉':'○';
+      if(window.CRTIZER_MEDIA?.rebuildLayerPreview)window.CRTIZER_MEDIA.rebuildLayerPreview();
+    };
+  }
 
-  const bindVal=(id,out)=>{
-    const el=document.getElementById(id), o=document.getElementById(out);
-    if(!el)return;
-    const fire=()=>{ if(o)o.textContent=el.value; buildSynthPreview(); };
-    el.addEventListener('input',fire); el.addEventListener('change',fire);
-  };
-  bindVal('ditherStrength','ditherStrengthVal');
-  bindVal('ditherStructure','ditherStructureVal');
-  bindVal('ditherNoise','ditherNoiseVal');
-  bindVal('tonePoster','tonePosterVal');
-  bindVal('toneContrast','toneContrastVal');
-  bindVal('motionStreak','motionStreakVal');
-  bindVal('motionDrift','motionDriftVal');
-  ['ditherAlgorithm','ditherColorA','ditherColorB'].forEach(id=>{
-    document.getElementById(id)?.addEventListener('input',buildSynthPreview);
-    document.getElementById(id)?.addEventListener('change',buildSynthPreview);
-  });
+  function applyMediaLayer(id){
+    const s=window.crtizerLayerState[id];
+    const el=id==='media_video'?sourceVideo:sourceImage;
+    if(!s||!el)return;
+    el.style.translate=`${s.x}px ${s.y}px`;
+    el.style.scale=String(s.scale/100);
+    el.style.rotate=s.rotate+'deg';
+    el.style.opacity=s.visible?String(s.opacity/100):'0';
+    el.style.zIndex=String(s.z);
+    if(window.CRTIZER_MEDIA?.rebuildLayerPreview)window.CRTIZER_MEDIA.rebuildLayerPreview();
+  }
 
-  // Keep a serializable synth state.
-  window.CRTIZER_SYNTH = {
-    getState(){
-      return {
-        ditherStrength:+document.getElementById('ditherStrength').value,
-        algorithm:document.getElementById('ditherAlgorithm').value,
-        colorA:document.getElementById('ditherColorA').value,
-        colorB:document.getElementById('ditherColorB').value,
-        structure:+document.getElementById('ditherStructure').value,
-        noise:+document.getElementById('ditherNoise').value,
-        tonePoster:+document.getElementById('tonePoster').value,
-        toneContrast:+document.getElementById('toneContrast').value,
-        motionStreak:+document.getElementById('motionStreak').value,
-        motionDrift:+document.getElementById('motionDrift').value
+  function showMediaLayerInspector(id){
+    const s=window.crtizerLayerState[id];
+    if(!s)return;
+    document.querySelectorAll('.layer-row').forEach(x=>x.classList.remove('active'));
+    document.querySelector(`.media-layer-row[data-layer="${id}"]`)?.classList.add('active');
+    document.getElementById('layerInspectorName').textContent=s.name;
+    const box=document.getElementById('layerProperties');
+    const defs=[
+      ['X POSITION','x',-400,400],['Y POSITION','y',-300,300],
+      ['SCALE','scale',20,250],['ROTATION','rotate',-180,180],['OPACITY','opacity',0,100]
+    ];
+    box.innerHTML=defs.map(([label,key,min,max])=>`<div class="layer-prop param">
+      <div class="paramTop"><span>${label}</span><b>${s[key]}</b></div>
+      <input type="range" min="${min}" max="${max}" value="${s[key]}" data-mediaprop="${key}">
+    </div>`).join('');
+    box.querySelectorAll('input').forEach(r=>{
+      if(window.setRangeFill)setRangeFill(r);
+      r.oninput=()=>{
+        s[r.dataset.mediaprop]=+r.value;
+        r.previousElementSibling.querySelector('b').textContent=r.value;
+        if(window.setRangeFill)setRangeFill(r);
+        applyMediaLayer(id);
       };
-    },
-    rebuildPreview:buildSynthPreview
-  };
+    });
+  }
+
+  // Watch media source changes and inject layer row after existing layer renderer refreshes.
+  const mediaObs=new MutationObserver(()=>setTimeout(ensureMediaLayer,0));
+  if(sourceVideo)mediaObs.observe(sourceVideo,{attributes:true,attributeFilter:['src','style']});
+  if(sourceImage)mediaObs.observe(sourceImage,{attributes:true,attributeFilter:['src','style']});
+
+  document.getElementById('layerLoadVideoBtn')?.addEventListener('click',()=>setTimeout(ensureMediaLayer,250));
+  document.getElementById('layerLoadImageBtn')?.addEventListener('click',()=>setTimeout(ensureMediaLayer,250));
+  document.getElementById('layerClearMediaBtn')?.addEventListener('click',()=>setTimeout(ensureMediaLayer,20));
+  document.getElementById('imageFileInput')?.addEventListener('change',()=>setTimeout(ensureMediaLayer,80));
+  document.getElementById('videoFileInput')?.addEventListener('change',()=>setTimeout(ensureMediaLayer,80));
+  document.getElementById('layerList')?.addEventListener('DOMSubtreeModified',()=>setTimeout(patchMediaIntoLayerUI,0));
+
+  // Poll lightly because existing layer renderer replaces innerHTML.
+  setInterval(()=>{
+    if(document.getElementById('layersModal')?.classList.contains('open'))patchMediaIntoLayerUI();
+  },400);
+
+  window.CRTIZER_SYNTH={state:synthState,render:renderSynthFrame,punkDitherImageData};
 })();
 </script>
 
