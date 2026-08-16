@@ -324,6 +324,117 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
 }
 </style>
 
+
+<style id="crtizer-shader-layer-upgrade">
+.shader-modal-card{width:min(1040px,96vw)}
+.shader-layout{display:grid;grid-template-columns:310px 1fr;min-height:560px}
+.shader-sidebar{border-right:1px solid var(--line);padding:12px;min-width:0}
+.shader-main{padding:12px;min-width:0;overflow:hidden}
+.shader-search{position:relative;margin-bottom:10px}
+.shader-search input{padding-left:31px}
+.shader-search:before{content:"⌕";position:absolute;left:10px;top:8px;color:var(--muted);font:15px ui-monospace,monospace;z-index:1}
+.shader-cats{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.shader-cat{border:1px solid var(--line);background:#070a0f;padding:6px 8px;color:var(--muted);font:8px ui-monospace,monospace;cursor:pointer}
+.shader-cat.active{color:var(--cyan);border-color:rgba(101,231,255,.42);background:rgba(101,231,255,.06)}
+.shader-list{display:flex;flex-direction:column;gap:5px;max-height:438px;overflow:auto;padding-right:3px}
+.shader-item{display:grid;grid-template-columns:38px 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);background:rgba(255,255,255,.015);padding:7px;cursor:pointer;transition:.15s}
+.shader-item:hover,.shader-item.active{border-color:rgba(101,231,255,.38);background:rgba(101,231,255,.045)}
+.shader-item.active{box-shadow:inset 2px 0 0 var(--cyan)}
+.shader-thumb{height:34px;background:radial-gradient(circle at 70% 30%,rgba(255,91,215,.3),transparent 35%),repeating-linear-gradient(0deg,rgba(101,231,255,.16) 0 1px,#05080d 1px 4px);border:1px solid rgba(255,255,255,.05)}
+.shader-item b{display:block;font:9px ui-monospace,monospace;color:#cadddf;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shader-item small{display:block;margin-top:3px;font:7px ui-monospace,monospace;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shader-badge{font:7px ui-monospace,monospace;color:var(--purple);border:1px solid rgba(154,114,255,.25);padding:4px}
+.shader-hero{border:1px solid var(--line);background:
+ radial-gradient(circle at 80% 10%,rgba(255,91,215,.1),transparent 30%),
+ radial-gradient(circle at 10% 90%,rgba(101,231,255,.08),transparent 35%),
+ #06090e;padding:14px;margin-bottom:10px}
+.shader-hero-label{font:8px ui-monospace,monospace;color:var(--muted);letter-spacing:.12em}
+.shader-hero-name{font:700 20px ui-monospace,monospace;letter-spacing:.06em;margin:6px 0}
+.shader-hero-path{font:8px ui-monospace,monospace;color:#78919c;overflow-wrap:anywhere}
+.shader-actions{display:flex;gap:7px;margin:10px 0}
+.shader-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0}
+.shader-info{border:1px solid var(--line);padding:8px;background:rgba(255,255,255,.012)}
+.shader-info small{display:block;font:7px ui-monospace,monospace;color:var(--muted)}
+.shader-info b{font:9px ui-monospace,monospace}
+.shader-mode-tabs{display:flex;border-bottom:1px solid var(--line);margin-top:12px}
+.shader-mode-tab{border:0;background:transparent;color:var(--muted);padding:8px 10px;font:8px ui-monospace,monospace;cursor:pointer}
+.shader-mode-tab.active{color:var(--cyan);box-shadow:inset 0 -1px 0 var(--cyan)}
+.shader-pane{display:none;padding-top:10px}
+.shader-pane.active{display:block}
+.shader-desc{font:10px/1.6 ui-monospace,monospace;color:#9db0b8}
+.native-note{border-left:2px solid var(--warn);background:rgba(255,214,107,.035);padding:9px 10px;font:8px/1.5 ui-monospace,monospace;color:#ac9f75}
+
+.layer-modal-card{width:min(980px,96vw)}
+.layer-layout{display:grid;grid-template-columns:300px 1fr;min-height:560px}
+.layer-sidebar{border-right:1px solid var(--line);padding:12px}
+.layer-main{padding:12px}
+.layer-list{display:flex;flex-direction:column;gap:5px}
+.layer-row{display:grid;grid-template-columns:26px 24px 1fr auto;align-items:center;gap:5px;padding:7px;border:1px solid var(--line);background:rgba(255,255,255,.015);cursor:pointer}
+.layer-row.active{border-color:rgba(101,231,255,.4);background:rgba(101,231,255,.045);box-shadow:inset 2px 0 0 var(--cyan)}
+.layer-grip{font:10px ui-monospace,monospace;color:var(--muted)}
+.layer-eye{border:0;background:transparent;padding:2px;color:#a8bac2;cursor:pointer}
+.layer-name{font:9px ui-monospace,monospace}
+.layer-type{font:7px ui-monospace,monospace;color:var(--muted)}
+.layer-order{display:flex;gap:4px}
+.layer-order button{border:1px solid var(--line);background:#080b10;color:var(--muted);padding:4px 6px;cursor:pointer}
+.layer-edit-preview{aspect-ratio:16/9;border:1px solid var(--line);background:#020305;position:relative;overflow:hidden;margin-bottom:12px;display:grid;place-items:center}
+.layer-edit-preview .mini-stage{width:90%;height:88%;position:relative;border:1px solid rgba(101,231,255,.12);background:linear-gradient(145deg,#06101d,#140d25 56%,#06030b)}
+.layer-node{position:absolute;border:1px solid rgba(101,231,255,.34);background:rgba(101,231,255,.04);display:flex;align-items:center;justify-content:center;color:#8bcbd8;font:7px ui-monospace,monospace}
+.layer-properties{display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}
+.layer-prop{min-width:0}
+.layer-prop .paramTop{margin-bottom:6px}
+.layer-selected-outline{outline:1px dashed rgba(101,231,255,.8)!important;outline-offset:2px!important;cursor:move!important}
+.layer-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}
+.layer-actions .btn{font-size:8px;padding:8px 5px}
+.layer-tip{font:8px/1.5 ui-monospace,monospace;color:var(--muted);margin:10px 0}
+
+@media(max-width:900px){
+  .shader-modal-card,.layer-modal-card{width:100vw;height:100dvh;max-height:none;border:0}
+  .shader-modal-card .modalHead,.layer-modal-card .modalHead{height:50px}
+  .shader-modal-card .modalBody,.layer-modal-card .modalBody{padding:0;max-height:calc(100dvh - 50px);height:calc(100dvh - 50px)}
+  .shader-layout{grid-template-columns:1fr;display:block;min-height:0;height:100%}
+  .shader-sidebar{border-right:0;padding:9px;border-bottom:1px solid var(--line);height:42%;display:flex;flex-direction:column}
+  .shader-main{padding:10px;height:58%;overflow:auto}
+  .shader-list{max-height:none;flex:1}
+  .shader-item{grid-template-columns:32px 1fr auto;padding:6px}
+  .shader-thumb{height:29px}
+  .shader-cats{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .shader-cats::-webkit-scrollbar{display:none}
+  .shader-cat{white-space:nowrap}
+  .shader-hero-name{font-size:15px}
+  .shader-info-grid{grid-template-columns:repeat(3,1fr)}
+  .code{height:180px}
+
+  .layer-layout{display:block;height:100%;min-height:0}
+  .layer-sidebar{height:40%;border-right:0;border-bottom:1px solid var(--line);padding:9px;overflow:auto}
+  .layer-main{height:60%;padding:10px;overflow:auto}
+  .layer-list{gap:4px}
+  .layer-row{padding:6px}
+  .layer-edit-preview{display:none}
+  .layer-properties{grid-template-columns:1fr}
+  .layer-actions{position:sticky;bottom:0;background:#080b11;padding:8px 0 2px}
+  .dock-btn{min-width:62px}
+}
+</style>
+
+
+<style id="onframe-layer-toolbar-css">
+.onframe-toolbar{
+  position:fixed;left:50%;top:68px;transform:translateX(-50%);z-index:45;
+  display:none;align-items:center;gap:7px;padding:6px 7px 6px 10px;
+  border:1px solid rgba(101,231,255,.2);background:rgba(5,8,12,.92);
+  backdrop-filter:blur(18px);box-shadow:0 10px 30px rgba(0,0,0,.36);
+  font:8px ui-monospace,monospace;letter-spacing:.08em
+}
+.onframe-toolbar.show{display:flex}
+.onframe-toolbar .label{color:var(--cyan);max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.onframe-toolbar button{border:1px solid var(--line);background:#080b10;color:#b7c9d0;padding:6px 8px;font:8px ui-monospace,monospace;cursor:pointer}
+@media(max-width:900px){
+  .onframe-toolbar{top:58px;max-width:94vw;border-radius:10px}
+  .onframe-toolbar .hint{display:none}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -341,6 +452,7 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
     <div class="topActions">
       <button class="btn" id="importBtn">IMPORT</button>
       <button class="btn" id="exportBtn">EXPORT</button>
+      <button class="btn" id="layersBtn">LAYERS</button>
       <button class="btn accent" id="shaderBtn">SHADER</button>
       <button class="iconBtn" id="fsBtn">⛶</button>
     </div>
@@ -472,6 +584,7 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
     <button class="dock-btn" data-tool="effects"><span class="ico">✦</span><span>EFFECTS</span></button>
     <button class="dock-btn" data-tool="presets"><span class="ico">▦</span><span>PRESETS</span></button>
     <button class="dock-btn" data-tool="source"><span class="ico">▣</span><span>SOURCE</span></button>
+    <button class="dock-btn" data-tool="layers"><span class="ico">▱</span><span>LAYERS</span></button>
     <button class="dock-btn" data-tool="shader"><span class="ico">⌘</span><span>SHADER</span></button>
     <button class="dock-btn" data-tool="export"><span class="ico">⇧</span><span>EXPORT</span></button>
   </div>
@@ -483,12 +596,43 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
   <button data-tab="fx">EFFECTS</button>
 </div>
 
+
 <div class="modal" id="shaderModal">
-  <div class="modalCard">
-    <div class="modalHead"><span>SHADER LAB // CRTIZER_CORE</span><button class="iconBtn" id="closeShader">×</button></div>
+  <div class="modalCard shader-modal-card">
+    <div class="modalHead"><span>SHADERGLASS LIBRARY // CRTiZER</span><button class="iconBtn" id="closeShader">×</button></div>
     <div class="modalBody">
-      <div class="sectionTitle">FRAGMENT SHADER // PREVIEW STUB</div>
-      <textarea class="code" spellcheck="false">precision mediump float;
+      <div class="shader-layout">
+        <aside class="shader-sidebar">
+          <div class="shader-search"><input id="shaderSearch" type="text" placeholder="SEARCH SHADERS..."></div>
+          <div class="shader-cats" id="shaderCats"></div>
+          <div class="shader-list" id="shaderList"></div>
+        </aside>
+        <section class="shader-main">
+          <div class="shader-hero">
+            <div class="shader-hero-label">SELECTED SHADER</div>
+            <div class="shader-hero-name" id="shaderHeroName">CRT Royale</div>
+            <div class="shader-hero-path" id="shaderHeroPath">crt/shaders/crt-royale.slangp</div>
+          </div>
+          <div class="shader-actions">
+            <button class="btn accent" id="applyShaderBtn">APPLY SHADER</button>
+            <button class="btn" id="importShaderBtn">IMPORT .SLANGP</button>
+            <input type="file" id="shaderFileInput" accept=".slang,.slangp,.glsl,.hlsl" hidden>
+          </div>
+          <div class="shader-info-grid">
+            <div class="shader-info"><small>ENGINE</small><b id="shaderEngineLabel">WEB PREVIEW</b></div>
+            <div class="shader-info"><small>ORIGIN</small><b>LIBRETRO</b></div>
+            <div class="shader-info"><small>BRIDGE ID</small><b id="shaderBridgeId">crt-royale</b></div>
+          </div>
+          <div class="native-note">Browser mode approximates the selected shader using CRTiZER's HTML/CSS effect engine. When a native ShaderGlass bridge is attached, the preserved preset path/ID can be sent to the native renderer instead.</div>
+          <div class="shader-mode-tabs">
+            <button class="shader-mode-tab active" data-shaderpane="info">INFO</button>
+            <button class="shader-mode-tab" data-shaderpane="code">CUSTOM CODE</button>
+          </div>
+          <div class="shader-pane active" id="shaderPaneInfo">
+            <div class="shader-desc" id="shaderDescription">High-detail aperture grille CRT approximation.</div>
+          </div>
+          <div class="shader-pane" id="shaderPaneCode">
+            <textarea class="code" id="shaderCode" spellcheck="false">precision mediump float;
 uniform sampler2D uTexture;
 uniform float uCurvature;
 uniform float uScanlines;
@@ -496,16 +640,59 @@ uniform float uNoise;
 uniform float uRgbShift;
 
 void main() {
-  // CRTiZER browser prototype shader placeholder.
-  // Native build can replace this layer with HLSL / DX11.
+  // CRTiZER custom browser shader workspace.
+  // A native bridge may replace this with Slang/HLSL execution.
 }</textarea>
-      <div style="display:flex;gap:8px;margin-top:10px">
-        <button class="btn accent" id="compileBtn">COMPILE</button>
-        <button class="btn">RESET</button>
-        <div class="stat" style="margin-left:auto;align-self:center"><span class="dot"></span><b id="compileStatus">COMPILED</b></div>
+            <div style="display:flex;gap:8px;margin-top:9px">
+              <button class="btn accent" id="compileBtn">COMPILE</button>
+              <button class="btn" id="resetShaderCode">RESET</button>
+              <div class="stat" style="margin-left:auto;align-self:center"><span class="dot"></span><b id="compileStatus">COMPILED</b></div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
+</div>
+
+
+<div class="modal" id="layersModal">
+  <div class="modalCard layer-modal-card">
+    <div class="modalHead"><span>FRAME EDITOR // LAYERS</span><button class="iconBtn" id="closeLayers">×</button></div>
+    <div class="modalBody">
+      <div class="layer-layout">
+        <aside class="layer-sidebar">
+          <div class="sectionTitle">FRAME OBJECTS</div>
+          <div class="layer-list" id="layerList"></div>
+          <div class="layer-tip">Select an object, then drag it directly inside the main preview. Position, scale, rotation, opacity, visibility and stack order remain editable here.</div>
+        </aside>
+        <section class="layer-main">
+          <div class="layer-edit-preview">
+            <div class="mini-stage">
+              <div class="layer-node" style="left:8%;top:12%;width:84%;height:70%">FRAME OBJECT PREVIEW</div>
+            </div>
+          </div>
+          <div class="sectionTitle">TRANSFORM // <span id="layerInspectorName" class="cyan">SUN</span></div>
+          <div class="layer-properties" id="layerProperties"></div>
+          <div class="layer-actions" style="grid-template-columns:repeat(5,1fr)">
+            <button class="btn accent" id="layerOnFrame">EDIT ON FRAME</button>
+            <button class="btn" id="layerForward">BRING +</button>
+            <button class="btn" id="layerBackward">SEND -</button>
+            <button class="btn" id="layerCenter">CENTER</button>
+            <button class="btn" id="layerReset">RESET</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="onframe-toolbar" id="onframeToolbar">
+  <span class="label" id="onframeLayerName">NEON SUN</span>
+  <span class="hint">DRAG OBJECT // PINCH CONTROLS IN LAYERS</span>
+  <button id="onframeLayers">CONTROLS</button>
+  <button id="onframeDone">DONE</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -884,6 +1071,299 @@ renderInspector();apply();
   if(isMobile()){
     setTimeout(()=>openTool('adjust'),250);
   }
+})();
+</script>
+
+
+<script id="shader-layer-upgrade-js">
+window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "category": "CRT", "path": "crt/shaders/crt-royale.slangp", "description": "High-detail aperture grille CRT approximation."}, {"id": "crt-guest-advanced", "name": "CRT Guest Advanced", "category": "CRT", "path": "crt/crt-guest-advanced.slangp", "description": "Advanced CRT family with strong phosphor/scanline character."}, {"id": "crt-geom", "name": "CRT Geom", "category": "CRT", "path": "crt/crt-geom.slangp", "description": "Curved CRT geometry and scanline treatment."}, {"id": "crt-easymode", "name": "CRT Easymode", "category": "CRT", "path": "crt/crt-easymode.slangp", "description": "Clean, configurable CRT look."}, {"id": "crt-lottes", "name": "CRT Lottes", "category": "CRT", "path": "crt/crt-lottes.slangp", "description": "Punchy arcade CRT character."}, {"id": "crt-hyllian", "name": "CRT Hyllian", "category": "CRT", "path": "crt/crt-hyllian.slangp", "description": "Balanced CRT smoothing and scanlines."}, {"id": "crt-aperture", "name": "CRT Aperture", "category": "CRT", "path": "crt/crt-aperture.slangp", "description": "Aperture-grille flavored CRT response."}, {"id": "crt-consumer", "name": "CRT Consumer", "category": "CRT", "path": "crt/crt-consumer.slangp", "description": "Consumer television style treatment."}, {"id": "ntsc-adaptive", "name": "NTSC Adaptive", "category": "NTSC", "path": "ntsc/ntsc-adaptive.slangp", "description": "Adaptive analog NTSC-style signal processing."}, {"id": "ntsc-320px", "name": "NTSC 320px", "category": "NTSC", "path": "ntsc/ntsc-320px.slangp", "description": "NTSC processing tuned around 320px source widths."}, {"id": "ntsc-256px", "name": "NTSC 256px", "category": "NTSC", "path": "ntsc/ntsc-256px.slangp", "description": "NTSC processing tuned around 256px source widths."}, {"id": "lcd-grid", "name": "LCD Grid", "category": "LCD", "path": "handheld/lcd-grid.slangp", "description": "Visible LCD subpixel/grid structure."}, {"id": "lcd-cgwg", "name": "LCD CGWG", "category": "LCD", "path": "handheld/lcd-cgwg.slangp", "description": "Handheld LCD-style display treatment."}, {"id": "dot-matrix", "name": "Dot Matrix", "category": "LCD", "path": "handheld/dot-matrix.slangp", "description": "Dot-matrix display simulation."}, {"id": "gba-color", "name": "GBA Color", "category": "COLOR", "path": "handheld/gba-color.slangp", "description": "Color response inspired by Game Boy Advance displays."}, {"id": "gbc-color", "name": "GBC Color", "category": "COLOR", "path": "handheld/gbc-color.slangp", "description": "Color response inspired by Game Boy Color displays."}, {"id": "nds-color", "name": "NDS Color", "category": "COLOR", "path": "handheld/nds-color.slangp", "description": "Color correction inspired by Nintendo DS displays."}, {"id": "sharp-bilinear", "name": "Sharp Bilinear", "category": "SCALE", "path": "interpolation/sharp-bilinear.slangp", "description": "Sharper scaling with reduced bilinear softness."}, {"id": "xbr-lv2", "name": "xBR Level 2", "category": "SCALE", "path": "xbr/xbr-lv2.slangp", "description": "Edge-aware pixel-art scaling style."}, {"id": "xbr-lv3", "name": "xBR Level 3", "category": "SCALE", "path": "xbr/xbr-lv3.slangp", "description": "Stronger edge-aware pixel-art scaling."}, {"id": "scalefx", "name": "ScaleFX", "category": "SCALE", "path": "scalefx/scalefx.slangp", "description": "Pixel-art scaling and edge reconstruction."}, {"id": "super-xbr", "name": "Super xBR", "category": "SCALE", "path": "xbr/super-xbr.slangp", "description": "High-quality edge-aware enlargement."}, {"id": "image-adjustment", "name": "Image Adjustment", "category": "UTILITY", "path": "misc/image-adjustment.slangp", "description": "General image adjustment pipeline."}, {"id": "anti-aliasing", "name": "Anti Aliasing", "category": "UTILITY", "path": "anti-aliasing/anti-aliasing.slangp", "description": "Smoothing-oriented post-process family."}];
+
+(function(){
+  // ---------- Shader Library ----------
+  const library = window.CRTIZER_SHADER_LIBRARY;
+  const shaderModal = document.getElementById('shaderModal');
+  const shaderList = document.getElementById('shaderList');
+  const shaderCats = document.getElementById('shaderCats');
+  const shaderSearch = document.getElementById('shaderSearch');
+  let selectedShader = library[0];
+  window.crtizerSelectedShader = selectedShader;
+
+  function renderShaderCategories(){
+    const cats=['ALL',...new Set(library.map(s=>s.category))];
+    shaderCats.innerHTML=cats.map((c,i)=>`<button class="shader-cat ${i===0?'active':''}" data-cat="${c}">${c}</button>`).join('');
+    shaderCats.querySelectorAll('.shader-cat').forEach(btn=>btn.onclick=()=>{
+      shaderCats.querySelectorAll('.shader-cat').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active'); renderShaderList();
+    });
+  }
+
+  function renderShaderList(){
+    const cat=shaderCats.querySelector('.shader-cat.active')?.dataset.cat||'ALL';
+    const q=(shaderSearch.value||'').trim().toLowerCase();
+    const items=library.filter(s=>(cat==='ALL'||s.category===cat) && (!q || `${s.name} ${s.path} ${s.category}`.toLowerCase().includes(q)));
+    shaderList.innerHTML=items.map(s=>`<div class="shader-item ${selectedShader.id===s.id?'active':''}" data-shaderid="${s.id}">
+      <div class="shader-thumb"></div>
+      <div><b>${s.name}</b><small>${s.path}</small></div>
+      <span class="shader-badge">${s.category}</span>
+    </div>`).join('') || '<div class="shader-desc">NO MATCHING SHADERS</div>';
+    shaderList.querySelectorAll('.shader-item').forEach(el=>el.onclick=()=>selectShader(el.dataset.shaderid));
+  }
+
+  function selectShader(id){
+    selectedShader=library.find(s=>s.id===id)||selectedShader;
+    window.crtizerSelectedShader=selectedShader;
+    document.getElementById('shaderHeroName').textContent=selectedShader.name;
+    document.getElementById('shaderHeroPath').textContent=selectedShader.path;
+    document.getElementById('shaderBridgeId').textContent=selectedShader.id;
+    document.getElementById('shaderDescription').textContent=selectedShader.description;
+    renderShaderList();
+  }
+
+  function applyShaderApprox(s){
+    // Browser approximations. Native renderer can consume s.path/s.id later.
+    if(s.category==='CRT'){
+      if(s.id.includes('royale')) preset('arcade');
+      else if(s.id.includes('geom')) preset('classic');
+      else if(s.id.includes('lottes')) preset('arcade');
+      else if(s.id.includes('guest')) preset('evil');
+      else preset('classic');
+    } else if(s.category==='NTSC'){
+      preset('vhs');
+      state.vhs.noise=Math.max(state.vhs.noise,24);
+      state.rgb.shift=Math.max(state.rgb.shift,7);
+    } else if(s.category==='LCD'){
+      state.crt.curvature=2; state.crt.bloom=4; state.crt.vignette=8;
+      state.scan.density=95; state.scan.opacity=18; state.rgb.shift=1;
+      state.vhs.jitter=0; state.vhs.warp=0; state.vhs.noise=1;
+      state.glitch.intensity=0; state.color.saturation=108; state.color.contrast=118;
+    } else if(s.category==='COLOR'){
+      state.color.saturation=s.id==='gba-color'?72:88;
+      state.color.brightness=103; state.color.contrast=104; state.rgb.shift=0;
+    } else if(s.category==='SCALE'){
+      state.crt.curvature=0; state.crt.bloom=0; state.scan.opacity=0;
+      state.rgb.intensity=0; state.vhs.noise=0; state.glitch.intensity=0;
+      state.color.contrast=122; state.color.saturation=112;
+    } else {
+      state.color.contrast=112; state.color.brightness=102;
+    }
+    renderInspector(); apply();
+    showToast('SHADER APPLIED // '+s.name.toUpperCase());
+  }
+
+  shaderSearch.addEventListener('input',renderShaderList);
+  document.getElementById('applyShaderBtn').onclick=()=>applyShaderApprox(selectedShader);
+  document.getElementById('importShaderBtn').onclick=()=>document.getElementById('shaderFileInput').click();
+  document.getElementById('shaderFileInput').onchange=async e=>{
+    const f=e.target.files?.[0]; if(!f)return;
+    const text=await f.text();
+    document.getElementById('shaderCode').value=text;
+    document.querySelector('[data-shaderpane="code"]').click();
+    showToast('CUSTOM SHADER LOADED // '+f.name.toUpperCase());
+  };
+  document.getElementById('closeShader').onclick=()=>shaderModal.classList.remove('open');
+  document.getElementById('shaderBtn').onclick=()=>shaderModal.classList.add('open');
+  document.querySelectorAll('.shader-mode-tab').forEach(btn=>btn.onclick=()=>{
+    document.querySelectorAll('.shader-mode-tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.shader-pane').forEach(x=>x.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.shaderpane==='info'?'shaderPaneInfo':'shaderPaneCode').classList.add('active');
+  });
+  document.getElementById('compileBtn').onclick=()=>{
+    const s=document.getElementById('compileStatus');s.textContent='COMPILING...';
+    setTimeout(()=>{s.textContent='COMPILED';showToast('CUSTOM SHADER WORKSPACE COMPILED')},350);
+  };
+  document.getElementById('resetShaderCode').onclick=()=>showToast('CUSTOM CODE RESET');
+  renderShaderCategories(); renderShaderList(); selectShader(selectedShader.id);
+
+  // ---------- Frame Layer Editor ----------
+  const layerModal=document.getElementById('layersModal');
+  const layerElements={
+    city:document.querySelector('.cityGrid'),
+    sun:document.querySelector('.sun'),
+    tower:document.querySelector('.tower'),
+    horizon:document.querySelector('.horizon'),
+    signal:document.querySelector('.signalText'),
+    reticle:document.querySelector('.reticle')
+  };
+  const defaultLayerState={
+    city:{name:'CITY GRID',type:'BACKGROUND',x:0,y:0,scale:100,rotate:0,opacity:60,visible:true,z:1},
+    sun:{name:'NEON SUN',type:'OBJECT',x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:3},
+    tower:{name:'TOWER',type:'OBJECT',x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:4},
+    horizon:{name:'HORIZON GRID',type:'BACKGROUND',x:0,y:0,scale:100,rotate:0,opacity:55,visible:true,z:2},
+    signal:{name:'SIGNAL HUD',type:'OVERLAY',x:0,y:0,scale:100,rotate:0,opacity:72,visible:true,z:9},
+    reticle:{name:'RETICLE',type:'OVERLAY',x:0,y:0,scale:100,rotate:0,opacity:100,visible:true,z:8}
+  };
+  const layerState=JSON.parse(JSON.stringify(defaultLayerState));
+  window.crtizerLayerState=layerState;
+  let activeLayer='sun';
+  let editMode=false;
+
+  function applyLayer(id){
+    const el=layerElements[id], s=layerState[id]; if(!el||!s)return;
+    el.style.translate=`${s.x}px ${s.y}px`;
+    el.style.scale=String(s.scale/100);
+    el.style.rotate=s.rotate+'deg';
+    el.style.opacity=s.visible?String(s.opacity/100):'0';
+    el.style.zIndex=String(s.z);
+    el.style.pointerEvents=editMode?'auto':'';
+  }
+  function applyAllLayers(){ Object.keys(layerState).forEach(applyLayer); }
+
+  function renderLayerList(){
+    const entries=Object.entries(layerState).sort((a,b)=>b[1].z-a[1].z);
+    document.getElementById('layerList').innerHTML=entries.map(([id,s])=>`
+      <div class="layer-row ${id===activeLayer?'active':''}" data-layer="${id}">
+        <span class="layer-grip">⋮⋮</span>
+        <button class="layer-eye" data-eye="${id}">${s.visible?'◉':'○'}</button>
+        <div><div class="layer-name">${s.name}</div><div class="layer-type">${s.type} // Z${s.z}</div></div>
+        <span style="font:8px ui-monospace,monospace;color:var(--muted)">›</span>
+      </div>`).join('');
+    document.querySelectorAll('.layer-row').forEach(row=>row.onclick=e=>{
+      if(e.target.dataset.eye)return;
+      selectLayer(row.dataset.layer);
+    });
+    document.querySelectorAll('[data-eye]').forEach(btn=>btn.onclick=e=>{
+      e.stopPropagation(); const id=btn.dataset.eye;
+      layerState[id].visible=!layerState[id].visible; applyLayer(id); renderLayerList();
+    });
+  }
+
+  const layerDefs=[
+    ['X POSITION','x',-400,400],
+    ['Y POSITION','y',-300,300],
+    ['SCALE','scale',20,250],
+    ['ROTATION','rotate',-180,180],
+    ['OPACITY','opacity',0,100]
+  ];
+  function renderLayerProperties(){
+    const s=layerState[activeLayer];
+    document.getElementById('layerInspectorName').textContent=s.name;
+    const box=document.getElementById('layerProperties');
+    box.innerHTML=layerDefs.map(([label,key,min,max])=>`<div class="layer-prop param">
+      <div class="paramTop"><span>${label}</span><b>${s[key]}</b></div>
+      <input type="range" min="${min}" max="${max}" value="${s[key]}" data-layerprop="${key}">
+    </div>`).join('');
+    box.querySelectorAll('input').forEach(r=>{
+      setRangeFill(r);
+      r.oninput=()=>{
+        s[r.dataset.layerprop]=+r.value;
+        r.previousElementSibling.querySelector('b').textContent=r.value;
+        setRangeFill(r); applyLayer(activeLayer);
+      };
+    });
+  }
+  function selectLayer(id){
+    activeLayer=id;
+    if(typeof onframeLayerName!=='undefined' && onframeLayerName) onframeLayerName.textContent=layerState[id].name;
+    document.querySelectorAll('.layer-selected-outline').forEach(x=>x.classList.remove('layer-selected-outline'));
+    layerElements[id]?.classList.add('layer-selected-outline');
+    renderLayerList(); renderLayerProperties();
+  }
+  function openLayers(){
+    editMode=true; applyAllLayers(); selectLayer(activeLayer);
+    layerModal.classList.add('open');
+    showToast('FRAME EDIT MODE // DRAG OBJECTS IN PREVIEW');
+  }
+  const onframeToolbar=document.getElementById('onframeToolbar');
+  const onframeLayerName=document.getElementById('onframeLayerName');
+
+  function closeLayers(){
+    editMode=false; applyAllLayers();
+    document.querySelectorAll('.layer-selected-outline').forEach(x=>x.classList.remove('layer-selected-outline'));
+    layerModal.classList.remove('open');
+    onframeToolbar.classList.remove('show');
+  }
+  function enterOnFrame(){
+    editMode=true;
+    layerModal.classList.remove('open');
+    onframeToolbar.classList.add('show');
+    onframeLayerName.textContent=layerState[activeLayer].name;
+    applyAllLayers();
+    selectLayer(activeLayer);
+    showToast('ON-FRAME EDIT // DRAG SELECTED OBJECT');
+  }
+  document.getElementById('layersBtn').onclick=openLayers;
+  document.getElementById('closeLayers').onclick=closeLayers;
+  document.getElementById('layerOnFrame').onclick=enterOnFrame;
+  document.getElementById('onframeLayers').onclick=()=>layerModal.classList.add('open');
+  document.getElementById('onframeDone').onclick=closeLayers;
+
+  document.getElementById('layerForward').onclick=()=>{
+    layerState[activeLayer].z=Math.min(20,layerState[activeLayer].z+1); applyLayer(activeLayer);renderLayerList();
+  };
+  document.getElementById('layerBackward').onclick=()=>{
+    layerState[activeLayer].z=Math.max(0,layerState[activeLayer].z-1); applyLayer(activeLayer);renderLayerList();
+  };
+  document.getElementById('layerCenter').onclick=()=>{
+    layerState[activeLayer].x=0;layerState[activeLayer].y=0;applyLayer(activeLayer);renderLayerProperties();
+  };
+  document.getElementById('layerReset').onclick=()=>{
+    Object.assign(layerState[activeLayer],JSON.parse(JSON.stringify(defaultLayerState[activeLayer])));
+    applyLayer(activeLayer);renderLayerProperties();renderLayerList();showToast('LAYER RESET');
+  };
+
+  // Direct pointer dragging on actual preview objects.
+  Object.entries(layerElements).forEach(([id,el])=>{
+    if(!el)return;
+    let dragging=false,startX=0,startY=0,baseX=0,baseY=0;
+    let pinchStartDist=0,pinchStartScale=100,pinchStartAngle=0,pinchStartRotate=0;
+    el.addEventListener('pointerdown',e=>{
+      if(!editMode)return;
+      dragging=true; selectLayer(id); startX=e.clientX;startY=e.clientY;baseX=layerState[id].x;baseY=layerState[id].y;
+      try{el.setPointerCapture(e.pointerId)}catch{}
+      e.preventDefault();e.stopPropagation();
+    });
+    el.addEventListener('pointermove',e=>{
+      if(!dragging||!editMode)return;
+      layerState[id].x=Math.round(baseX+(e.clientX-startX));
+      layerState[id].y=Math.round(baseY+(e.clientY-startY));
+      applyLayer(id);renderLayerProperties();
+    });
+    const end=()=>dragging=false;
+    el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end);
+  });
+
+  Object.entries(layerElements).forEach(([id,el])=>{
+    if(!el)return;
+    el.addEventListener('touchstart',e=>{
+      if(!editMode || e.touches.length!==2)return;
+      const [a,b]=e.touches;
+      pinchStartDist=Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
+      pinchStartAngle=Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX)*180/Math.PI;
+      pinchStartScale=layerState[id].scale;
+      pinchStartRotate=layerState[id].rotate;
+      selectLayer(id);
+    },{passive:true});
+    el.addEventListener('touchmove',e=>{
+      if(!editMode || e.touches.length!==2)return;
+      const [a,b]=e.touches;
+      const d=Math.hypot(b.clientX-a.clientX,b.clientY-a.clientY);
+      const ang=Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX)*180/Math.PI;
+      if(pinchStartDist>0){
+        layerState[id].scale=Math.max(20,Math.min(250,Math.round(pinchStartScale*(d/pinchStartDist))));
+        layerState[id].rotate=Math.round(pinchStartRotate+(ang-pinchStartAngle));
+        applyLayer(id);renderLayerProperties();
+      }
+    },{passive:true});
+  });
+
+  renderLayerList();renderLayerProperties();applyAllLayers();
+
+  // Extend mobile dock behavior without replacing the earlier system.
+  document.querySelectorAll('.dock-btn[data-tool="layers"]').forEach(btn=>btn.addEventListener('click',e=>{
+    e.preventDefault(); e.stopPropagation(); openLayers();
+  },true));
+
+  // Override shader mobile dock to open the enhanced shader browser.
+  document.querySelectorAll('.dock-btn[data-tool="shader"]').forEach(btn=>btn.addEventListener('click',e=>{
+    e.preventDefault(); e.stopPropagation(); shaderModal.classList.add('open');
+  },true));
+
+  // Keep imported/exported project information available.
+  window.getCRTIZERExtendedState=()=>({
+    selectedShader:window.crtizerSelectedShader,
+    layers:window.crtizerLayerState
+  });
 })();
 </script>
 
