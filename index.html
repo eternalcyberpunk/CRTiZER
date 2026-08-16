@@ -900,6 +900,252 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
 }
 </style>
 
+
+<style id="crtizer-capcut-layers-css">
+.capcut-layer-card{
+  width:min(1100px,96vw)!important;
+  height:min(760px,92vh)!important;
+  max-width:none!important;
+  max-height:none!important;
+  border-radius:14px!important;
+  overflow:hidden!important;
+  background:#050608!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+}
+.capcut-layer-head{
+  height:48px!important;
+  min-height:48px!important;
+  padding:0 10px!important;
+  display:grid!important;
+  grid-template-columns:auto 1fr auto!important;
+  align-items:center!important;
+  gap:8px!important;
+  background:#07090c!important;
+}
+.cap-layer-title{display:flex;flex-direction:column;gap:1px}
+.cap-layer-title b{font:600 11px ui-sans-serif,system-ui;color:#edf3f5}
+.cap-layer-title small{font:6px ui-monospace,monospace;color:#66757c;letter-spacing:.08em}
+.cap-layer-head-actions{display:flex;gap:5px}
+.cap-icon-btn{
+  min-width:34px;height:34px;padding:0 8px;border-radius:8px;
+  border:1px solid rgba(255,255,255,.06);background:#0a0d11;color:#aebcc2;
+  font:12px ui-sans-serif,system-ui;cursor:pointer
+}
+.cap-icon-btn:hover,.cap-icon-btn:active{background:#11161c;color:#fff}
+.cap-icon-btn.danger{color:#ff758f}
+.cap-close{width:34px!important;height:34px!important;border-radius:8px!important}
+
+.capcut-layer-body{padding:0!important;overflow:hidden!important}
+.capcut-layer-editor{
+  height:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 330px;
+  grid-template-rows:minmax(0,1fr) 172px;
+  background:#040507
+}
+.cap-preview-zone{
+  grid-column:1;grid-row:1;
+  display:grid;grid-template-rows:minmax(0,1fr) 46px;
+  padding:14px 14px 0;
+  min-width:0
+}
+.cap-preview-wrap{
+  min-height:0;display:flex;align-items:center;justify-content:center
+}
+.cap-live-preview{
+  width:min(100%,780px)!important;
+  max-height:100%!important;
+  aspect-ratio:16/9!important;
+  border-radius:12px!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  background:#000!important;
+  overflow:hidden!important;
+  margin:0!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.45)!important
+}
+.cap-transport{
+  display:grid;grid-template-columns:34px 42px 1fr 42px;
+  align-items:center;gap:8px;padding:7px 0
+}
+.cap-play{
+  width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);
+  background:#0d1116;color:#fff
+}
+.cap-time{font:7px ui-monospace,monospace;color:#77868d;text-align:center}
+.cap-transport input[type=range]{width:100%}
+
+.cap-layer-strip-zone{
+  grid-column:1;grid-row:2;
+  min-width:0;border-top:1px solid rgba(255,255,255,.06);
+  background:#07090c;padding:10px 12px 12px
+}
+.cap-strip-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cap-strip-head>div:first-child{display:flex;align-items:baseline;gap:7px}
+.cap-strip-head b{font:600 9px ui-sans-serif,system-ui;color:#dce5e8}
+.cap-strip-head small{font:7px ui-monospace,monospace;color:#63727a}
+.cap-strip-actions{display:flex;gap:6px}
+.cap-text-btn{
+  min-height:30px;padding:0 10px;border-radius:7px;border:1px solid rgba(255,255,255,.06);
+  background:#0b0e12;color:#aab7bd;font:7px ui-sans-serif,system-ui
+}
+.cap-layer-strip{
+  display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;
+  padding-bottom:2px
+}
+.cap-layer-strip::-webkit-scrollbar{display:none}
+.cap-layer-strip .layer-row{
+  flex:0 0 150px!important;
+  height:92px!important;
+  min-height:92px!important;
+  display:grid!important;
+  grid-template-rows:58px 1fr!important;
+  grid-template-columns:1fr!important;
+  gap:5px!important;
+  padding:5px!important;
+  margin:0!important;
+  border-radius:10px!important;
+  border:1px solid rgba(255,255,255,.055)!important;
+  background:#0a0d11!important;
+  scroll-snap-align:start!important;
+  position:relative!important
+}
+.cap-layer-strip .layer-row.active{
+  border-color:rgba(101,231,255,.45)!important;
+  box-shadow:0 0 0 1px rgba(101,231,255,.12) inset!important;
+  background:#0c1217!important
+}
+.cap-layer-strip .elite-layer-thumb{
+  width:100%!important;height:58px!important;border-radius:7px!important;
+  overflow:hidden!important;background:#020305!important;
+  border:0!important
+}
+.cap-layer-strip .elite-layer-thumb img,
+.cap-layer-strip .elite-layer-thumb video{width:100%;height:100%;object-fit:cover}
+.cap-layer-strip .elite-layer-info{
+  min-width:0;padding:0 2px
+}
+.cap-layer-strip .layer-name{
+  font:7.5px ui-sans-serif,system-ui!important;
+  color:#d7e0e3!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.cap-layer-strip .layer-type{
+  margin-top:1px!important;font:5.5px ui-monospace,monospace!important;color:#5f6d73!important
+}
+.cap-layer-strip .elite-layer-row-actions{
+  position:absolute;right:7px;top:7px;display:flex;gap:3px
+}
+.cap-layer-strip .elite-row-icon{
+  width:24px;height:24px;border-radius:6px;
+  background:rgba(0,0,0,.58)!important;border:1px solid rgba(255,255,255,.07)!important;
+  color:#d6e0e3!important;font-size:9px!important
+}
+
+.cap-inspector-zone{
+  grid-column:2;grid-row:1/3;
+  border-left:1px solid rgba(255,255,255,.06);
+  background:#07090c;padding:12px;overflow:auto
+}
+.cap-selected-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.cap-selected-meta{min-width:0}
+.cap-selected-meta small{display:block;font:6px ui-monospace,monospace;color:#64727a;margin-bottom:3px}
+.cap-selected-meta b{
+  display:block;font:600 10px ui-sans-serif,system-ui;color:#e0e8eb;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.cap-selected-actions{display:flex;gap:5px}
+.cap-inspector-tabs{
+  display:grid;grid-template-columns:1fr 1fr;gap:3px;
+  padding:3px;background:#0a0d11;border-radius:9px;margin-bottom:10px
+}
+.cap-inspector-tab{
+  min-height:32px;border:0;border-radius:7px;background:transparent;
+  color:#74828a;font:7px ui-sans-serif,system-ui
+}
+.cap-inspector-tab.active{background:#141a20;color:#fff}
+.cap-inspector-panel{display:none}
+.cap-inspector-panel.active{display:block}
+.cap-layer-properties{display:block!important}
+.cap-layer-properties .param{padding:9px 0!important;border-bottom:1px solid rgba(255,255,255,.04)}
+.cap-layer-properties .paramTop{font-size:7px!important}
+.cap-action-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.cap-action-btn{
+  min-height:38px;border-radius:8px;border:1px solid rgba(255,255,255,.06);
+  background:#0b0f14;color:#aab7bd;font:7px ui-sans-serif,system-ui
+}
+.cap-action-btn:active{background:#121820;color:#fff}
+.cap-action-btn.danger{color:#ff7a92}
+.cap-layer-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.cap-layer-info-grid>div{
+  border:1px solid rgba(255,255,255,.05);border-radius:8px;
+  padding:9px 7px;background:#0a0d11
+}
+.cap-layer-info-grid small{display:block;font:5px ui-monospace,monospace;color:#5f6d73;margin-bottom:4px}
+.cap-layer-info-grid b{display:block;font:7px ui-sans-serif,system-ui;color:#cfd9dc;overflow:hidden;text-overflow:ellipsis}
+
+@media(max-width:900px){
+  .capcut-layer-card{
+    width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;
+    border:0!important;border-radius:0!important
+  }
+  .capcut-layer-head{
+    height:46px!important;min-height:46px!important;
+    position:relative;z-index:10
+  }
+  .cap-layer-title small{display:none}
+  .capcut-layer-editor{
+    height:calc(100dvh - 46px);
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:minmax(220px,42%) 128px minmax(0,1fr)
+  }
+  .cap-preview-zone{
+    grid-column:1;grid-row:1;padding:8px 8px 0;
+    grid-template-rows:minmax(0,1fr) 40px
+  }
+  .cap-live-preview{
+    width:100%!important;
+    max-height:100%!important;
+    border-radius:10px!important
+  }
+  .cap-transport{
+    grid-template-columns:30px 36px 1fr 36px;
+    gap:5px;padding:5px 0
+  }
+  .cap-play{width:30px;height:30px}
+  .cap-time{font-size:6.5px}
+
+  .cap-layer-strip-zone{
+    grid-column:1;grid-row:2;padding:7px 8px 8px
+  }
+  .cap-strip-head{margin-bottom:6px}
+  .cap-text-btn{min-height:28px;padding:0 9px}
+  .cap-layer-strip .layer-row{
+    flex:0 0 118px!important;
+    height:78px!important;
+    min-height:78px!important;
+    grid-template-rows:48px 1fr!important;
+    border-radius:9px!important
+  }
+  .cap-layer-strip .elite-layer-thumb{height:48px!important}
+  .cap-layer-strip .elite-layer-row-actions{right:5px;top:5px}
+  .cap-layer-strip .elite-row-icon{width:22px;height:22px}
+
+  .cap-inspector-zone{
+    grid-column:1;grid-row:3;border-left:0;border-top:1px solid rgba(255,255,255,.06);
+    padding:9px 10px calc(12px + env(safe-area-inset-bottom,0px));
+    overflow:auto;-webkit-overflow-scrolling:touch
+  }
+  .cap-selected-row{margin-bottom:7px}
+  .cap-inspector-tabs{
+    position:sticky;top:0;z-index:5;background:#0a0d11;
+    margin-bottom:7px
+  }
+  .cap-layer-properties .param{padding:7px 0!important}
+  .cap-action-btn{min-height:40px}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1172,120 +1418,112 @@ void main() {
 </div>
 
 
+
 <div class="modal" id="layersModal">
-  <div class="modalCard layer-modal-card elite-layer-card">
-    <div class="modalHead elite-layer-head">
-      <div class="elite-layer-title">
-        <span>LAYERS</span>
-        <small>COMPOSITOR</small>
+  <div class="modalCard capcut-layer-card">
+    <div class="modalHead capcut-layer-head">
+      <button class="cap-icon-btn" id="capLayerBack">‹</button>
+      <div class="cap-layer-title">
+        <b>Layers</b>
+        <small id="capLayerSubtitle">Compositor</small>
       </div>
-      <div class="elite-layer-head-actions">
-        <button class="elite-icon-btn" id="eliteUndoBtn" title="Undo">↶</button>
-        <button class="elite-icon-btn" id="eliteAddImageBtn" title="Add image">＋IMG</button>
-        <button class="elite-icon-btn" id="eliteAddVideoBtn" title="Add video">＋VID</button>
-        <button class="iconBtn" id="closeLayers">×</button>
+      <div class="cap-layer-head-actions">
+        <button class="cap-icon-btn" id="capUndo">↶</button>
+        <button class="cap-icon-btn" id="capAdd">＋</button>
+        <button class="iconBtn cap-close" id="closeLayers">×</button>
       </div>
     </div>
 
-    <div class="modalBody elite-layer-body">
-      <div class="elite-layer-layout">
-        <aside class="elite-layer-stack">
-          <div class="elite-stack-toolbar">
-            <div>
-              <b>LAYER STACK</b>
-              <small id="eliteLayerCount">0 ITEMS</small>
-            </div>
-            <button class="elite-mini-btn" id="eliteDeleteBtn">DELETE</button>
-          </div>
-
-          <div class="elite-layer-list" id="layerList"></div>
-
-          <div class="elite-stack-footer">
-            <button class="elite-stack-action" id="layerBackward">↓ SEND</button>
-            <button class="elite-stack-action" id="layerForward">↑ BRING</button>
-            <button class="elite-stack-action" id="eliteToggleLock">LOCK</button>
-          </div>
-        </aside>
-
-        <main class="elite-layer-stage">
-          <div class="elite-stage-top">
-            <div class="elite-stage-status">
-              <span class="elite-live-dot"></span>
-              <b>LIVE COMPOSITION</b>
-            </div>
-            <div class="elite-stage-tools">
-              <button class="elite-mini-btn active" id="eliteFitBtn">FIT</button>
-              <button class="elite-mini-btn" id="layerOnFrame">EDIT ON FRAME</button>
+    <div class="modalBody capcut-layer-body">
+      <div class="capcut-layer-editor">
+        <section class="cap-preview-zone">
+          <div class="cap-preview-wrap">
+            <div class="live-layer-preview cap-live-preview" id="liveLayerPreview">
+              <video id="sourceVideo" playsinline muted loop style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0"></video>
+              <img id="sourceImage" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0">
+              <div class="live-screen-clone" id="liveLayerClone"></div>
             </div>
           </div>
 
-          <div class="live-layer-preview elite-live-preview" id="liveLayerPreview">
-            <video id="sourceVideo" playsinline muted loop style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0"></video>
-            <img id="sourceImage" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0">
-            <div class="live-screen-clone" id="liveLayerClone"></div>
-            <div class="elite-preview-corners"></div>
-          </div>
-
-          <div class="elite-transport">
-            <button class="elite-play-btn" id="videoPlayBtn">▶</button>
-            <span class="elite-time" id="videoCurrent">00:00</span>
+          <div class="cap-transport">
+            <button class="cap-play" id="videoPlayBtn">▶</button>
+            <span class="cap-time" id="videoCurrent">00:00</span>
             <input type="range" id="videoSeek" min="0" max="1000" value="0">
-            <span class="elite-time" id="videoDuration">00:00</span>
+            <span class="cap-time" id="videoDuration">00:00</span>
             <span class="video-time" id="videoTime" style="display:none">00:00 / 00:00</span>
           </div>
+        </section>
 
-          <div class="elite-media-addbar">
-            <div class="media-name" id="mediaName">NO MEDIA SELECTED</div>
-            <button class="elite-add-btn" id="layerLoadImageBtn">＋ IMAGE</button>
-            <button class="elite-add-btn" id="layerLoadVideoBtn">＋ VIDEO</button>
-            <button class="elite-add-btn danger" id="layerClearMediaBtn">CLEAR MEDIA</button>
-            <input id="imageFileInput" type="file" accept="image/*" hidden>
-            <input id="videoFileInput" type="file" accept="video/*" hidden>
-          </div>
-        </main>
-
-        <aside class="elite-layer-inspector">
-          <div class="elite-inspector-head">
-            <small>SELECTED LAYER</small>
-            <b id="layerInspectorName">NONE</b>
-          </div>
-
-          <div class="elite-inspector-tabs">
-            <button class="elite-inspector-tab active" data-elite-tab="transform">TRANSFORM</button>
-            <button class="elite-inspector-tab" data-elite-tab="layer">LAYER</button>
-          </div>
-
-          <div class="elite-inspector-panel active" data-elite-panel="transform">
-            <div class="layer-properties elite-layer-properties" id="layerProperties"></div>
-            <div class="elite-transform-actions">
-              <button class="btn" id="layerCenter">CENTER</button>
-              <button class="btn" id="layerReset">RESET</button>
+        <section class="cap-layer-strip-zone">
+          <div class="cap-strip-head">
+            <div>
+              <b>Layers</b>
+              <small id="eliteLayerCount">0</small>
+            </div>
+            <div class="cap-strip-actions">
+              <button class="cap-text-btn" id="eliteAddImageBtn">Photo</button>
+              <button class="cap-text-btn" id="eliteAddVideoBtn">Video</button>
             </div>
           </div>
 
-          <div class="elite-inspector-panel" data-elite-panel="layer">
-            <div class="elite-layer-meta">
-              <div><small>TYPE</small><b id="eliteSelectedType">OBJECT</b></div>
-              <div><small>STACK</small><b id="eliteSelectedZ">0</b></div>
-              <div><small>STATUS</small><b id="eliteSelectedStatus">VISIBLE</b></div>
+          <div class="cap-layer-strip" id="layerList"></div>
+
+          <input id="imageFileInput" type="file" accept="image/*" hidden>
+          <input id="videoFileInput" type="file" accept="video/*" hidden>
+          <div id="mediaName" style="display:none">NO MEDIA SELECTED</div>
+          <button id="layerLoadImageBtn" style="display:none"></button>
+          <button id="layerLoadVideoBtn" style="display:none"></button>
+          <button id="layerClearMediaBtn" style="display:none"></button>
+        </section>
+
+        <section class="cap-inspector-zone">
+          <div class="cap-selected-row">
+            <div class="cap-selected-meta">
+              <small>Selected</small>
+              <b id="layerInspectorName">None</b>
             </div>
-            <div class="elite-layer-actions">
-              <button class="btn" id="eliteVisibilityBtn">HIDE</button>
-              <button class="btn" id="eliteLockBtn">LOCK</button>
-              <button class="btn danger" id="layerDeleteBtn">DELETE LAYER</button>
-              <button class="btn accent" id="layerUndoBtn">UNDO</button>
+            <div class="cap-selected-actions">
+              <button class="cap-icon-btn" id="eliteVisibilityBtn">◉</button>
+              <button class="cap-icon-btn" id="eliteLockBtn">□</button>
+              <button class="cap-icon-btn danger" id="layerDeleteBtn">⌫</button>
             </div>
           </div>
 
-          <div class="layer-actions" style="display:none">
-            <button class="btn" id="eliteHiddenBring"></button>
+          <div class="cap-inspector-tabs">
+            <button class="cap-inspector-tab active" data-elite-tab="transform">Transform</button>
+            <button class="cap-inspector-tab" data-elite-tab="layer">Layer</button>
           </div>
-        </aside>
+
+          <div class="elite-inspector-panel active cap-inspector-panel" data-elite-panel="transform">
+            <div class="layer-properties cap-layer-properties" id="layerProperties"></div>
+            <div class="cap-action-grid">
+              <button class="cap-action-btn" id="layerCenter">Center</button>
+              <button class="cap-action-btn" id="layerReset">Reset</button>
+              <button class="cap-action-btn" id="layerBackward">Send Back</button>
+              <button class="cap-action-btn" id="layerForward">Bring Front</button>
+            </div>
+          </div>
+
+          <div class="elite-inspector-panel cap-inspector-panel" data-elite-panel="layer">
+            <div class="cap-layer-info-grid">
+              <div><small>Type</small><b id="eliteSelectedType">None</b></div>
+              <div><small>Stack</small><b id="eliteSelectedZ">-</b></div>
+              <div><small>Status</small><b id="eliteSelectedStatus">-</b></div>
+            </div>
+            <div class="cap-action-grid">
+              <button class="cap-action-btn" id="eliteToggleLock">Lock / Unlock</button>
+              <button class="cap-action-btn" id="layerUndoBtn">Undo</button>
+              <button class="cap-action-btn danger" id="eliteDeleteBtn">Delete</button>
+              <button class="cap-action-btn" id="layerOnFrame">Edit on Frame</button>
+            </div>
+          </div>
+
+          <div class="layer-actions" style="display:none"></div>
+        </section>
       </div>
     </div>
   </div>
 </div>
-
 <div class="onframe-toolbar" id="onframeToolbar">
   <span class="label" id="onframeLayerName">NEON SUN</span>
   <span class="hint">DRAG OBJECT // PINCH CONTROLS IN LAYERS</span>
@@ -2437,6 +2675,252 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
   .elite-layer-properties .param{padding:7px 0!important}
   .elite-transform-actions,.elite-layer-actions{position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#07090d 20%);padding-top:10px;padding-bottom:env(safe-area-inset-bottom,0px)}
   .elite-transform-actions .btn,.elite-layer-actions .btn{min-height:38px}
+}
+</style>
+
+
+<style id="crtizer-capcut-layers-css">
+.capcut-layer-card{
+  width:min(1100px,96vw)!important;
+  height:min(760px,92vh)!important;
+  max-width:none!important;
+  max-height:none!important;
+  border-radius:14px!important;
+  overflow:hidden!important;
+  background:#050608!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+}
+.capcut-layer-head{
+  height:48px!important;
+  min-height:48px!important;
+  padding:0 10px!important;
+  display:grid!important;
+  grid-template-columns:auto 1fr auto!important;
+  align-items:center!important;
+  gap:8px!important;
+  background:#07090c!important;
+}
+.cap-layer-title{display:flex;flex-direction:column;gap:1px}
+.cap-layer-title b{font:600 11px ui-sans-serif,system-ui;color:#edf3f5}
+.cap-layer-title small{font:6px ui-monospace,monospace;color:#66757c;letter-spacing:.08em}
+.cap-layer-head-actions{display:flex;gap:5px}
+.cap-icon-btn{
+  min-width:34px;height:34px;padding:0 8px;border-radius:8px;
+  border:1px solid rgba(255,255,255,.06);background:#0a0d11;color:#aebcc2;
+  font:12px ui-sans-serif,system-ui;cursor:pointer
+}
+.cap-icon-btn:hover,.cap-icon-btn:active{background:#11161c;color:#fff}
+.cap-icon-btn.danger{color:#ff758f}
+.cap-close{width:34px!important;height:34px!important;border-radius:8px!important}
+
+.capcut-layer-body{padding:0!important;overflow:hidden!important}
+.capcut-layer-editor{
+  height:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 330px;
+  grid-template-rows:minmax(0,1fr) 172px;
+  background:#040507
+}
+.cap-preview-zone{
+  grid-column:1;grid-row:1;
+  display:grid;grid-template-rows:minmax(0,1fr) 46px;
+  padding:14px 14px 0;
+  min-width:0
+}
+.cap-preview-wrap{
+  min-height:0;display:flex;align-items:center;justify-content:center
+}
+.cap-live-preview{
+  width:min(100%,780px)!important;
+  max-height:100%!important;
+  aspect-ratio:16/9!important;
+  border-radius:12px!important;
+  border:1px solid rgba(255,255,255,.07)!important;
+  background:#000!important;
+  overflow:hidden!important;
+  margin:0!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.45)!important
+}
+.cap-transport{
+  display:grid;grid-template-columns:34px 42px 1fr 42px;
+  align-items:center;gap:8px;padding:7px 0
+}
+.cap-play{
+  width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.08);
+  background:#0d1116;color:#fff
+}
+.cap-time{font:7px ui-monospace,monospace;color:#77868d;text-align:center}
+.cap-transport input[type=range]{width:100%}
+
+.cap-layer-strip-zone{
+  grid-column:1;grid-row:2;
+  min-width:0;border-top:1px solid rgba(255,255,255,.06);
+  background:#07090c;padding:10px 12px 12px
+}
+.cap-strip-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cap-strip-head>div:first-child{display:flex;align-items:baseline;gap:7px}
+.cap-strip-head b{font:600 9px ui-sans-serif,system-ui;color:#dce5e8}
+.cap-strip-head small{font:7px ui-monospace,monospace;color:#63727a}
+.cap-strip-actions{display:flex;gap:6px}
+.cap-text-btn{
+  min-height:30px;padding:0 10px;border-radius:7px;border:1px solid rgba(255,255,255,.06);
+  background:#0b0e12;color:#aab7bd;font:7px ui-sans-serif,system-ui
+}
+.cap-layer-strip{
+  display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;
+  -webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;
+  padding-bottom:2px
+}
+.cap-layer-strip::-webkit-scrollbar{display:none}
+.cap-layer-strip .layer-row{
+  flex:0 0 150px!important;
+  height:92px!important;
+  min-height:92px!important;
+  display:grid!important;
+  grid-template-rows:58px 1fr!important;
+  grid-template-columns:1fr!important;
+  gap:5px!important;
+  padding:5px!important;
+  margin:0!important;
+  border-radius:10px!important;
+  border:1px solid rgba(255,255,255,.055)!important;
+  background:#0a0d11!important;
+  scroll-snap-align:start!important;
+  position:relative!important
+}
+.cap-layer-strip .layer-row.active{
+  border-color:rgba(101,231,255,.45)!important;
+  box-shadow:0 0 0 1px rgba(101,231,255,.12) inset!important;
+  background:#0c1217!important
+}
+.cap-layer-strip .elite-layer-thumb{
+  width:100%!important;height:58px!important;border-radius:7px!important;
+  overflow:hidden!important;background:#020305!important;
+  border:0!important
+}
+.cap-layer-strip .elite-layer-thumb img,
+.cap-layer-strip .elite-layer-thumb video{width:100%;height:100%;object-fit:cover}
+.cap-layer-strip .elite-layer-info{
+  min-width:0;padding:0 2px
+}
+.cap-layer-strip .layer-name{
+  font:7.5px ui-sans-serif,system-ui!important;
+  color:#d7e0e3!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.cap-layer-strip .layer-type{
+  margin-top:1px!important;font:5.5px ui-monospace,monospace!important;color:#5f6d73!important
+}
+.cap-layer-strip .elite-layer-row-actions{
+  position:absolute;right:7px;top:7px;display:flex;gap:3px
+}
+.cap-layer-strip .elite-row-icon{
+  width:24px;height:24px;border-radius:6px;
+  background:rgba(0,0,0,.58)!important;border:1px solid rgba(255,255,255,.07)!important;
+  color:#d6e0e3!important;font-size:9px!important
+}
+
+.cap-inspector-zone{
+  grid-column:2;grid-row:1/3;
+  border-left:1px solid rgba(255,255,255,.06);
+  background:#07090c;padding:12px;overflow:auto
+}
+.cap-selected-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.cap-selected-meta{min-width:0}
+.cap-selected-meta small{display:block;font:6px ui-monospace,monospace;color:#64727a;margin-bottom:3px}
+.cap-selected-meta b{
+  display:block;font:600 10px ui-sans-serif,system-ui;color:#e0e8eb;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.cap-selected-actions{display:flex;gap:5px}
+.cap-inspector-tabs{
+  display:grid;grid-template-columns:1fr 1fr;gap:3px;
+  padding:3px;background:#0a0d11;border-radius:9px;margin-bottom:10px
+}
+.cap-inspector-tab{
+  min-height:32px;border:0;border-radius:7px;background:transparent;
+  color:#74828a;font:7px ui-sans-serif,system-ui
+}
+.cap-inspector-tab.active{background:#141a20;color:#fff}
+.cap-inspector-panel{display:none}
+.cap-inspector-panel.active{display:block}
+.cap-layer-properties{display:block!important}
+.cap-layer-properties .param{padding:9px 0!important;border-bottom:1px solid rgba(255,255,255,.04)}
+.cap-layer-properties .paramTop{font-size:7px!important}
+.cap-action-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}
+.cap-action-btn{
+  min-height:38px;border-radius:8px;border:1px solid rgba(255,255,255,.06);
+  background:#0b0f14;color:#aab7bd;font:7px ui-sans-serif,system-ui
+}
+.cap-action-btn:active{background:#121820;color:#fff}
+.cap-action-btn.danger{color:#ff7a92}
+.cap-layer-info-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.cap-layer-info-grid>div{
+  border:1px solid rgba(255,255,255,.05);border-radius:8px;
+  padding:9px 7px;background:#0a0d11
+}
+.cap-layer-info-grid small{display:block;font:5px ui-monospace,monospace;color:#5f6d73;margin-bottom:4px}
+.cap-layer-info-grid b{display:block;font:7px ui-sans-serif,system-ui;color:#cfd9dc;overflow:hidden;text-overflow:ellipsis}
+
+@media(max-width:900px){
+  .capcut-layer-card{
+    width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;
+    border:0!important;border-radius:0!important
+  }
+  .capcut-layer-head{
+    height:46px!important;min-height:46px!important;
+    position:relative;z-index:10
+  }
+  .cap-layer-title small{display:none}
+  .capcut-layer-editor{
+    height:calc(100dvh - 46px);
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:minmax(220px,42%) 128px minmax(0,1fr)
+  }
+  .cap-preview-zone{
+    grid-column:1;grid-row:1;padding:8px 8px 0;
+    grid-template-rows:minmax(0,1fr) 40px
+  }
+  .cap-live-preview{
+    width:100%!important;
+    max-height:100%!important;
+    border-radius:10px!important
+  }
+  .cap-transport{
+    grid-template-columns:30px 36px 1fr 36px;
+    gap:5px;padding:5px 0
+  }
+  .cap-play{width:30px;height:30px}
+  .cap-time{font-size:6.5px}
+
+  .cap-layer-strip-zone{
+    grid-column:1;grid-row:2;padding:7px 8px 8px
+  }
+  .cap-strip-head{margin-bottom:6px}
+  .cap-text-btn{min-height:28px;padding:0 9px}
+  .cap-layer-strip .layer-row{
+    flex:0 0 118px!important;
+    height:78px!important;
+    min-height:78px!important;
+    grid-template-rows:48px 1fr!important;
+    border-radius:9px!important
+  }
+  .cap-layer-strip .elite-layer-thumb{height:48px!important}
+  .cap-layer-strip .elite-layer-row-actions{right:5px;top:5px}
+  .cap-layer-strip .elite-row-icon{width:22px;height:22px}
+
+  .cap-inspector-zone{
+    grid-column:1;grid-row:3;border-left:0;border-top:1px solid rgba(255,255,255,.06);
+    padding:9px 10px calc(12px + env(safe-area-inset-bottom,0px));
+    overflow:auto;-webkit-overflow-scrolling:touch
+  }
+  .cap-selected-row{margin-bottom:7px}
+  .cap-inspector-tabs{
+    position:sticky;top:0;z-index:5;background:#0a0d11;
+    margin-bottom:7px
+  }
+  .cap-layer-properties .param{padding:7px 0!important}
+  .cap-action-btn{min-height:40px}
 }
 </style>
 
@@ -4097,6 +4581,69 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
   // Initial.
   setTimeout(renderEliteList,50);
   window.CRTIZER_ELITE_LAYERS={render:renderEliteList,select:selectLayer};
+})();
+</script>
+
+
+<script id="crtizer-capcut-layer-behavior-js">
+(function(){
+  const modal=document.getElementById('layersModal');
+  const list=document.getElementById('layerList');
+
+  // Keep existing elite layer renderer, but tweak mobile semantics and add "+ Layer" sheet.
+  function openAddMenu(){
+    const existing=document.getElementById('capAddMenu');
+    if(existing){existing.remove();return;}
+    const menu=document.createElement('div');
+    menu.id='capAddMenu';
+    menu.style.cssText=`
+      position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));
+      z-index:9999;background:#0a0d11;border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+      box-shadow:0 18px 50px rgba(0,0,0,.5)
+    `;
+    menu.innerHTML=`
+      <button class="cap-action-btn" id="capAddPhotoMenu">Add Photo</button>
+      <button class="cap-action-btn" id="capAddVideoMenu">Add Video</button>`;
+    document.body.appendChild(menu);
+    menu.querySelector('#capAddPhotoMenu').onclick=()=>{
+      document.getElementById('imageFileInput')?.click();menu.remove();
+    };
+    menu.querySelector('#capAddVideoMenu').onclick=()=>{
+      document.getElementById('videoFileInput')?.click();menu.remove();
+    };
+  }
+
+  document.getElementById('capAdd')?.addEventListener('click',openAddMenu);
+  document.getElementById('capUndo')?.addEventListener('click',()=>window.CRTIZER_MEDIA_LAYERS_V3?.undo?.());
+
+  // "Back" behaves like close on mobile, avoiding tiny X dependency.
+  document.getElementById('capLayerBack')?.addEventListener('click',()=>{
+    modal?.classList.remove('open');
+  });
+
+  // Preserve familiar +Photo/+Video shortcuts.
+  document.getElementById('eliteAddImageBtn')?.addEventListener('click',()=>document.getElementById('imageFileInput')?.click());
+  document.getElementById('eliteAddVideoBtn')?.addEventListener('click',()=>document.getElementById('videoFileInput')?.click());
+
+  // Auto-center selected horizontal layer card.
+  const obs=new MutationObserver(()=>{
+    const active=list?.querySelector('.layer-row.active');
+    if(active && window.matchMedia('(max-width:900px)').matches){
+      active.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+    }
+  });
+  if(list)obs.observe(list,{attributes:true,subtree:true,attributeFilter:['class']});
+
+  // Keep modal locked to app viewport on iOS without redesigning anything else.
+  function syncHeight(){
+    if(window.matchMedia('(max-width:900px)').matches){
+      document.documentElement.style.setProperty('--cap-real-vh',window.innerHeight+'px');
+    }
+  }
+  syncHeight();
+  window.addEventListener('resize',syncHeight);
+  window.addEventListener('orientationchange',()=>setTimeout(syncHeight,80));
 })();
 </script>
 
@@ -5891,6 +6438,69 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
   // Initial.
   setTimeout(renderEliteList,50);
   window.CRTIZER_ELITE_LAYERS={render:renderEliteList,select:selectLayer};
+})();
+</script>
+
+
+<script id="crtizer-capcut-layer-behavior-js">
+(function(){
+  const modal=document.getElementById('layersModal');
+  const list=document.getElementById('layerList');
+
+  // Keep existing elite layer renderer, but tweak mobile semantics and add "+ Layer" sheet.
+  function openAddMenu(){
+    const existing=document.getElementById('capAddMenu');
+    if(existing){existing.remove();return;}
+    const menu=document.createElement('div');
+    menu.id='capAddMenu';
+    menu.style.cssText=`
+      position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));
+      z-index:9999;background:#0a0d11;border:1px solid rgba(255,255,255,.08);
+      border-radius:14px;padding:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;
+      box-shadow:0 18px 50px rgba(0,0,0,.5)
+    `;
+    menu.innerHTML=`
+      <button class="cap-action-btn" id="capAddPhotoMenu">Add Photo</button>
+      <button class="cap-action-btn" id="capAddVideoMenu">Add Video</button>`;
+    document.body.appendChild(menu);
+    menu.querySelector('#capAddPhotoMenu').onclick=()=>{
+      document.getElementById('imageFileInput')?.click();menu.remove();
+    };
+    menu.querySelector('#capAddVideoMenu').onclick=()=>{
+      document.getElementById('videoFileInput')?.click();menu.remove();
+    };
+  }
+
+  document.getElementById('capAdd')?.addEventListener('click',openAddMenu);
+  document.getElementById('capUndo')?.addEventListener('click',()=>window.CRTIZER_MEDIA_LAYERS_V3?.undo?.());
+
+  // "Back" behaves like close on mobile, avoiding tiny X dependency.
+  document.getElementById('capLayerBack')?.addEventListener('click',()=>{
+    modal?.classList.remove('open');
+  });
+
+  // Preserve familiar +Photo/+Video shortcuts.
+  document.getElementById('eliteAddImageBtn')?.addEventListener('click',()=>document.getElementById('imageFileInput')?.click());
+  document.getElementById('eliteAddVideoBtn')?.addEventListener('click',()=>document.getElementById('videoFileInput')?.click());
+
+  // Auto-center selected horizontal layer card.
+  const obs=new MutationObserver(()=>{
+    const active=list?.querySelector('.layer-row.active');
+    if(active && window.matchMedia('(max-width:900px)').matches){
+      active.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'});
+    }
+  });
+  if(list)obs.observe(list,{attributes:true,subtree:true,attributeFilter:['class']});
+
+  // Keep modal locked to app viewport on iOS without redesigning anything else.
+  function syncHeight(){
+    if(window.matchMedia('(max-width:900px)').matches){
+      document.documentElement.style.setProperty('--cap-real-vh',window.innerHeight+'px');
+    }
+  }
+  syncHeight();
+  window.addEventListener('resize',syncHeight);
+  window.addEventListener('orientationchange',()=>setTimeout(syncHeight,80));
 })();
 </script>
 
