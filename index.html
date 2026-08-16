@@ -669,6 +669,237 @@ input[type="range"]::-webkit-slider-thumb{appearance:none;width:10px;height:14px
 }
 </style>
 
+
+<style id="crtizer-elite-layers-css">
+.elite-layer-card{
+  width:min(1320px,97vw)!important;
+  height:min(820px,94vh)!important;
+  max-width:none!important;
+  max-height:none!important;
+}
+.elite-layer-head{
+  height:52px!important;
+  padding:0 12px 0 16px!important;
+}
+.elite-layer-title{display:flex;align-items:baseline;gap:8px}
+.elite-layer-title>span{font:700 12px ui-monospace,monospace;letter-spacing:.14em;color:#e2edf0}
+.elite-layer-title>small{font:7px ui-monospace,monospace;color:var(--cyan);letter-spacing:.12em}
+.elite-layer-head-actions{display:flex;align-items:center;gap:6px}
+.elite-icon-btn,.elite-mini-btn{
+  border:1px solid var(--line);background:#080b10;color:#9fb0b8;
+  min-height:30px;padding:0 9px;border-radius:6px;
+  font:7px ui-monospace,monospace;cursor:pointer
+}
+.elite-icon-btn:hover,.elite-mini-btn:hover,.elite-mini-btn.active{
+  color:var(--cyan);border-color:rgba(101,231,255,.35);background:rgba(101,231,255,.045)
+}
+.elite-layer-body{padding:0!important;overflow:hidden!important}
+.elite-layer-layout{
+  height:100%;
+  display:grid;
+  grid-template-columns:280px minmax(420px,1fr) 300px;
+  background:#05070a
+}
+.elite-layer-stack,.elite-layer-inspector{
+  min-width:0;background:#07090d;overflow:hidden
+}
+.elite-layer-stack{border-right:1px solid var(--line);display:grid;grid-template-rows:50px 1fr 44px}
+.elite-layer-inspector{border-left:1px solid var(--line);padding:12px;overflow:auto}
+.elite-stack-toolbar,.elite-stack-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:7px;padding:8px;border-bottom:1px solid var(--line)
+}
+.elite-stack-toolbar>div{display:flex;flex-direction:column;gap:2px}
+.elite-stack-toolbar b{font:8px ui-monospace,monospace;color:#cbd9de;letter-spacing:.08em}
+.elite-stack-toolbar small{font:6px ui-monospace,monospace;color:#64747c}
+.elite-stack-footer{border-top:1px solid var(--line);border-bottom:0;padding:6px}
+.elite-stack-action{
+  flex:1;min-height:30px;border:1px solid var(--line);background:#080b10;color:#83949b;
+  border-radius:6px;font:7px ui-monospace,monospace
+}
+.elite-layer-list{
+  padding:7px;overflow:auto;-webkit-overflow-scrolling:touch
+}
+.elite-layer-list .layer-row{
+  min-height:64px!important;
+  display:grid!important;
+  grid-template-columns:48px 1fr auto!important;
+  gap:9px!important;
+  align-items:center!important;
+  padding:6px!important;
+  margin-bottom:6px!important;
+  border:1px solid rgba(255,255,255,.055)!important;
+  border-radius:8px!important;
+  background:rgba(255,255,255,.012)!important;
+  cursor:pointer!important;
+}
+.elite-layer-list .layer-row:hover{background:rgba(255,255,255,.025)!important}
+.elite-layer-list .layer-row.active{
+  border-color:rgba(101,231,255,.38)!important;
+  background:linear-gradient(90deg,rgba(101,231,255,.07),rgba(101,231,255,.015))!important;
+  box-shadow:inset 2px 0 0 var(--cyan)!important
+}
+.elite-layer-list .layer-grip{display:none!important}
+.elite-layer-list .layer-eye{display:none!important}
+.elite-layer-list .layer-delete{display:none!important}
+.elite-layer-thumb{
+  width:48px;height:48px;border-radius:6px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.07);background:#020305;
+  display:flex;align-items:center;justify-content:center;position:relative
+}
+.elite-layer-thumb img,.elite-layer-thumb video{
+  width:100%;height:100%;object-fit:cover;display:block
+}
+.elite-layer-thumb .elite-object-glyph{
+  font:700 16px ui-monospace,monospace;color:#70838c
+}
+.elite-layer-thumb-badge{
+  position:absolute;right:2px;bottom:2px;padding:2px 3px;border-radius:3px;
+  font:5px ui-monospace,monospace;background:rgba(0,0,0,.72);color:#cbd9de
+}
+.elite-layer-info{min-width:0}
+.elite-layer-info .layer-name{
+  font:8px ui-monospace,monospace!important;color:#d3e0e4!important;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.elite-layer-info .layer-type{
+  margin-top:3px;font:6px ui-monospace,monospace!important;color:#64747c!important
+}
+.elite-layer-row-actions{display:flex;gap:3px}
+.elite-row-icon{
+  width:26px;height:26px;padding:0;border:1px solid transparent;background:transparent;
+  color:#66777f;border-radius:5px;font:10px ui-monospace,monospace
+}
+.elite-row-icon:hover{color:#d7e5e9;border-color:var(--line);background:#0b0f14}
+.elite-row-icon.on{color:var(--cyan)}
+.elite-row-icon.locked{color:var(--pink)}
+
+.elite-layer-stage{
+  min-width:0;display:grid;grid-template-rows:42px 1fr 48px 46px;
+  padding:0 12px 10px;background:
+    radial-gradient(circle at 50% 42%,rgba(101,231,255,.035),transparent 45%),#030507
+}
+.elite-stage-top{
+  display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)
+}
+.elite-stage-status{display:flex;align-items:center;gap:7px;font:7px ui-monospace,monospace;color:#9dafb6}
+.elite-live-dot{width:6px;height:6px;border-radius:50%;background:#56f3a6;box-shadow:0 0 10px rgba(86,243,166,.55)}
+.elite-stage-tools{display:flex;gap:5px}
+.elite-live-preview{
+  width:min(100%,880px)!important;
+  aspect-ratio:16/9!important;
+  min-height:0!important;
+  align-self:center;justify-self:center;
+  margin:12px 0!important;border-radius:10px!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  box-shadow:0 20px 55px rgba(0,0,0,.48)!important;
+  background:#000!important;position:relative!important
+}
+.elite-preview-corners{
+  pointer-events:none;position:absolute;inset:7px;border:1px solid rgba(101,231,255,.07);
+  border-radius:5px;z-index:50
+}
+.elite-transport{
+  display:grid;grid-template-columns:34px 42px 1fr 42px;
+  gap:8px;align-items:center;padding:7px 2px;border-top:1px solid var(--line)
+}
+.elite-play-btn{
+  width:34px;height:34px;border:1px solid rgba(101,231,255,.25);border-radius:50%;
+  background:rgba(101,231,255,.05);color:var(--cyan);cursor:pointer
+}
+.elite-time{font:7px ui-monospace,monospace;color:#72828a;text-align:center}
+.elite-media-addbar{
+  display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;
+  padding-top:7px;border-top:1px solid var(--line)
+}
+.elite-add-btn{
+  min-height:32px;border:1px solid var(--line);background:#080b10;color:#9eafb6;
+  border-radius:6px;padding:0 9px;font:7px ui-monospace,monospace
+}
+.elite-add-btn:hover{color:var(--cyan);border-color:rgba(101,231,255,.3)}
+.elite-add-btn.danger:hover{color:#ff6b88;border-color:rgba(255,107,136,.3)}
+
+.elite-inspector-head{display:flex;flex-direction:column;gap:4px;padding:2px 2px 12px}
+.elite-inspector-head small{font:6px ui-monospace,monospace;color:#65757d}
+.elite-inspector-head b{font:9px ui-monospace,monospace;color:#d3e0e4;overflow:hidden;text-overflow:ellipsis}
+.elite-inspector-tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-bottom:12px}
+.elite-inspector-tab{
+  min-height:32px;border:0;background:#080b10;color:#6f8088;font:7px ui-monospace,monospace
+}
+.elite-inspector-tab.active{background:rgba(101,231,255,.055);color:var(--cyan)}
+.elite-inspector-panel{display:none}
+.elite-inspector-panel.active{display:block}
+.elite-layer-properties{grid-template-columns:1fr!important;gap:0!important}
+.elite-layer-properties .param{padding:9px 0!important;border-bottom:1px solid rgba(255,255,255,.04)}
+.elite-transform-actions,.elite-layer-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
+.elite-transform-actions .btn,.elite-layer-actions .btn{min-height:34px;font-size:7px;border-radius:6px}
+.elite-layer-actions .danger{color:#ff718c}
+.elite-layer-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:10px}
+.elite-layer-meta>div{border:1px solid var(--line);padding:8px 6px;border-radius:6px;background:#080b10;min-width:0}
+.elite-layer-meta small{display:block;font:5px ui-monospace,monospace;color:#5f7078;margin-bottom:4px}
+.elite-layer-meta b{display:block;font:7px ui-monospace,monospace;color:#bdcbd1;overflow:hidden;text-overflow:ellipsis}
+
+@media(max-width:900px){
+  .elite-layer-card{
+    width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;
+    border:0!important;border-radius:0!important
+  }
+  .elite-layer-head{height:48px!important}
+  .elite-layer-title>small{display:none}
+  .elite-layer-head-actions{gap:4px}
+  .elite-icon-btn{padding:0 7px;min-height:32px}
+  .elite-layer-layout{
+    height:calc(100dvh - 48px);
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:minmax(210px,39%) 155px 1fr;
+  }
+  .elite-layer-stage{
+    grid-row:1;padding:0 8px 5px;
+    grid-template-rows:34px 1fr 38px;
+    border-bottom:1px solid var(--line)
+  }
+  .elite-stage-top{min-height:34px}
+  .elite-stage-tools #eliteFitBtn{display:none}
+  .elite-live-preview{
+    width:100%!important;
+    max-height:100%!important;
+    margin:6px 0!important
+  }
+  .elite-transport{
+    grid-template-columns:30px 34px 1fr 34px;padding:3px 0;gap:5px
+  }
+  .elite-play-btn{width:30px;height:30px}
+  .elite-media-addbar{display:none}
+
+  .elite-layer-stack{
+    grid-row:2;border-right:0;border-bottom:1px solid var(--line);
+    grid-template-rows:34px 1fr
+  }
+  .elite-stack-toolbar{padding:4px 8px}
+  .elite-stack-footer{display:none}
+  .elite-layer-list{
+    display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:6px 8px;
+    scroll-snap-type:x proximity
+  }
+  .elite-layer-list .layer-row{
+    flex:0 0 170px!important;
+    min-height:58px!important;margin:0!important;scroll-snap-align:start
+  }
+  .elite-layer-thumb{width:44px;height:44px}
+
+  .elite-layer-inspector{
+    grid-row:3;border-left:0;padding:8px 10px;
+    overflow:auto;-webkit-overflow-scrolling:touch
+  }
+  .elite-inspector-head{padding-bottom:7px}
+  .elite-inspector-tabs{margin-bottom:7px;position:sticky;top:0;z-index:4;background:#07090d}
+  .elite-layer-properties .param{padding:7px 0!important}
+  .elite-transform-actions,.elite-layer-actions{position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#07090d 20%);padding-top:10px;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .elite-transform-actions .btn,.elite-layer-actions .btn{min-height:38px}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -940,52 +1171,120 @@ void main() {
   </div>
 </div>
 
+
 <div class="modal" id="layersModal">
-  <div class="modalCard layer-modal-card">
-    <div class="modalHead"><span>FRAME EDITOR // LAYERS</span><button class="iconBtn" id="closeLayers">×</button></div>
-    <div class="modalBody">
-      <div class="layer-layout">
-        <aside class="layer-sidebar">
-          <div class="sectionTitle">FRAME OBJECTS</div>
-          <div class="layer-list" id="layerList"></div>
-          <div class="layer-tip">Select an object, then drag it directly inside the main preview. Position, scale, rotation, opacity, visibility and stack order remain editable here.</div>
+  <div class="modalCard layer-modal-card elite-layer-card">
+    <div class="modalHead elite-layer-head">
+      <div class="elite-layer-title">
+        <span>LAYERS</span>
+        <small>COMPOSITOR</small>
+      </div>
+      <div class="elite-layer-head-actions">
+        <button class="elite-icon-btn" id="eliteUndoBtn" title="Undo">↶</button>
+        <button class="elite-icon-btn" id="eliteAddImageBtn" title="Add image">＋IMG</button>
+        <button class="elite-icon-btn" id="eliteAddVideoBtn" title="Add video">＋VID</button>
+        <button class="iconBtn" id="closeLayers">×</button>
+      </div>
+    </div>
+
+    <div class="modalBody elite-layer-body">
+      <div class="elite-layer-layout">
+        <aside class="elite-layer-stack">
+          <div class="elite-stack-toolbar">
+            <div>
+              <b>LAYER STACK</b>
+              <small id="eliteLayerCount">0 ITEMS</small>
+            </div>
+            <button class="elite-mini-btn" id="eliteDeleteBtn">DELETE</button>
+          </div>
+
+          <div class="elite-layer-list" id="layerList"></div>
+
+          <div class="elite-stack-footer">
+            <button class="elite-stack-action" id="layerBackward">↓ SEND</button>
+            <button class="elite-stack-action" id="layerForward">↑ BRING</button>
+            <button class="elite-stack-action" id="eliteToggleLock">LOCK</button>
+          </div>
         </aside>
-        <section class="layer-main">
-          <div class="media-toolbar">
-            <div class="media-name" id="mediaName">NO MEDIA LOADED</div>
-            <button class="media-btn" id="layerLoadImageBtn">IMAGE</button>
-            <button class="media-btn" id="layerLoadVideoBtn">VIDEO</button>
-            <button class="media-btn" id="layerClearMediaBtn">CLEAR</button>
+
+        <main class="elite-layer-stage">
+          <div class="elite-stage-top">
+            <div class="elite-stage-status">
+              <span class="elite-live-dot"></span>
+              <b>LIVE COMPOSITION</b>
+            </div>
+            <div class="elite-stage-tools">
+              <button class="elite-mini-btn active" id="eliteFitBtn">FIT</button>
+              <button class="elite-mini-btn" id="layerOnFrame">EDIT ON FRAME</button>
+            </div>
+          </div>
+
+          <div class="live-layer-preview elite-live-preview" id="liveLayerPreview">
+            <video id="sourceVideo" playsinline muted loop style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0"></video>
+            <img id="sourceImage" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0">
+            <div class="live-screen-clone" id="liveLayerClone"></div>
+            <div class="elite-preview-corners"></div>
+          </div>
+
+          <div class="elite-transport">
+            <button class="elite-play-btn" id="videoPlayBtn">▶</button>
+            <span class="elite-time" id="videoCurrent">00:00</span>
+            <input type="range" id="videoSeek" min="0" max="1000" value="0">
+            <span class="elite-time" id="videoDuration">00:00</span>
+            <span class="video-time" id="videoTime" style="display:none">00:00 / 00:00</span>
+          </div>
+
+          <div class="elite-media-addbar">
+            <div class="media-name" id="mediaName">NO MEDIA SELECTED</div>
+            <button class="elite-add-btn" id="layerLoadImageBtn">＋ IMAGE</button>
+            <button class="elite-add-btn" id="layerLoadVideoBtn">＋ VIDEO</button>
+            <button class="elite-add-btn danger" id="layerClearMediaBtn">CLEAR MEDIA</button>
             <input id="imageFileInput" type="file" accept="image/*" hidden>
             <input id="videoFileInput" type="file" accept="video/*" hidden>
           </div>
-          <div class="live-layer-preview" id="liveLayerPreview">
-<video id="sourceVideo" playsinline muted loop style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0"></video>
-<img id="sourceImage" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0">
+        </main>
 
-            <div class="live-layer-preview-label">LIVE COMPOSITION</div>
-            <div class="live-screen-clone" id="liveLayerClone"></div>
+        <aside class="elite-layer-inspector">
+          <div class="elite-inspector-head">
+            <small>SELECTED LAYER</small>
+            <b id="layerInspectorName">NONE</b>
           </div>
-          <div class="video-controls" id="videoControls">
-            <button class="media-btn" id="videoPlayBtn">PLAY</button>
-            <input type="range" id="videoSeek" min="0" max="1000" value="0">
-            <span class="video-time" id="videoTime">00:00 / 00:00</span>
+
+          <div class="elite-inspector-tabs">
+            <button class="elite-inspector-tab active" data-elite-tab="transform">TRANSFORM</button>
+            <button class="elite-inspector-tab" data-elite-tab="layer">LAYER</button>
           </div>
-          <div class="sectionTitle">TRANSFORM // <span id="layerInspectorName" class="cyan">SUN</span></div>
-          <div class="layer-properties" id="layerProperties"></div>
-          <div class="layer-actions" style="grid-template-columns:repeat(5,1fr)">
-            <button class="btn accent" id="layerOnFrame">EDIT ON FRAME</button>
-            <button class="btn" id="layerForward">BRING +</button>
-            <button class="btn" id="layerBackward">SEND -</button>
-            <button class="btn" id="layerCenter">CENTER</button>
-            <button class="btn" id="layerReset">RESET</button>
+
+          <div class="elite-inspector-panel active" data-elite-panel="transform">
+            <div class="layer-properties elite-layer-properties" id="layerProperties"></div>
+            <div class="elite-transform-actions">
+              <button class="btn" id="layerCenter">CENTER</button>
+              <button class="btn" id="layerReset">RESET</button>
+            </div>
           </div>
-        </section>
+
+          <div class="elite-inspector-panel" data-elite-panel="layer">
+            <div class="elite-layer-meta">
+              <div><small>TYPE</small><b id="eliteSelectedType">OBJECT</b></div>
+              <div><small>STACK</small><b id="eliteSelectedZ">0</b></div>
+              <div><small>STATUS</small><b id="eliteSelectedStatus">VISIBLE</b></div>
+            </div>
+            <div class="elite-layer-actions">
+              <button class="btn" id="eliteVisibilityBtn">HIDE</button>
+              <button class="btn" id="eliteLockBtn">LOCK</button>
+              <button class="btn danger" id="layerDeleteBtn">DELETE LAYER</button>
+              <button class="btn accent" id="layerUndoBtn">UNDO</button>
+            </div>
+          </div>
+
+          <div class="layer-actions" style="display:none">
+            <button class="btn" id="eliteHiddenBring"></button>
+          </div>
+        </aside>
       </div>
     </div>
   </div>
 </div>
-
 
 <div class="onframe-toolbar" id="onframeToolbar">
   <span class="label" id="onframeLayerName">NEON SUN</span>
@@ -1907,6 +2206,237 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
 @media(max-width:900px){
   .export-grid{grid-template-columns:1fr}
   .layer-actions-v3 .btn{min-height:40px}
+}
+</style>
+
+
+<style id="crtizer-elite-layers-css">
+.elite-layer-card{
+  width:min(1320px,97vw)!important;
+  height:min(820px,94vh)!important;
+  max-width:none!important;
+  max-height:none!important;
+}
+.elite-layer-head{
+  height:52px!important;
+  padding:0 12px 0 16px!important;
+}
+.elite-layer-title{display:flex;align-items:baseline;gap:8px}
+.elite-layer-title>span{font:700 12px ui-monospace,monospace;letter-spacing:.14em;color:#e2edf0}
+.elite-layer-title>small{font:7px ui-monospace,monospace;color:var(--cyan);letter-spacing:.12em}
+.elite-layer-head-actions{display:flex;align-items:center;gap:6px}
+.elite-icon-btn,.elite-mini-btn{
+  border:1px solid var(--line);background:#080b10;color:#9fb0b8;
+  min-height:30px;padding:0 9px;border-radius:6px;
+  font:7px ui-monospace,monospace;cursor:pointer
+}
+.elite-icon-btn:hover,.elite-mini-btn:hover,.elite-mini-btn.active{
+  color:var(--cyan);border-color:rgba(101,231,255,.35);background:rgba(101,231,255,.045)
+}
+.elite-layer-body{padding:0!important;overflow:hidden!important}
+.elite-layer-layout{
+  height:100%;
+  display:grid;
+  grid-template-columns:280px minmax(420px,1fr) 300px;
+  background:#05070a
+}
+.elite-layer-stack,.elite-layer-inspector{
+  min-width:0;background:#07090d;overflow:hidden
+}
+.elite-layer-stack{border-right:1px solid var(--line);display:grid;grid-template-rows:50px 1fr 44px}
+.elite-layer-inspector{border-left:1px solid var(--line);padding:12px;overflow:auto}
+.elite-stack-toolbar,.elite-stack-footer{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:7px;padding:8px;border-bottom:1px solid var(--line)
+}
+.elite-stack-toolbar>div{display:flex;flex-direction:column;gap:2px}
+.elite-stack-toolbar b{font:8px ui-monospace,monospace;color:#cbd9de;letter-spacing:.08em}
+.elite-stack-toolbar small{font:6px ui-monospace,monospace;color:#64747c}
+.elite-stack-footer{border-top:1px solid var(--line);border-bottom:0;padding:6px}
+.elite-stack-action{
+  flex:1;min-height:30px;border:1px solid var(--line);background:#080b10;color:#83949b;
+  border-radius:6px;font:7px ui-monospace,monospace
+}
+.elite-layer-list{
+  padding:7px;overflow:auto;-webkit-overflow-scrolling:touch
+}
+.elite-layer-list .layer-row{
+  min-height:64px!important;
+  display:grid!important;
+  grid-template-columns:48px 1fr auto!important;
+  gap:9px!important;
+  align-items:center!important;
+  padding:6px!important;
+  margin-bottom:6px!important;
+  border:1px solid rgba(255,255,255,.055)!important;
+  border-radius:8px!important;
+  background:rgba(255,255,255,.012)!important;
+  cursor:pointer!important;
+}
+.elite-layer-list .layer-row:hover{background:rgba(255,255,255,.025)!important}
+.elite-layer-list .layer-row.active{
+  border-color:rgba(101,231,255,.38)!important;
+  background:linear-gradient(90deg,rgba(101,231,255,.07),rgba(101,231,255,.015))!important;
+  box-shadow:inset 2px 0 0 var(--cyan)!important
+}
+.elite-layer-list .layer-grip{display:none!important}
+.elite-layer-list .layer-eye{display:none!important}
+.elite-layer-list .layer-delete{display:none!important}
+.elite-layer-thumb{
+  width:48px;height:48px;border-radius:6px;overflow:hidden;
+  border:1px solid rgba(255,255,255,.07);background:#020305;
+  display:flex;align-items:center;justify-content:center;position:relative
+}
+.elite-layer-thumb img,.elite-layer-thumb video{
+  width:100%;height:100%;object-fit:cover;display:block
+}
+.elite-layer-thumb .elite-object-glyph{
+  font:700 16px ui-monospace,monospace;color:#70838c
+}
+.elite-layer-thumb-badge{
+  position:absolute;right:2px;bottom:2px;padding:2px 3px;border-radius:3px;
+  font:5px ui-monospace,monospace;background:rgba(0,0,0,.72);color:#cbd9de
+}
+.elite-layer-info{min-width:0}
+.elite-layer-info .layer-name{
+  font:8px ui-monospace,monospace!important;color:#d3e0e4!important;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.elite-layer-info .layer-type{
+  margin-top:3px;font:6px ui-monospace,monospace!important;color:#64747c!important
+}
+.elite-layer-row-actions{display:flex;gap:3px}
+.elite-row-icon{
+  width:26px;height:26px;padding:0;border:1px solid transparent;background:transparent;
+  color:#66777f;border-radius:5px;font:10px ui-monospace,monospace
+}
+.elite-row-icon:hover{color:#d7e5e9;border-color:var(--line);background:#0b0f14}
+.elite-row-icon.on{color:var(--cyan)}
+.elite-row-icon.locked{color:var(--pink)}
+
+.elite-layer-stage{
+  min-width:0;display:grid;grid-template-rows:42px 1fr 48px 46px;
+  padding:0 12px 10px;background:
+    radial-gradient(circle at 50% 42%,rgba(101,231,255,.035),transparent 45%),#030507
+}
+.elite-stage-top{
+  display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)
+}
+.elite-stage-status{display:flex;align-items:center;gap:7px;font:7px ui-monospace,monospace;color:#9dafb6}
+.elite-live-dot{width:6px;height:6px;border-radius:50%;background:#56f3a6;box-shadow:0 0 10px rgba(86,243,166,.55)}
+.elite-stage-tools{display:flex;gap:5px}
+.elite-live-preview{
+  width:min(100%,880px)!important;
+  aspect-ratio:16/9!important;
+  min-height:0!important;
+  align-self:center;justify-self:center;
+  margin:12px 0!important;border-radius:10px!important;
+  border:1px solid rgba(255,255,255,.08)!important;
+  box-shadow:0 20px 55px rgba(0,0,0,.48)!important;
+  background:#000!important;position:relative!important
+}
+.elite-preview-corners{
+  pointer-events:none;position:absolute;inset:7px;border:1px solid rgba(101,231,255,.07);
+  border-radius:5px;z-index:50
+}
+.elite-transport{
+  display:grid;grid-template-columns:34px 42px 1fr 42px;
+  gap:8px;align-items:center;padding:7px 2px;border-top:1px solid var(--line)
+}
+.elite-play-btn{
+  width:34px;height:34px;border:1px solid rgba(101,231,255,.25);border-radius:50%;
+  background:rgba(101,231,255,.05);color:var(--cyan);cursor:pointer
+}
+.elite-time{font:7px ui-monospace,monospace;color:#72828a;text-align:center}
+.elite-media-addbar{
+  display:grid;grid-template-columns:1fr auto auto auto;gap:6px;align-items:center;
+  padding-top:7px;border-top:1px solid var(--line)
+}
+.elite-add-btn{
+  min-height:32px;border:1px solid var(--line);background:#080b10;color:#9eafb6;
+  border-radius:6px;padding:0 9px;font:7px ui-monospace,monospace
+}
+.elite-add-btn:hover{color:var(--cyan);border-color:rgba(101,231,255,.3)}
+.elite-add-btn.danger:hover{color:#ff6b88;border-color:rgba(255,107,136,.3)}
+
+.elite-inspector-head{display:flex;flex-direction:column;gap:4px;padding:2px 2px 12px}
+.elite-inspector-head small{font:6px ui-monospace,monospace;color:#65757d}
+.elite-inspector-head b{font:9px ui-monospace,monospace;color:#d3e0e4;overflow:hidden;text-overflow:ellipsis}
+.elite-inspector-tabs{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:7px;overflow:hidden;margin-bottom:12px}
+.elite-inspector-tab{
+  min-height:32px;border:0;background:#080b10;color:#6f8088;font:7px ui-monospace,monospace
+}
+.elite-inspector-tab.active{background:rgba(101,231,255,.055);color:var(--cyan)}
+.elite-inspector-panel{display:none}
+.elite-inspector-panel.active{display:block}
+.elite-layer-properties{grid-template-columns:1fr!important;gap:0!important}
+.elite-layer-properties .param{padding:9px 0!important;border-bottom:1px solid rgba(255,255,255,.04)}
+.elite-transform-actions,.elite-layer-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px}
+.elite-transform-actions .btn,.elite-layer-actions .btn{min-height:34px;font-size:7px;border-radius:6px}
+.elite-layer-actions .danger{color:#ff718c}
+.elite-layer-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:10px}
+.elite-layer-meta>div{border:1px solid var(--line);padding:8px 6px;border-radius:6px;background:#080b10;min-width:0}
+.elite-layer-meta small{display:block;font:5px ui-monospace,monospace;color:#5f7078;margin-bottom:4px}
+.elite-layer-meta b{display:block;font:7px ui-monospace,monospace;color:#bdcbd1;overflow:hidden;text-overflow:ellipsis}
+
+@media(max-width:900px){
+  .elite-layer-card{
+    width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;
+    border:0!important;border-radius:0!important
+  }
+  .elite-layer-head{height:48px!important}
+  .elite-layer-title>small{display:none}
+  .elite-layer-head-actions{gap:4px}
+  .elite-icon-btn{padding:0 7px;min-height:32px}
+  .elite-layer-layout{
+    height:calc(100dvh - 48px);
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:minmax(210px,39%) 155px 1fr;
+  }
+  .elite-layer-stage{
+    grid-row:1;padding:0 8px 5px;
+    grid-template-rows:34px 1fr 38px;
+    border-bottom:1px solid var(--line)
+  }
+  .elite-stage-top{min-height:34px}
+  .elite-stage-tools #eliteFitBtn{display:none}
+  .elite-live-preview{
+    width:100%!important;
+    max-height:100%!important;
+    margin:6px 0!important
+  }
+  .elite-transport{
+    grid-template-columns:30px 34px 1fr 34px;padding:3px 0;gap:5px
+  }
+  .elite-play-btn{width:30px;height:30px}
+  .elite-media-addbar{display:none}
+
+  .elite-layer-stack{
+    grid-row:2;border-right:0;border-bottom:1px solid var(--line);
+    grid-template-rows:34px 1fr
+  }
+  .elite-stack-toolbar{padding:4px 8px}
+  .elite-stack-footer{display:none}
+  .elite-layer-list{
+    display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding:6px 8px;
+    scroll-snap-type:x proximity
+  }
+  .elite-layer-list .layer-row{
+    flex:0 0 170px!important;
+    min-height:58px!important;margin:0!important;scroll-snap-align:start
+  }
+  .elite-layer-thumb{width:44px;height:44px}
+
+  .elite-layer-inspector{
+    grid-row:3;border-left:0;padding:8px 10px;
+    overflow:auto;-webkit-overflow-scrolling:touch
+  }
+  .elite-inspector-head{padding-bottom:7px}
+  .elite-inspector-tabs{margin-bottom:7px;position:sticky;top:0;z-index:4;background:#07090d}
+  .elite-layer-properties .param{padding:7px 0!important}
+  .elite-transform-actions,.elite-layer-actions{position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#07090d 20%);padding-top:10px;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .elite-transform-actions .btn,.elite-layer-actions .btn{min-height:38px}
 }
 </style>
 
@@ -3211,6 +3741,362 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
   window.CRTIZER_MEDIA_LAYERS_V3={
     createMediaLayer,deleteMediaLayer,undo,mediaLayers,refreshSynthTargetOptions
   };
+})();
+</script>
+
+
+<script id="crtizer-elite-layers-js">
+(function(){
+  const list=document.getElementById('layerList');
+  const modal=document.getElementById('layersModal');
+  const mediaAPI=()=>window.CRTIZER_MEDIA_LAYERS_V3;
+  const locked=new Set();
+  let selectedId=null;
+
+  function esc(s){
+    return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function objectGlyph(id){
+    const map={
+      city:'▦',sun:'◉',tower:'▥',horizon:'═',signal:'⌁',reticle:'⊕',
+      cityGrid:'▦'
+    };
+    return map[id]||'◇';
+  }
+
+  function getBuiltInState(){
+    return window.crtizerLayerState||{};
+  }
+
+  function getMedia(){
+    return mediaAPI()?.mediaLayers||{};
+  }
+
+  function resolveSelected(){
+    if(selectedId && getMedia()[selectedId])return {kind:'media',id:selectedId,data:getMedia()[selectedId]};
+    if(selectedId && getBuiltInState()[selectedId])return {kind:'object',id:selectedId,data:getBuiltInState()[selectedId]};
+    return null;
+  }
+
+  function mediaThumb(m){
+    const badge=m.kind==='video'?'VIDEO':'IMAGE';
+    if(m.kind==='video'){
+      return `<div class="elite-layer-thumb">
+        <video src="${esc(m.url)}" muted playsinline preload="metadata"></video>
+        <span class="elite-layer-thumb-badge">${badge}</span>
+      </div>`;
+    }
+    return `<div class="elite-layer-thumb">
+      <img src="${esc(m.url)}" alt="">
+      <span class="elite-layer-thumb-badge">${badge}</span>
+    </div>`;
+  }
+
+  function objectThumb(id){
+    return `<div class="elite-layer-thumb">
+      <span class="elite-object-glyph">${objectGlyph(id)}</span>
+      <span class="elite-layer-thumb-badge">FX</span>
+    </div>`;
+  }
+
+  function buildRow(id,name,type,visible,isLocked,z,thumb){
+    return `<div class="layer-row ${selectedId===id?'active':''}" data-elite-layer="${esc(id)}">
+      ${thumb}
+      <div class="elite-layer-info">
+        <div class="layer-name">${esc(name)}</div>
+        <div class="layer-type">${esc(type)} // Z${z}</div>
+      </div>
+      <div class="elite-layer-row-actions">
+        <button class="elite-row-icon ${visible?'on':''}" data-row-eye title="Visibility">${visible?'◉':'○'}</button>
+        <button class="elite-row-icon ${isLocked?'locked':''}" data-row-lock title="Lock">${isLocked?'▣':'□'}</button>
+      </div>
+    </div>`;
+  }
+
+  function renderEliteList(){
+    if(!list)return;
+    const media=Object.values(getMedia()).sort((a,b)=>(b.state?.z||0)-(a.state?.z||0));
+    const built=Object.entries(getBuiltInState())
+      .filter(([id])=>!id.startsWith('media_'))
+      .sort((a,b)=>(b[1].z||0)-(a[1].z||0));
+
+    let html='';
+    media.forEach(m=>{
+      html+=buildRow(
+        m.id,m.name,m.kind.toUpperCase()+' LAYER',
+        m.state.visible!==false,locked.has(m.id),m.state.z||0,mediaThumb(m)
+      );
+    });
+    built.forEach(([id,s])=>{
+      const name=s.name||id.replace(/([A-Z])/g,' $1').trim().toUpperCase();
+      html+=buildRow(
+        id,name,'FRAME OBJECT',
+        s.visible!==false,locked.has(id),s.z||0,objectThumb(id)
+      );
+    });
+    list.innerHTML=html || `<div style="padding:18px;text-align:center;font:7px ui-monospace;color:#61727a">NO LAYERS</div>`;
+
+    const count=media.length+built.length;
+    const countEl=document.getElementById('eliteLayerCount');
+    if(countEl)countEl.textContent=count+' ITEM'+(count===1?'':'S');
+
+    list.querySelectorAll('[data-elite-layer]').forEach(row=>{
+      row.addEventListener('click',e=>{
+        const id=row.dataset.eliteLayer;
+        if(e.target.closest('[data-row-eye]')){
+          e.stopPropagation();toggleVisibility(id);return;
+        }
+        if(e.target.closest('[data-row-lock]')){
+          e.stopPropagation();toggleLock(id);return;
+        }
+        selectLayer(id);
+      });
+
+      const v=row.querySelector('video');
+      if(v){
+        v.addEventListener('loadedmetadata',()=>{
+          try{v.currentTime=Math.min(.2,v.duration||0)}catch(e){}
+        },{once:true});
+      }
+    });
+    updateInspectorMeta();
+  }
+
+  function selectLayer(id){
+    selectedId=id;
+    const media=getMedia()[id];
+    if(media){
+      // Invoke existing inspector renderer by clicking equivalent data state is internal,
+      // so recreate compatible controls here.
+      renderMediaInspectorElite(media);
+    }else{
+      // Let original layer editor render built-in property controls.
+      const oldRow=document.querySelector(`[data-layer="${CSS.escape(id)}"]`);
+      if(oldRow && !oldRow.closest('#layerList'))oldRow.click();
+      renderBuiltInspectorElite(id);
+    }
+    renderEliteList();
+  }
+
+  function renderMediaInspectorElite(m){
+    document.getElementById('layerInspectorName').textContent=m.name;
+    const box=document.getElementById('layerProperties');
+    const defs=[
+      ['X POSITION','x',-400,400],['Y POSITION','y',-300,300],
+      ['SCALE','scale',20,250],['ROTATION','rotate',-180,180],['OPACITY','opacity',0,100]
+    ];
+    box.innerHTML=defs.map(([label,key,min,max])=>`
+      <div class="param">
+        <div class="paramTop"><span>${label}</span><b>${m.state[key]}</b></div>
+        <input type="range" min="${min}" max="${max}" value="${m.state[key]}" data-elite-media="${key}">
+      </div>`).join('');
+    box.querySelectorAll('input').forEach(r=>{
+      if(window.setRangeFill)setRangeFill(r);
+      r.oninput=()=>{
+        if(locked.has(m.id)){r.value=m.state[r.dataset.eliteMedia];return;}
+        m.state[r.dataset.eliteMedia]=+r.value;
+        r.previousElementSibling.querySelector('b').textContent=r.value;
+        const el=m.el,s=m.state;
+        el.style.translate=`${s.x}px ${s.y}px`;
+        el.style.scale=String(s.scale/100);
+        el.style.rotate=s.rotate+'deg';
+        el.style.opacity=s.visible?String(s.opacity/100):'0';
+        el.style.zIndex=String(s.z);
+        if(window.setRangeFill)setRangeFill(r);
+        window.rebuildUnifiedLayerPreview?.(true);
+        window.refreshUnifiedSynth?.();
+        updateInspectorMeta();
+      };
+    });
+    updateInspectorMeta();
+  }
+
+  function renderBuiltInspectorElite(id){
+    const s=getBuiltInState()[id];
+    if(!s)return;
+    document.getElementById('layerInspectorName').textContent=s.name||id.toUpperCase();
+    const box=document.getElementById('layerProperties');
+    const defs=[
+      ['X POSITION','x',-400,400],['Y POSITION','y',-300,300],
+      ['SCALE','scale',20,250],['ROTATION','rotate',-180,180],['OPACITY','opacity',0,100]
+    ];
+    box.innerHTML=defs.map(([label,key,min,max])=>`
+      <div class="param">
+        <div class="paramTop"><span>${label}</span><b>${s[key]??0}</b></div>
+        <input type="range" min="${min}" max="${max}" value="${s[key]??0}" data-elite-object="${key}">
+      </div>`).join('');
+    box.querySelectorAll('input').forEach(r=>{
+      if(window.setRangeFill)setRangeFill(r);
+      r.oninput=()=>{
+        if(locked.has(id)){r.value=s[r.dataset.eliteObject];return;}
+        s[r.dataset.eliteObject]=+r.value;
+        r.previousElementSibling.querySelector('b').textContent=r.value;
+        const map={
+          city:document.querySelector('.cityGrid'),
+          cityGrid:document.querySelector('.cityGrid'),
+          sun:document.querySelector('.sun'),
+          tower:document.querySelector('.tower'),
+          horizon:document.querySelector('.horizon'),
+          signal:document.querySelector('.signalText'),
+          reticle:document.querySelector('.reticle')
+        };
+        const el=map[id];
+        if(el){
+          el.style.translate=`${s.x||0}px ${s.y||0}px`;
+          el.style.scale=String((s.scale||100)/100);
+          el.style.rotate=(s.rotate||0)+'deg';
+          el.style.opacity=s.visible===false?'0':String((s.opacity??100)/100);
+          el.style.zIndex=String(s.z||0);
+        }
+        if(window.setRangeFill)setRangeFill(r);
+        window.rebuildUnifiedLayerPreview?.(true);
+        updateInspectorMeta();
+      };
+    });
+    updateInspectorMeta();
+  }
+
+  function toggleVisibility(id){
+    const m=getMedia()[id];
+    if(m){
+      m.state.visible=!m.state.visible;
+      m.el.style.opacity=m.state.visible?String(m.state.opacity/100):'0';
+    }else{
+      const s=getBuiltInState()[id]; if(!s)return;
+      s.visible=!s.visible;
+      const map={
+        city:'.cityGrid',cityGrid:'.cityGrid',sun:'.sun',tower:'.tower',
+        horizon:'.horizon',signal:'.signalText',reticle:'.reticle'
+      };
+      const el=document.querySelector(map[id]);
+      if(el)el.style.opacity=s.visible===false?'0':String((s.opacity??100)/100);
+    }
+    window.rebuildUnifiedLayerPreview?.(true);
+    renderEliteList();
+  }
+
+  function toggleLock(id){
+    locked.has(id)?locked.delete(id):locked.add(id);
+    renderEliteList();
+  }
+
+  function deleteSelected(){
+    if(!selectedId)return;
+    const m=getMedia()[selectedId];
+    if(m){
+      mediaAPI()?.deleteMediaLayer?.(selectedId);
+      selectedId=null;
+      setTimeout(renderEliteList,20);
+    }else{
+      if(window.showToast)showToast('BUILT-IN FRAME OBJECTS CAN BE HIDDEN, NOT DELETED');
+    }
+  }
+
+  function resetSelected(){
+    const m=getMedia()[selectedId];
+    if(m){
+      Object.assign(m.state,{x:0,y:0,scale:100,rotate:0,opacity:100,visible:true});
+      renderMediaInspectorElite(m);
+    }else{
+      const s=getBuiltInState()[selectedId];
+      if(s){
+        Object.assign(s,{x:0,y:0,scale:100,rotate:0,opacity:100,visible:true});
+        renderBuiltInspectorElite(selectedId);
+      }
+    }
+    window.rebuildUnifiedLayerPreview?.(true);
+    renderEliteList();
+  }
+
+  function centerSelected(){
+    const m=getMedia()[selectedId];
+    if(m){
+      m.state.x=0;m.state.y=0;renderMediaInspectorElite(m);
+    }else{
+      const s=getBuiltInState()[selectedId];if(s){s.x=0;s.y=0;renderBuiltInspectorElite(selectedId);}
+    }
+    window.rebuildUnifiedLayerPreview?.(true);
+  }
+
+  function updateInspectorMeta(){
+    const sel=resolveSelected();
+    const type=document.getElementById('eliteSelectedType');
+    const z=document.getElementById('eliteSelectedZ');
+    const status=document.getElementById('eliteSelectedStatus');
+    const visBtn=document.getElementById('eliteVisibilityBtn');
+    const lockBtn=document.getElementById('eliteLockBtn');
+    if(!sel){
+      if(type)type.textContent='NONE';if(z)z.textContent='-';if(status)status.textContent='-';
+      return;
+    }
+    const s=sel.kind==='media'?sel.data.state:sel.data;
+    if(type)type.textContent=sel.kind==='media'?sel.data.kind.toUpperCase():'OBJECT';
+    if(z)z.textContent=String(s.z??0);
+    if(status)status.textContent=s.visible===false?'HIDDEN':(locked.has(sel.id)?'LOCKED':'VISIBLE');
+    if(visBtn)visBtn.textContent=s.visible===false?'SHOW':'HIDE';
+    if(lockBtn)lockBtn.textContent=locked.has(sel.id)?'UNLOCK':'LOCK';
+  }
+
+  // Inspector tabs.
+  document.querySelectorAll('.elite-inspector-tab').forEach(btn=>{
+    btn.onclick=()=>{
+      document.querySelectorAll('.elite-inspector-tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.elite-inspector-panel').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`[data-elite-panel="${btn.dataset.eliteTab}"]`)?.classList.add('active');
+    };
+  });
+
+  // Toolbar actions.
+  document.getElementById('eliteAddImageBtn')?.addEventListener('click',()=>document.getElementById('imageFileInput')?.click());
+  document.getElementById('eliteAddVideoBtn')?.addEventListener('click',()=>document.getElementById('videoFileInput')?.click());
+  document.getElementById('eliteUndoBtn')?.addEventListener('click',()=>mediaAPI()?.undo?.());
+  document.getElementById('eliteDeleteBtn')?.addEventListener('click',deleteSelected);
+  document.getElementById('layerDeleteBtn')?.addEventListener('click',deleteSelected);
+  document.getElementById('layerUndoBtn')?.addEventListener('click',()=>mediaAPI()?.undo?.());
+  document.getElementById('eliteVisibilityBtn')?.addEventListener('click',()=>selectedId&&toggleVisibility(selectedId));
+  document.getElementById('eliteLockBtn')?.addEventListener('click',()=>selectedId&&toggleLock(selectedId));
+  document.getElementById('eliteToggleLock')?.addEventListener('click',()=>selectedId&&toggleLock(selectedId));
+  document.getElementById('layerReset')?.addEventListener('click',resetSelected);
+  document.getElementById('layerCenter')?.addEventListener('click',centerSelected);
+
+  // Keep visible transport labels synced.
+  const vid=document.getElementById('mainSourceVideo');
+  const seek=document.getElementById('videoSeek');
+  const cur=document.getElementById('videoCurrent');
+  const dur=document.getElementById('videoDuration');
+  function fmt(t){
+    if(!isFinite(t))return'00:00';
+    const m=Math.floor(t/60),s=Math.floor(t%60);
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  vid?.addEventListener('loadedmetadata',()=>{if(dur)dur.textContent=fmt(vid.duration)});
+  vid?.addEventListener('timeupdate',()=>{
+    if(cur)cur.textContent=fmt(vid.currentTime);
+    if(dur)dur.textContent=fmt(vid.duration);
+    if(seek&&vid.duration)seek.value=Math.round(vid.currentTime/vid.duration*1000);
+  });
+
+  // Observe underlying media layer registry changes and rebuild elite list.
+  const observer=new MutationObserver(()=>setTimeout(renderEliteList,20));
+  if(document.getElementById('visual'))observer.observe(document.getElementById('visual'),{childList:true,subtree:false});
+
+  modal?.addEventListener('click',e=>{
+    if(e.target===modal)return;
+  });
+
+  // Re-render whenever Layers opens.
+  document.getElementById('layersBtn')?.addEventListener('click',()=>setTimeout(renderEliteList,10));
+  document.querySelectorAll('.dock-btn[data-tool="layers"]').forEach(b=>b.addEventListener('click',()=>setTimeout(renderEliteList,10)));
+
+  // Let input upload handlers finish, then show actual thumbnail row.
+  document.getElementById('imageFileInput')?.addEventListener('change',()=>setTimeout(renderEliteList,120));
+  document.getElementById('videoFileInput')?.addEventListener('change',()=>setTimeout(renderEliteList,180));
+
+  // Initial.
+  setTimeout(renderEliteList,50);
+  window.CRTIZER_ELITE_LAYERS={render:renderEliteList,select:selectLayer};
 })();
 </script>
 
@@ -4649,6 +5535,362 @@ window.CRTIZER_SHADER_LIBRARY = [{"id": "crt-royale", "name": "CRT Royale", "cat
   window.CRTIZER_MEDIA_LAYERS_V3={
     createMediaLayer,deleteMediaLayer,undo,mediaLayers,refreshSynthTargetOptions
   };
+})();
+</script>
+
+
+<script id="crtizer-elite-layers-js">
+(function(){
+  const list=document.getElementById('layerList');
+  const modal=document.getElementById('layersModal');
+  const mediaAPI=()=>window.CRTIZER_MEDIA_LAYERS_V3;
+  const locked=new Set();
+  let selectedId=null;
+
+  function esc(s){
+    return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function objectGlyph(id){
+    const map={
+      city:'▦',sun:'◉',tower:'▥',horizon:'═',signal:'⌁',reticle:'⊕',
+      cityGrid:'▦'
+    };
+    return map[id]||'◇';
+  }
+
+  function getBuiltInState(){
+    return window.crtizerLayerState||{};
+  }
+
+  function getMedia(){
+    return mediaAPI()?.mediaLayers||{};
+  }
+
+  function resolveSelected(){
+    if(selectedId && getMedia()[selectedId])return {kind:'media',id:selectedId,data:getMedia()[selectedId]};
+    if(selectedId && getBuiltInState()[selectedId])return {kind:'object',id:selectedId,data:getBuiltInState()[selectedId]};
+    return null;
+  }
+
+  function mediaThumb(m){
+    const badge=m.kind==='video'?'VIDEO':'IMAGE';
+    if(m.kind==='video'){
+      return `<div class="elite-layer-thumb">
+        <video src="${esc(m.url)}" muted playsinline preload="metadata"></video>
+        <span class="elite-layer-thumb-badge">${badge}</span>
+      </div>`;
+    }
+    return `<div class="elite-layer-thumb">
+      <img src="${esc(m.url)}" alt="">
+      <span class="elite-layer-thumb-badge">${badge}</span>
+    </div>`;
+  }
+
+  function objectThumb(id){
+    return `<div class="elite-layer-thumb">
+      <span class="elite-object-glyph">${objectGlyph(id)}</span>
+      <span class="elite-layer-thumb-badge">FX</span>
+    </div>`;
+  }
+
+  function buildRow(id,name,type,visible,isLocked,z,thumb){
+    return `<div class="layer-row ${selectedId===id?'active':''}" data-elite-layer="${esc(id)}">
+      ${thumb}
+      <div class="elite-layer-info">
+        <div class="layer-name">${esc(name)}</div>
+        <div class="layer-type">${esc(type)} // Z${z}</div>
+      </div>
+      <div class="elite-layer-row-actions">
+        <button class="elite-row-icon ${visible?'on':''}" data-row-eye title="Visibility">${visible?'◉':'○'}</button>
+        <button class="elite-row-icon ${isLocked?'locked':''}" data-row-lock title="Lock">${isLocked?'▣':'□'}</button>
+      </div>
+    </div>`;
+  }
+
+  function renderEliteList(){
+    if(!list)return;
+    const media=Object.values(getMedia()).sort((a,b)=>(b.state?.z||0)-(a.state?.z||0));
+    const built=Object.entries(getBuiltInState())
+      .filter(([id])=>!id.startsWith('media_'))
+      .sort((a,b)=>(b[1].z||0)-(a[1].z||0));
+
+    let html='';
+    media.forEach(m=>{
+      html+=buildRow(
+        m.id,m.name,m.kind.toUpperCase()+' LAYER',
+        m.state.visible!==false,locked.has(m.id),m.state.z||0,mediaThumb(m)
+      );
+    });
+    built.forEach(([id,s])=>{
+      const name=s.name||id.replace(/([A-Z])/g,' $1').trim().toUpperCase();
+      html+=buildRow(
+        id,name,'FRAME OBJECT',
+        s.visible!==false,locked.has(id),s.z||0,objectThumb(id)
+      );
+    });
+    list.innerHTML=html || `<div style="padding:18px;text-align:center;font:7px ui-monospace;color:#61727a">NO LAYERS</div>`;
+
+    const count=media.length+built.length;
+    const countEl=document.getElementById('eliteLayerCount');
+    if(countEl)countEl.textContent=count+' ITEM'+(count===1?'':'S');
+
+    list.querySelectorAll('[data-elite-layer]').forEach(row=>{
+      row.addEventListener('click',e=>{
+        const id=row.dataset.eliteLayer;
+        if(e.target.closest('[data-row-eye]')){
+          e.stopPropagation();toggleVisibility(id);return;
+        }
+        if(e.target.closest('[data-row-lock]')){
+          e.stopPropagation();toggleLock(id);return;
+        }
+        selectLayer(id);
+      });
+
+      const v=row.querySelector('video');
+      if(v){
+        v.addEventListener('loadedmetadata',()=>{
+          try{v.currentTime=Math.min(.2,v.duration||0)}catch(e){}
+        },{once:true});
+      }
+    });
+    updateInspectorMeta();
+  }
+
+  function selectLayer(id){
+    selectedId=id;
+    const media=getMedia()[id];
+    if(media){
+      // Invoke existing inspector renderer by clicking equivalent data state is internal,
+      // so recreate compatible controls here.
+      renderMediaInspectorElite(media);
+    }else{
+      // Let original layer editor render built-in property controls.
+      const oldRow=document.querySelector(`[data-layer="${CSS.escape(id)}"]`);
+      if(oldRow && !oldRow.closest('#layerList'))oldRow.click();
+      renderBuiltInspectorElite(id);
+    }
+    renderEliteList();
+  }
+
+  function renderMediaInspectorElite(m){
+    document.getElementById('layerInspectorName').textContent=m.name;
+    const box=document.getElementById('layerProperties');
+    const defs=[
+      ['X POSITION','x',-400,400],['Y POSITION','y',-300,300],
+      ['SCALE','scale',20,250],['ROTATION','rotate',-180,180],['OPACITY','opacity',0,100]
+    ];
+    box.innerHTML=defs.map(([label,key,min,max])=>`
+      <div class="param">
+        <div class="paramTop"><span>${label}</span><b>${m.state[key]}</b></div>
+        <input type="range" min="${min}" max="${max}" value="${m.state[key]}" data-elite-media="${key}">
+      </div>`).join('');
+    box.querySelectorAll('input').forEach(r=>{
+      if(window.setRangeFill)setRangeFill(r);
+      r.oninput=()=>{
+        if(locked.has(m.id)){r.value=m.state[r.dataset.eliteMedia];return;}
+        m.state[r.dataset.eliteMedia]=+r.value;
+        r.previousElementSibling.querySelector('b').textContent=r.value;
+        const el=m.el,s=m.state;
+        el.style.translate=`${s.x}px ${s.y}px`;
+        el.style.scale=String(s.scale/100);
+        el.style.rotate=s.rotate+'deg';
+        el.style.opacity=s.visible?String(s.opacity/100):'0';
+        el.style.zIndex=String(s.z);
+        if(window.setRangeFill)setRangeFill(r);
+        window.rebuildUnifiedLayerPreview?.(true);
+        window.refreshUnifiedSynth?.();
+        updateInspectorMeta();
+      };
+    });
+    updateInspectorMeta();
+  }
+
+  function renderBuiltInspectorElite(id){
+    const s=getBuiltInState()[id];
+    if(!s)return;
+    document.getElementById('layerInspectorName').textContent=s.name||id.toUpperCase();
+    const box=document.getElementById('layerProperties');
+    const defs=[
+      ['X POSITION','x',-400,400],['Y POSITION','y',-300,300],
+      ['SCALE','scale',20,250],['ROTATION','rotate',-180,180],['OPACITY','opacity',0,100]
+    ];
+    box.innerHTML=defs.map(([label,key,min,max])=>`
+      <div class="param">
+        <div class="paramTop"><span>${label}</span><b>${s[key]??0}</b></div>
+        <input type="range" min="${min}" max="${max}" value="${s[key]??0}" data-elite-object="${key}">
+      </div>`).join('');
+    box.querySelectorAll('input').forEach(r=>{
+      if(window.setRangeFill)setRangeFill(r);
+      r.oninput=()=>{
+        if(locked.has(id)){r.value=s[r.dataset.eliteObject];return;}
+        s[r.dataset.eliteObject]=+r.value;
+        r.previousElementSibling.querySelector('b').textContent=r.value;
+        const map={
+          city:document.querySelector('.cityGrid'),
+          cityGrid:document.querySelector('.cityGrid'),
+          sun:document.querySelector('.sun'),
+          tower:document.querySelector('.tower'),
+          horizon:document.querySelector('.horizon'),
+          signal:document.querySelector('.signalText'),
+          reticle:document.querySelector('.reticle')
+        };
+        const el=map[id];
+        if(el){
+          el.style.translate=`${s.x||0}px ${s.y||0}px`;
+          el.style.scale=String((s.scale||100)/100);
+          el.style.rotate=(s.rotate||0)+'deg';
+          el.style.opacity=s.visible===false?'0':String((s.opacity??100)/100);
+          el.style.zIndex=String(s.z||0);
+        }
+        if(window.setRangeFill)setRangeFill(r);
+        window.rebuildUnifiedLayerPreview?.(true);
+        updateInspectorMeta();
+      };
+    });
+    updateInspectorMeta();
+  }
+
+  function toggleVisibility(id){
+    const m=getMedia()[id];
+    if(m){
+      m.state.visible=!m.state.visible;
+      m.el.style.opacity=m.state.visible?String(m.state.opacity/100):'0';
+    }else{
+      const s=getBuiltInState()[id]; if(!s)return;
+      s.visible=!s.visible;
+      const map={
+        city:'.cityGrid',cityGrid:'.cityGrid',sun:'.sun',tower:'.tower',
+        horizon:'.horizon',signal:'.signalText',reticle:'.reticle'
+      };
+      const el=document.querySelector(map[id]);
+      if(el)el.style.opacity=s.visible===false?'0':String((s.opacity??100)/100);
+    }
+    window.rebuildUnifiedLayerPreview?.(true);
+    renderEliteList();
+  }
+
+  function toggleLock(id){
+    locked.has(id)?locked.delete(id):locked.add(id);
+    renderEliteList();
+  }
+
+  function deleteSelected(){
+    if(!selectedId)return;
+    const m=getMedia()[selectedId];
+    if(m){
+      mediaAPI()?.deleteMediaLayer?.(selectedId);
+      selectedId=null;
+      setTimeout(renderEliteList,20);
+    }else{
+      if(window.showToast)showToast('BUILT-IN FRAME OBJECTS CAN BE HIDDEN, NOT DELETED');
+    }
+  }
+
+  function resetSelected(){
+    const m=getMedia()[selectedId];
+    if(m){
+      Object.assign(m.state,{x:0,y:0,scale:100,rotate:0,opacity:100,visible:true});
+      renderMediaInspectorElite(m);
+    }else{
+      const s=getBuiltInState()[selectedId];
+      if(s){
+        Object.assign(s,{x:0,y:0,scale:100,rotate:0,opacity:100,visible:true});
+        renderBuiltInspectorElite(selectedId);
+      }
+    }
+    window.rebuildUnifiedLayerPreview?.(true);
+    renderEliteList();
+  }
+
+  function centerSelected(){
+    const m=getMedia()[selectedId];
+    if(m){
+      m.state.x=0;m.state.y=0;renderMediaInspectorElite(m);
+    }else{
+      const s=getBuiltInState()[selectedId];if(s){s.x=0;s.y=0;renderBuiltInspectorElite(selectedId);}
+    }
+    window.rebuildUnifiedLayerPreview?.(true);
+  }
+
+  function updateInspectorMeta(){
+    const sel=resolveSelected();
+    const type=document.getElementById('eliteSelectedType');
+    const z=document.getElementById('eliteSelectedZ');
+    const status=document.getElementById('eliteSelectedStatus');
+    const visBtn=document.getElementById('eliteVisibilityBtn');
+    const lockBtn=document.getElementById('eliteLockBtn');
+    if(!sel){
+      if(type)type.textContent='NONE';if(z)z.textContent='-';if(status)status.textContent='-';
+      return;
+    }
+    const s=sel.kind==='media'?sel.data.state:sel.data;
+    if(type)type.textContent=sel.kind==='media'?sel.data.kind.toUpperCase():'OBJECT';
+    if(z)z.textContent=String(s.z??0);
+    if(status)status.textContent=s.visible===false?'HIDDEN':(locked.has(sel.id)?'LOCKED':'VISIBLE');
+    if(visBtn)visBtn.textContent=s.visible===false?'SHOW':'HIDE';
+    if(lockBtn)lockBtn.textContent=locked.has(sel.id)?'UNLOCK':'LOCK';
+  }
+
+  // Inspector tabs.
+  document.querySelectorAll('.elite-inspector-tab').forEach(btn=>{
+    btn.onclick=()=>{
+      document.querySelectorAll('.elite-inspector-tab').forEach(x=>x.classList.remove('active'));
+      document.querySelectorAll('.elite-inspector-panel').forEach(x=>x.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelector(`[data-elite-panel="${btn.dataset.eliteTab}"]`)?.classList.add('active');
+    };
+  });
+
+  // Toolbar actions.
+  document.getElementById('eliteAddImageBtn')?.addEventListener('click',()=>document.getElementById('imageFileInput')?.click());
+  document.getElementById('eliteAddVideoBtn')?.addEventListener('click',()=>document.getElementById('videoFileInput')?.click());
+  document.getElementById('eliteUndoBtn')?.addEventListener('click',()=>mediaAPI()?.undo?.());
+  document.getElementById('eliteDeleteBtn')?.addEventListener('click',deleteSelected);
+  document.getElementById('layerDeleteBtn')?.addEventListener('click',deleteSelected);
+  document.getElementById('layerUndoBtn')?.addEventListener('click',()=>mediaAPI()?.undo?.());
+  document.getElementById('eliteVisibilityBtn')?.addEventListener('click',()=>selectedId&&toggleVisibility(selectedId));
+  document.getElementById('eliteLockBtn')?.addEventListener('click',()=>selectedId&&toggleLock(selectedId));
+  document.getElementById('eliteToggleLock')?.addEventListener('click',()=>selectedId&&toggleLock(selectedId));
+  document.getElementById('layerReset')?.addEventListener('click',resetSelected);
+  document.getElementById('layerCenter')?.addEventListener('click',centerSelected);
+
+  // Keep visible transport labels synced.
+  const vid=document.getElementById('mainSourceVideo');
+  const seek=document.getElementById('videoSeek');
+  const cur=document.getElementById('videoCurrent');
+  const dur=document.getElementById('videoDuration');
+  function fmt(t){
+    if(!isFinite(t))return'00:00';
+    const m=Math.floor(t/60),s=Math.floor(t%60);
+    return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  vid?.addEventListener('loadedmetadata',()=>{if(dur)dur.textContent=fmt(vid.duration)});
+  vid?.addEventListener('timeupdate',()=>{
+    if(cur)cur.textContent=fmt(vid.currentTime);
+    if(dur)dur.textContent=fmt(vid.duration);
+    if(seek&&vid.duration)seek.value=Math.round(vid.currentTime/vid.duration*1000);
+  });
+
+  // Observe underlying media layer registry changes and rebuild elite list.
+  const observer=new MutationObserver(()=>setTimeout(renderEliteList,20));
+  if(document.getElementById('visual'))observer.observe(document.getElementById('visual'),{childList:true,subtree:false});
+
+  modal?.addEventListener('click',e=>{
+    if(e.target===modal)return;
+  });
+
+  // Re-render whenever Layers opens.
+  document.getElementById('layersBtn')?.addEventListener('click',()=>setTimeout(renderEliteList,10));
+  document.querySelectorAll('.dock-btn[data-tool="layers"]').forEach(b=>b.addEventListener('click',()=>setTimeout(renderEliteList,10)));
+
+  // Let input upload handlers finish, then show actual thumbnail row.
+  document.getElementById('imageFileInput')?.addEventListener('change',()=>setTimeout(renderEliteList,120));
+  document.getElementById('videoFileInput')?.addEventListener('change',()=>setTimeout(renderEliteList,180));
+
+  // Initial.
+  setTimeout(renderEliteList,50);
+  window.CRTIZER_ELITE_LAYERS={render:renderEliteList,select:selectLayer};
 })();
 </script>
 
