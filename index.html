@@ -522,10 +522,16 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
           <div class="irisseg-block">
             <label>SEGMENTATION MODEL</label>
             <select id="irisSegModel">
-              <option value="sam2">SAM2</option>
+              <option value="sam2">IrisReg</option>
               <option value="efficienttam">EfficientTAM</option>
             </select>
           </div>
+          <div class="irisseg-block">
+            <label>IRISREG PROMPT</label>
+            <textarea id="irisSegPrompt" placeholder="Describe what to isolate, e.g. person in the purple jacket, foreground car, face and hair…" style="width:100%;min-height:78px;border:1px solid var(--line);background:#080b0f;color:#dce5e8;border-radius:7px;padding:8px;resize:vertical;font-size:8px"></textarea>
+            <div class="irisseg-note">Used by the IrisReg/Sammie bridge as semantic guidance. Browser Local still relies primarily on Include / Exclude points.</div>
+          </div>
+
           <div class="irisseg-block">
             <label>REFINEMENT / MATTING</label>
             <select id="irisSegMatte">
@@ -1914,7 +1920,7 @@ $('#exportNow').onclick=async()=>{
       frame:{width:state.projectWidth,height:state.projectHeight},
       source:{type:state.source.type,name:state.source.name},
       layers:state.layers.map(({el,...l})=>l),
-      effects:state.effects,synth:state.synth,shader:state.shader,roto:Object.fromEntries(Object.entries(state.roto.sessions).map(([k,v])=>[k,{enabled:v.enabled,inverted:v.inverted,feather:v.feather,expand:v.expand,model:v.model,matte:v.matte,points:v.points,frames:(v.frames||[]).map(f=>({time:f.time,url:f.url}))}])),
+      effects:state.effects,synth:state.synth,shader:state.shader,roto:Object.fromEntries(Object.entries(state.roto.sessions).map(([k,v])=>[k,{enabled:v.enabled,inverted:v.inverted,feather:v.feather,expand:v.expand,model:v.model,matte:v.matte,points:v.points,prompt:v.prompt||'',frames:(v.frames||[]).map(f=>({time:f.time,url:f.url}))}])),
       trimStart:state.trimStart,trimEnd:state.trimEnd,splits:state.splits
     };
     downloadBlob(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),'crtizer-project.json');
@@ -2205,6 +2211,7 @@ async function irisBrowserSegmentCurrent(){
   session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
   session.enabled=true;
   session.points=[...irisSeg.points];
+  session.prompt=$('#irisSegPrompt')?.value?.trim()||'';
   session.model='slimsam-browser';
   session.matte='none';
   setIrisBoot(true,'MASK READY',100,'DONE');
@@ -2249,7 +2256,7 @@ async function irisBrowserTrack(direction='forward'){
     session.frames.push({time:t,url:image.src,image});
   }
   session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
-  session.enabled=true;session.points=[...irisSeg.points];session.model='slimsam-browser';
+  session.enabled=true;session.points=[...irisSeg.points];session.prompt=$('#irisSegPrompt')?.value?.trim()||'';session.model='slimsam-browser';
   setIrisBoot(true,'TRACK COMPLETE',100,'DONE');
   setTimeout(()=>setIrisBoot(false),450);
   if(!wasPaused)v.play().catch(()=>{});
@@ -2286,7 +2293,7 @@ function setIrisSegConnection(stateName,msg){
 }
 function irisSegSession(id){
   if(!state.roto.sessions[id]){
-    state.roto.sessions[id]={enabled:false,inverted:false,feather:0,expand:0,frames:[],points:[],model:'sam2',matte:'none'};
+    state.roto.sessions[id]={enabled:false,inverted:false,feather:0,expand:0,frames:[],points:[],prompt:'',model:'sam2',matte:'none'};
   }
   return state.roto.sessions[id];
 }
@@ -2414,6 +2421,7 @@ async function irisSegCreatePayload(action,direction='forward'){
   fd.append('model',$('#irisSegModel').value);
   fd.append('matting',$('#irisSegMatte').value);
   fd.append('points',JSON.stringify(irisSeg.points));
+  fd.append('prompt',$('#irisSegPrompt')?.value?.trim()||'');
   fd.append('feather',$('#irisSegFeather').value);
   fd.append('expand',$('#irisSegExpand').value);
   return {target,fd};
@@ -2459,6 +2467,7 @@ async function irisSegRun(action,direction='forward'){
 
     const session=irisSegSession(target.id);
     session.points=[...irisSeg.points];
+    session.prompt=$('#irisSegPrompt')?.value?.trim()||'';
     session.model=$('#irisSegModel').value;
     session.matte=$('#irisSegMatte').value;
     session.feather=+$('#irisSegFeather').value;
@@ -2481,7 +2490,9 @@ function prepareIrisSeg(){
   const d=t?.type==='video'?(t.el?.duration||masterDuration()):masterDuration();
   $('#irisSegIn').value=0;
   $('#irisSegOut').value=(d||0).toFixed(2);
-  irisSeg.points=[...(rotoForTarget(t?.id)?.points||[])];
+  const activeSession=rotoForTarget(t?.id);
+  irisSeg.points=[...(activeSession?.points||[])];
+  if($('#irisSegPrompt'))$('#irisSegPrompt').value=activeSession?.prompt||'';
   renderIrisSegPoints();
   $('#irisSegModel').disabled=irisSeg.engine==='browser';
   $('#irisSegMatte').disabled=irisSeg.engine==='browser';
@@ -2504,7 +2515,9 @@ $('#irisSegEngine')?.addEventListener('change',e=>{
 });
 $('#irisSegTarget')?.addEventListener('change',()=>{
   state.roto.activeTarget=$('#irisSegTarget').value;
-  irisSeg.points=[...(rotoForTarget(state.roto.activeTarget)?.points||[])];
+  const session=rotoForTarget(state.roto.activeTarget);
+  irisSeg.points=[...(session?.points||[])];
+  if($('#irisSegPrompt'))$('#irisSegPrompt').value=session?.prompt||'';
   renderIrisSegPoints();drawIrisSegFrame()
 });
 $('#irisSegInclude')?.addEventListener('click',()=>irisSegSetMode('include'));
