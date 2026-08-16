@@ -441,6 +441,48 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="crtizer-bottom-sheet-fix-css">
+@media(max-width:900px){
+  .sheet{
+    display:block!important;
+    visibility:hidden;
+    pointer-events:none;
+    opacity:0;
+    transform:translateY(110%)!important;
+    transition:transform .22s ease,opacity .16s ease,visibility 0s linear .22s!important;
+  }
+  .sheet.open{
+    visibility:visible!important;
+    pointer-events:auto!important;
+    opacity:1!important;
+    transform:translateY(0)!important;
+    transition:transform .22s ease,opacity .16s ease!important;
+  }
+
+  .tool-tabs{
+    position:relative!important;
+    z-index:200!important;
+    pointer-events:auto!important;
+  }
+
+  .tool{
+    position:relative!important;
+    z-index:201!important;
+    pointer-events:auto!important;
+  }
+
+  .timeline{
+    position:relative!important;
+    z-index:10!important;
+  }
+
+  .sheet{
+    z-index:300!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1265,22 +1307,79 @@ $$('[data-open]').forEach(b=>b.onclick=()=>openModal(b.dataset.open));$$('[data-
 
 function openSheet(tool){
   $$('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
-  if(['layers','synth','shader','export'].includes(tool)){openModal(tool);return}
-  const sheet=$('#sheet'),body=$('#sheetBody');$('#sheetTitle').textContent=tool[0].toUpperCase()+tool.slice(1);body.innerHTML='';
+
+  if(['layers','synth','shader','export'].includes(tool)){
+    const sheet=$('#sheet');
+    if(sheet)sheet.classList.remove('open');
+    openModal(tool);
+    return;
+  }
+
+  const sheet=$('#sheet');
+  const body=$('#sheetBody');
+  const title=$('#sheetTitle');
+  if(!sheet||!body||!title)return;
+
+  title.textContent=tool[0].toUpperCase()+tool.slice(1);
+  body.innerHTML='';
+
   if(tool==='source'){
-    body.innerHTML=`<div class="stack"><button class="btn" id="mTest">Test Pattern</button><button class="btn" id="mImage">Load Photo</button><button class="btn accent" id="mVideo">Load Video</button></div><div class="source-card" style="margin-top:9px"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type.toUpperCase()}</small></div>`;
-    body.querySelector('#mTest').onclick=setSourceTest;body.querySelector('#mImage').onclick=()=>$('#sourceImageInput').click();body.querySelector('#mVideo').onclick=()=>$('#sourceVideoInput').click();
+    body.innerHTML=`
+      <div class="stack">
+        <button class="btn" id="mTest">Test Pattern</button>
+        <button class="btn" id="mImage">Load Photo</button>
+        <button class="btn accent" id="mVideo">Load Video</button>
+      </div>
+      <div class="source-card" style="margin-top:9px">
+        <b>${escapeHtml(state.source.name)}</b>
+        <small>${state.source.type.toUpperCase()}</small>
+      </div>`;
+    body.querySelector('#mTest').onclick=setSourceTest;
+    body.querySelector('#mImage').onclick=()=>$('#sourceImageInput').click();
+    body.querySelector('#mVideo').onclick=()=>$('#sourceVideoInput').click();
+
   }else if(tool==='edit'){
-    body.innerHTML=`<div class="row"><button class="btn grow" id="mSplit">Split</button><button class="btn grow" id="mTrim">Trim</button><button class="btn grow danger" id="mDelete">Delete</button></div><div class="source-card" style="margin-top:9px"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type==='video'?fmt(state.source.video?.duration||0):state.source.type.toUpperCase()}</small></div>`;
-    body.querySelector('#mSplit').onclick=()=>$('#splitBtn').click();body.querySelector('#mTrim').onclick=()=>$('#trimBtn').click();body.querySelector('#mDelete').onclick=()=>$('#deleteSourceBtn').click();
+    body.innerHTML=`
+      <div class="row">
+        <button class="btn grow" id="mSplit">Split</button>
+        <button class="btn grow" id="mTrim">Trim</button>
+        <button class="btn grow danger" id="mDelete">Delete</button>
+      </div>
+      <div class="source-card" style="margin-top:9px">
+        <b>${escapeHtml(state.source.name)}</b>
+        <small>${state.source.type==='video'?fmt(state.source.video?.duration||0):state.source.type.toUpperCase()}</small>
+      </div>`;
+    body.querySelector('#mSplit').onclick=()=>$('#splitBtn').click();
+    body.querySelector('#mTrim').onclick=()=>$('#trimBtn').click();
+    body.querySelector('#mDelete').onclick=()=>$('#deleteSourceBtn').click();
+
   }else if(tool==='effects'){
     body.innerHTML=quickDefs.map(d=>paramHTML(d[0],d[1],state.effects[d[1]],d[2],d[3],d[4])).join('');
-    body.querySelectorAll('[data-fx]').forEach(r=>r.oninput=()=>{state.effects[r.dataset.fx]=+r.value;r.previousElementSibling.querySelector('b').textContent=(+r.value).toFixed(+r.step<1?2:0)});
+    body.querySelectorAll('[data-fx]').forEach(r=>{
+      r.oninput=()=>{
+        state.effects[r.dataset.fx]=+r.value;
+        r.previousElementSibling.querySelector('b').textContent=(+r.value).toFixed(+r.step<1?2:0);
+      };
+    });
   }
-  sheet.style.display='block';requestAnimationFrame(()=>sheet.classList.add('open'))
+
+  sheet.classList.add('open');
 }
-$$('.tool').forEach(b=>b.onclick=()=>openSheet(b.dataset.tool));
-$('#closeSheet').onclick=()=>{$('#sheet').classList.remove('open');setTimeout(()=>$('#sheet').style.display='none',220)};
+
+$$('.tool').forEach(b=>{
+  b.onclick=null;
+  b.addEventListener('click',e=>{
+    e.preventDefault();
+    e.stopPropagation();
+    openSheet(b.dataset.tool);
+  });
+});
+
+$('#closeSheet').onclick=()=>{
+  const sheet=$('#sheet');
+  if(sheet)sheet.classList.remove('open');
+  $$('.tool').forEach(b=>b.classList.remove('active'));
+};};
 
 $('#exportNow').onclick=async()=>{
   const type=$('#exportType').value,res=$('#exportRes').value,q=+$('#exportQuality').value,fps=+$('#exportFps').value;
@@ -1298,5 +1397,24 @@ $('#exportNow').onclick=async()=>{
 
 window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjectURL(u)));
 </script>
+
+<script id="crtizer-bottom-sheet-fallback-js">
+(function(){
+  document.addEventListener('pointerup',e=>{
+    if(!window.matchMedia('(max-width:900px)').matches)return;
+    const tool=e.target.closest('.tool');
+    if(!tool)return;
+    const name=tool.dataset.tool;
+    if(!name)return;
+    if(['source','edit','effects'].includes(name)){
+      const sheet=document.getElementById('sheet');
+      if(sheet && !sheet.classList.contains('open')){
+        openSheet(name);
+      }
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
