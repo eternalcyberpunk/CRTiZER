@@ -305,6 +305,47 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="crtizer-irisseg-css">
+.irisseg-layout{height:100%;display:grid;grid-template-columns:300px minmax(0,1fr) 280px}
+.irisseg-pane{min-height:0;overflow:auto;padding:10px;background:#090b0f}
+.irisseg-pane.left{border-right:1px solid var(--line)}
+.irisseg-pane.right{border-left:1px solid var(--line)}
+.irisseg-stage-wrap{min-width:0;min-height:0;padding:10px;display:grid;grid-template-rows:minmax(0,1fr) 48px;background:#050608}
+.irisseg-stage{min-height:0;display:flex;align-items:center;justify-content:center}
+.irisseg-canvas-wrap{position:relative;width:100%;max-height:100%;aspect-ratio:var(--project-aspect,16/9);background:#000;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+#irisSegCanvas,#irisSegOverlay{position:absolute;inset:0;width:100%;height:100%;display:block}
+#irisSegOverlay{touch-action:none;cursor:crosshair}
+.irisseg-toolbar{display:flex;gap:6px;align-items:center;overflow-x:auto;padding-top:7px}
+.irisseg-tool{flex:0 0 auto;min-height:34px;border:1px solid var(--line);background:#0d1014;color:#93a2a8;border-radius:8px;padding:0 10px;font-size:7px}
+.irisseg-tool.active{color:var(--cyan);border-color:rgba(105,231,255,.28);background:rgba(105,231,255,.05)}
+.irisseg-block{border:1px solid var(--line);background:#0d1014;border-radius:9px;padding:9px;margin-bottom:8px}
+.irisseg-block label{display:block;font:6px ui-monospace;color:var(--muted);margin-bottom:5px}
+.irisseg-block input,.irisseg-block select{width:100%;min-height:34px;border:1px solid var(--line);background:#080b0f;color:#dce5e8;border-radius:7px;padding:0 8px}
+.irisseg-status{font:6px ui-monospace;color:#74838a;line-height:1.55}
+.irisseg-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 6px;border:1px solid var(--line);border-radius:999px;font:5.5px ui-monospace;color:#74838a}
+.irisseg-dot{width:6px;height:6px;border-radius:50%;background:#5b6468}
+.irisseg-dot.online{background:#6dff9d;box-shadow:0 0 8px rgba(109,255,157,.45)}
+.irisseg-dot.busy{background:#ffd66b;box-shadow:0 0 8px rgba(255,214,107,.35)}
+.irisseg-point-list{display:grid;gap:4px;max-height:150px;overflow:auto}
+.irisseg-point{display:flex;justify-content:space-between;align-items:center;padding:5px 7px;border:1px solid rgba(255,255,255,.045);border-radius:6px;font:6px ui-monospace;color:#7d8c92}
+.irisseg-point b.pos{color:#6dff9d}.irisseg-point b.neg{color:#ff748e}
+.irisseg-actions{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.irisseg-actions .btn{min-height:38px}
+.irisseg-progress{height:5px;border-radius:999px;background:#11151a;overflow:hidden;margin-top:7px}
+.irisseg-progress>div{height:100%;width:0;background:var(--cyan);transition:width .2s ease}
+.irisseg-note{font:5.5px ui-monospace;color:#627178;line-height:1.5;margin-top:7px}
+.irisseg-mask-controls{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.irisseg-mask-controls .btn{font-size:6.5px}
+@media(max-width:900px){
+  .irisseg-layout{grid-template-columns:1fr;grid-template-rows:minmax(220px,42%) 150px minmax(0,1fr)}
+  .irisseg-stage-wrap{grid-row:1;padding:7px}
+  .irisseg-pane.left{grid-row:2;border-right:0;border-top:1px solid var(--line);display:flex;gap:7px;overflow-x:auto;overflow-y:hidden}
+  .irisseg-pane.left .irisseg-block{flex:0 0 180px;margin:0}
+  .irisseg-pane.right{grid-row:3;border-left:0;border-top:1px solid var(--line)}
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -314,7 +355,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
       <div class="brandtext"><b>CRTiZER</b><small>REALITY, REPROCESSED</small></div>
     </div>
     <div class="top-actions">
-      <button class="text-btn" data-open="layers">Layers</button>
+      <button class="text-btn" data-open="layers">Layers</button><button class="text-btn" data-open="irisseg">IrisSeg</button>
       <button class="text-btn" data-open="synth">Dither</button>
       <button class="text-btn" data-open="shader">Shader</button>
       <button class="text-btn" data-open="export">Export</button>
@@ -368,7 +409,7 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
         <button class="tool" data-tool="source"><span class="ico">▣</span><span>Source</span></button>
         <button class="tool" data-tool="edit"><span class="ico">✂</span><span>Edit</span></button>
         <button class="tool" data-tool="effects"><span class="ico">✦</span><span>Effects</span></button>
-        <button class="tool" data-tool="layers"><span class="ico">▱</span><span>Layers</span></button>
+        <button class="tool" data-tool="layers"><span class="ico">▱</span><span>Layers</span></button><button class="tool" data-tool="irisseg"><span class="ico">◉</span><span>IrisSeg</span></button>
         <button class="tool" data-tool="synth"><span class="ico">◫</span><span>Dither</span></button>
         <button class="tool" data-tool="shader"><span class="ico">⌗</span><span>Shader</span></button>
         <button class="tool" data-tool="export"><span class="ico">⇧</span><span>Export</span></button>
@@ -425,6 +466,112 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
           <div class="row" style="margin-top:6px">
             <button class="btn grow" id="layerBack">Send Back</button>
             <button class="btn grow" id="layerFront">Bring Front</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" id="irissegModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <b>IrisSeg</b>
+      <small>Sammie-Roto 2 bridge</small>
+      <span class="irisseg-badge"><span class="irisseg-dot" id="irisSegDot"></span><span id="irisSegConnectionLabel">OFFLINE</span></span>
+      <button class="icon-btn" data-close="irisseg">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="irisseg-layout">
+        <aside class="irisseg-pane left">
+          <div class="irisseg-block">
+            <label>ROTO TARGET</label>
+            <select id="irisSegTarget"></select>
+          </div>
+          <div class="irisseg-block">
+            <label>SEGMENTATION MODEL</label>
+            <select id="irisSegModel">
+              <option value="sam2">SAM2</option>
+              <option value="efficienttam">EfficientTAM</option>
+            </select>
+          </div>
+          <div class="irisseg-block">
+            <label>REFINEMENT / MATTING</label>
+            <select id="irisSegMatte">
+              <option value="none">Segmentation Only</option>
+              <option value="matanyone2">MatAnyone 2</option>
+              <option value="matanyone">MatAnyone</option>
+              <option value="videomama">VideoMaMa</option>
+            </select>
+          </div>
+          <div class="irisseg-block">
+            <label>BACKEND</label>
+            <input id="irisSegEndpoint" value="http://127.0.0.1:7861" spellcheck="false">
+            <button class="btn grow" id="irisSegConnect" style="width:100%;margin-top:6px">Connect</button>
+            <div class="irisseg-note">Expected bridge: Sammie-Roto 2 running behind an HTTP adapter. Local machine or RunPod both work.</div>
+          </div>
+        </aside>
+
+        <section class="irisseg-stage-wrap">
+          <div class="irisseg-stage">
+            <div class="irisseg-canvas-wrap">
+              <canvas id="irisSegCanvas" width="960" height="540"></canvas>
+              <canvas id="irisSegOverlay" width="960" height="540"></canvas>
+            </div>
+          </div>
+          <div class="irisseg-toolbar">
+            <button class="irisseg-tool active" id="irisSegInclude">+ Include</button>
+            <button class="irisseg-tool" id="irisSegExclude">− Exclude</button>
+            <button class="irisseg-tool" id="irisSegClearPoints">Clear Points</button>
+            <button class="irisseg-tool" id="irisSegShowMask">Mask Overlay</button>
+          </div>
+        </section>
+
+        <aside class="irisseg-pane right">
+          <div class="irisseg-block">
+            <label>PROMPTS</label>
+            <div class="irisseg-point-list" id="irisSegPointList"></div>
+          </div>
+
+          <div class="irisseg-block">
+            <label>TRACK RANGE</label>
+            <div class="row">
+              <input id="irisSegIn" type="number" min="0" step=".01" value="0">
+              <input id="irisSegOut" type="number" min="0" step=".01" value="0">
+            </div>
+            <div class="row" style="margin-top:6px">
+              <button class="btn grow" id="irisSegSetIn">Set In</button>
+              <button class="btn grow" id="irisSegSetOut">Set Out</button>
+            </div>
+          </div>
+
+          <div class="irisseg-block">
+            <label>MASK</label>
+            <div class="param">
+              <div class="paramtop"><span>Feather</span><b id="irisSegFeatherVal">0</b></div>
+              <input id="irisSegFeather" type="range" min="0" max="32" step="1" value="0">
+            </div>
+            <div class="param">
+              <div class="paramtop"><span>Expand</span><b id="irisSegExpandVal">0</b></div>
+              <input id="irisSegExpand" type="range" min="-24" max="24" step="1" value="0">
+            </div>
+            <div class="irisseg-mask-controls">
+              <button class="btn" id="irisSegInvert">Invert</button>
+              <button class="btn" id="irisSegDisable">Disable Mask</button>
+            </div>
+          </div>
+
+          <div class="irisseg-actions">
+            <button class="btn" id="irisSegPreview">Segment Frame</button>
+            <button class="btn" id="irisSegBack">Track Back</button>
+            <button class="btn accent" id="irisSegForward">Track Forward</button>
+            <button class="btn accent" id="irisSegGenerate">Generate Roto</button>
+          </div>
+
+          <div class="irisseg-progress"><div id="irisSegProgressBar"></div></div>
+          <div class="irisseg-status" id="irisSegStatus" style="margin-top:8px">
+            Connect a Sammie-Roto bridge, select a target, then place include/exclude points on the subject.
           </div>
         </aside>
       </div>
@@ -609,7 +756,8 @@ const state={
   splits:[],
   effects:{brightness:1,contrast:1,saturation:1,scanlines:.24,glow:.18,rgbShift:1.5,vignette:.25},
   synth:{enabled:false,target:'source',strength:.72,neighborBoost:20,rightWeight:7,downWeight:9,thresholdBase:128,lineBias:1,color1:'#69e7ff',color2:'#050608',preset:'punk'},
-  shader:{enabled:false,target:'source',id:'classic',scanlines:.28,glow:.18,rgbShift:1.5,curve:.08,noise:.03}
+  shader:{enabled:false,target:'source',id:'classic',scanlines:.28,glow:.18,rgbShift:1.5,curve:.08,noise:.03},
+  roto:{sessions:{},activeTarget:'source'}
 };
 
 let raf=0, objectUrls=new Set();
@@ -854,14 +1002,63 @@ function drawLayer(c,l,w,h){
   drawCover(c,l.el,boxW,boxH);
   c.restore();
 }
+
+function rotoForTarget(id){
+  return state.roto.sessions[id]||null;
+}
+function currentRotoMask(session){
+  if(!session||!session.enabled)return null;
+  const t=masterTime();
+  const frames=session.frames||[];
+  if(!frames.length)return session.maskImage||null;
+  let best=frames[0],bestDist=Math.abs((best.time||0)-t);
+  for(const f of frames){
+    const d=Math.abs((f.time||0)-t);
+    if(d<bestDist){best=f;bestDist=d}
+  }
+  return best.image||null;
+}
+function applyMaskToCanvas(canvas,session){
+  if(!session||!session.enabled)return;
+  const mask=currentRotoMask(session);
+  if(!mask||!mask.complete)return;
+
+  const c=canvas.getContext('2d',{willReadFrequently:true});
+  const maskCanvas=document.createElement('canvas');
+  maskCanvas.width=canvas.width;maskCanvas.height=canvas.height;
+  const mc=maskCanvas.getContext('2d');
+
+  mc.clearRect(0,0,maskCanvas.width,maskCanvas.height);
+  mc.filter=session.feather>0?`blur(${session.feather}px)`:'none';
+  mc.drawImage(mask,0,0,maskCanvas.width,maskCanvas.height);
+  mc.filter='none';
+
+  if(session.inverted){
+    const inv=document.createElement('canvas');
+    inv.width=maskCanvas.width;inv.height=maskCanvas.height;
+    const ic=inv.getContext('2d');
+    ic.fillStyle='#fff';ic.fillRect(0,0,inv.width,inv.height);
+    ic.globalCompositeOperation='destination-out';
+    ic.drawImage(maskCanvas,0,0);
+    mc.clearRect(0,0,maskCanvas.width,maskCanvas.height);
+    mc.drawImage(inv,0,0);
+  }
+
+  c.save();
+  c.globalCompositeOperation='destination-in';
+  c.drawImage(maskCanvas,0,0);
+  c.restore();
+}
 function renderTo(c,w,h,includeUI=false){
   c.clearRect(0,0,w,h);
 
   const sourceBuf=document.createElement('canvas');
   sourceBuf.width=w;sourceBuf.height=h;
   const sc=sourceBuf.getContext('2d',{willReadFrequently:true});
-
   drawBase(sc,w,h);
+
+  const sourceRoto=rotoForTarget('source');
+  if(sourceRoto?.enabled)applyMaskToCanvas(sourceBuf,sourceRoto);
 
   if(state.synth.enabled && state.synth.target==='source'){
     try{
@@ -879,13 +1076,17 @@ function renderTo(c,w,h,includeUI=false){
   state.layers.slice().sort((a,b)=>a.z-b.z).forEach(l=>{
     const needsSynth=state.synth.enabled && state.synth.target===l.id;
     const needsShader=state.shader.enabled && state.shader.target===l.id;
+    const roto=rotoForTarget(l.id);
+    const needsRoto=!!roto?.enabled;
 
-    if(needsSynth || needsShader){
+    if(needsSynth || needsShader || needsRoto){
       const tmp=document.createElement('canvas');
       tmp.width=w;tmp.height=h;
       const tc=tmp.getContext('2d',{willReadFrequently:true});
 
       drawLayer(tc,l,w,h);
+
+      if(needsRoto)applyMaskToCanvas(tmp,roto);
 
       if(needsSynth){
         try{
@@ -905,29 +1106,23 @@ function renderTo(c,w,h,includeUI=false){
   });
 
   if(state.effects.scanlines>0 && !state.shader.enabled){
-    c.save();
-    c.globalAlpha=state.effects.scanlines;
-    c.fillStyle='#000';
+    c.save();c.globalAlpha=state.effects.scanlines;c.fillStyle='#000';
     for(let y=0;y<h;y+=5)c.fillRect(0,y,w,1);
     c.restore();
   }
 
   if(state.effects.vignette>0){
-    const g=c.createRadialGradient(
-      w/2,h/2,Math.min(w,h)*.2,
-      w/2,h/2,Math.max(w,h)*.7
-    );
+    const g=c.createRadialGradient(w/2,h/2,Math.min(w,h)*.2,w/2,h/2,Math.max(w,h)*.7);
     g.addColorStop(0,'rgba(0,0,0,0)');
     g.addColorStop(1,`rgba(0,0,0,${state.effects.vignette})`);
-    c.fillStyle=g;
-    c.fillRect(0,0,w,h);
+    c.fillStyle=g;c.fillRect(0,0,w,h);
   }
 }
 function loop(){
   renderTo(ctx,stage.width,stage.height);
   if($('#layersModal').classList.contains('open'))renderTo(layerCtx,layerPreview.width,layerPreview.height);
   if($('#synthModal').classList.contains('open'))renderTo(synthCtx,synthPreview.width,synthPreview.height);
-  if($('#shaderModal').classList.contains('open'))renderTo(shaderCtx,shaderPreview.width,shaderPreview.height);
+  if($('#shaderModal').classList.contains('open'))renderTo(shaderCtx,shaderPreview.width,shaderPreview.height);if($('#irissegModal').classList.contains('open'))drawIrisSegFrame();
   syncTransport();requestAnimationFrame(loop)
 }
 requestAnimationFrame(loop);
@@ -1151,7 +1346,7 @@ function makeLayer(file){
   let el;if(type==='image'){el=new Image();el.src=url}else{el=document.createElement('video');el.src=url;el.muted=true;el.loop=true;el.playsInline=true;el.play().catch(()=>{})}
   const z=state.layers.length?Math.max(...state.layers.map(l=>l.z))+1:1;
   const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z,trimStart:0,trimEnd:null,speed:1,volume:1};
-  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();renderTimelineTracks();toast('Layer added')
+  state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();updateShaderTargets();updateIrisSegTargets();renderTimelineTracks();toast('Layer added')
 }
 $('#layerImageInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
 $('#layerVideoInput').onchange=e=>{const f=e.target.files?.[0];if(f)makeLayer(f);e.target.value=''}
@@ -1179,7 +1374,7 @@ function renderLayerInspector(){
   $('#layerParams').innerHTML=defs.map(d=>paramHTML(d[0],d[1],l[d[1]],d[2],d[3],d[4],'data-layer-param')).join('');
   $$('[data-layer-param]').forEach(r=>r.oninput=()=>{l[r.dataset.layerParam]=+r.value;r.previousElementSibling.querySelector('b').textContent=r.value})
 }
-function deleteLayer(id){snapshot();state.layers=state.layers.filter(l=>l.id!==id);if(state.selectedLayer===id)state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();renderTimelineTracks()}
+function deleteLayer(id){snapshot();state.layers=state.layers.filter(l=>l.id!==id);if(state.selectedLayer===id)state.selectedLayer=state.layers[0]?.id||null;renderLayers();updateSynthTargets();updateShaderTargets();updateIrisSegTargets();renderTimelineTracks()}
 function restoreHistory(){
   if(!state.history.length)return toast('Nothing to undo');
   const snap=JSON.parse(state.history.pop());const byId=new Map(state.layers.map(l=>[l.id,l]));
@@ -1468,13 +1663,13 @@ $('#applyShader').onclick=async()=>{
 $('#removeShader').onclick=()=>{state.shader.enabled=false;updateFxLabel();toast('Shader removed')}
 function updateFxLabel(){const a=[];if(state.synth.enabled)a.push(state.synth.target==='source'?'Dither: Source':'Dither: Layer');if(state.shader.enabled)a.push(state.shader.target==='source'?'Shader: Source':'Shader: Layer');$('#currentFxLabel').textContent=a.length?a.join(' + '):'No synth / shader';const p=$('#fxStatusPill');if(p)p.innerHTML='FX: <b>'+(a.length?a.join(' + '):'NONE')+'</b>'}
 
-function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();selectShader(shaderSelected);if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
+function openModal(name){$('#'+name+'Modal')?.classList.add('open');if(name==='layers')renderLayers();if(name==='irisseg')prepareIrisSeg();if(name==='synth'){updateSynthTargets();renderSynthControls()}if(name==='shader'){updateShaderTargets();renderShaders();selectShader(shaderSelected);if(!localStorage.getItem('crtizer_shader_manifest'))syncShaderCatalog()}}
 function closeModal(name){$('#'+name+'Modal')?.classList.remove('open')}
 $$('[data-open]').forEach(b=>b.onclick=()=>openModal(b.dataset.open));$$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
 
 function openSheet(tool){
   $$('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
-  if(['layers','synth','shader','export'].includes(tool)){openModal(tool);return}
+  if(['layers','irisseg','synth','shader','export'].includes(tool)){openModal(tool);return}
   const sheet=$('#sheet'),body=$('#sheetBody');$('#sheetTitle').textContent=tool[0].toUpperCase()+tool.slice(1);body.innerHTML='';
   if(tool==='source'){
     body.innerHTML=`<div class="stack"><button class="btn" id="mTest">Test Pattern</button><button class="btn" id="mImage">Load Photo</button><button class="btn accent" id="mVideo">Load Video</button></div><div class="source-card" style="margin-top:9px"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type.toUpperCase()}</small></div>`;
@@ -1671,7 +1866,7 @@ $('#exportNow').onclick=async()=>{
       frame:{width:state.projectWidth,height:state.projectHeight},
       source:{type:state.source.type,name:state.source.name},
       layers:state.layers.map(({el,...l})=>l),
-      effects:state.effects,synth:state.synth,shader:state.shader,
+      effects:state.effects,synth:state.synth,shader:state.shader,roto:Object.fromEntries(Object.entries(state.roto.sessions).map(([k,v])=>[k,{enabled:v.enabled,inverted:v.inverted,feather:v.feather,expand:v.expand,model:v.model,matte:v.matte,points:v.points,frames:(v.frames||[]).map(f=>({time:f.time,url:f.url}))}])),
       trimStart:state.trimStart,trimEnd:state.trimEnd,splits:state.splits
     };
     downloadBlob(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),'crtizer-project.json');
@@ -1782,6 +1977,226 @@ window.visualViewport?.addEventListener('resize',()=>requestAnimationFrame(fitPr
 setProjectFrame(1280,720,'initial');
 requestAnimationFrame(fitPreviewShell);
 
+
+
+const irisSeg={
+  mode:'include',
+  points:[],
+  connected:false,
+  showMask:true,
+  jobId:null
+};
+
+function irisSegTargetObject(){
+  const id=$('#irisSegTarget')?.value||'source';
+  if(id==='source')return {id:'source',name:state.source.name,type:state.source.type,el:sourceElement()};
+  const l=state.layers.find(x=>x.id===id);
+  return l?{id:l.id,name:l.name,type:l.type,el:l.el,layer:l}:null;
+}
+function updateIrisSegTargets(){
+  const sel=$('#irisSegTarget');if(!sel)return;
+  const prev=sel.value||state.roto.activeTarget||'source';
+  sel.innerHTML='<option value="source">Source</option>'+state.layers.map(l=>`<option value="${l.id}">${escapeHtml(l.name)}</option>`).join('');
+  sel.value=[...sel.options].some(o=>o.value===prev)?prev:'source';
+  state.roto.activeTarget=sel.value;
+}
+function setIrisSegConnection(stateName,msg){
+  const dot=$('#irisSegDot'),label=$('#irisSegConnectionLabel');
+  dot.className='irisseg-dot'+(stateName==='online'?' online':stateName==='busy'?' busy':'');
+  label.textContent=(stateName||'offline').toUpperCase();
+  if(msg)$('#irisSegStatus').textContent=msg;
+}
+function irisSegSession(id){
+  if(!state.roto.sessions[id]){
+    state.roto.sessions[id]={enabled:false,inverted:false,feather:0,expand:0,frames:[],points:[],model:'sam2',matte:'none'};
+  }
+  return state.roto.sessions[id];
+}
+function drawIrisSegFrame(){
+  const canvas=$('#irisSegCanvas'),overlay=$('#irisSegOverlay');
+  if(!canvas||!overlay)return;
+  const c=canvas.getContext('2d'),o=overlay.getContext('2d');
+  c.clearRect(0,0,canvas.width,canvas.height);
+  o.clearRect(0,0,overlay.width,overlay.height);
+
+  const target=irisSegTargetObject();
+  if(target?.el){
+    const el=target.el;
+    if((target.type==='image'&&el.complete)||(target.type==='video'&&el.readyState>=2)){
+      drawCover(c,el,canvas.width,canvas.height);
+    }
+  }else{
+    drawBase(c,canvas.width,canvas.height);
+  }
+
+  const session=target?rotoForTarget(target.id):null;
+  const mask=session&&irisSeg.showMask?currentRotoMask(session):null;
+  if(mask&&mask.complete){
+    o.save();o.globalAlpha=.34;o.globalCompositeOperation='source-over';
+    o.drawImage(mask,0,0,overlay.width,overlay.height);
+    o.globalCompositeOperation='source-atop';
+    o.fillStyle='#69e7ff';o.fillRect(0,0,overlay.width,overlay.height);
+    o.restore();
+  }
+
+  for(const p of irisSeg.points){
+    o.beginPath();o.arc(p.x*overlay.width,p.y*overlay.height,7,0,Math.PI*2);
+    o.fillStyle=p.label===1?'#6dff9d':'#ff748e';o.fill();
+    o.lineWidth=2;o.strokeStyle='#050608';o.stroke();
+    o.fillStyle='#050608';o.font='bold 9px ui-monospace';o.textAlign='center';o.textBaseline='middle';
+    o.fillText(p.label===1?'+':'−',p.x*overlay.width,p.y*overlay.height+.5);
+  }
+}
+function renderIrisSegPoints(){
+  const box=$('#irisSegPointList');if(!box)return;
+  box.innerHTML=irisSeg.points.length?irisSeg.points.map((p,i)=>`<div class="irisseg-point"><span>POINT ${i+1}</span><b class="${p.label===1?'pos':'neg'}">${p.label===1?'INCLUDE':'EXCLUDE'}</b></div>`).join(''):'<div class="irisseg-status">No prompts yet.</div>';
+}
+function irisSegSetMode(mode){
+  irisSeg.mode=mode;
+  $('#irisSegInclude').classList.toggle('active',mode==='include');
+  $('#irisSegExclude').classList.toggle('active',mode==='exclude');
+}
+function irisSegEndpoint(path=''){
+  return ($('#irisSegEndpoint').value||'http://127.0.0.1:7861').replace(/\/+$/,'')+path;
+}
+async function irisSegRequest(path,options={}){
+  if(typeof window.CRTIZER_IRISSEG_REQUEST==='function'){
+    return window.CRTIZER_IRISSEG_REQUEST(path,options);
+  }
+  const res=await fetch(irisSegEndpoint(path),options);
+  if(!res.ok)throw new Error(`IrisSeg backend ${res.status}`);
+  const ct=res.headers.get('content-type')||'';
+  return ct.includes('application/json')?res.json():res.blob();
+}
+async function irisSegConnect(){
+  setIrisSegConnection('busy','Checking Sammie-Roto bridge…');
+  try{
+    const data=await irisSegRequest('/health',{method:'GET'});
+    irisSeg.connected=true;
+    setIrisSegConnection('online',`IrisSeg connected${data?.version?' • '+data.version:''}.`);
+  }catch(e){
+    irisSeg.connected=false;
+    setIrisSegConnection('offline','Bridge unavailable. Start your Sammie-Roto HTTP adapter or change the endpoint.');
+  }
+}
+async function blobFromTarget(target){
+  if(!target)throw new Error('No roto target selected.');
+  if(target.type==='image'){
+    const r=await fetch(target.el.src);return r.blob();
+  }
+  if(target.type==='video'){
+    const r=await fetch(target.el.src);return r.blob();
+  }
+  // Test/generated source becomes a PNG frame.
+  return new Promise(resolve=>stage.toBlob(resolve,'image/png'));
+}
+function loadMaskURL(url){
+  return new Promise((resolve,reject)=>{
+    const im=new Image();im.crossOrigin='anonymous';im.onload=()=>resolve(im);im.onerror=reject;im.src=url;
+  });
+}
+async function addMaskFrame(targetId,time,url){
+  const session=irisSegSession(targetId);
+  const image=await loadMaskURL(url);
+  const existing=session.frames.find(f=>Math.abs((f.time||0)-time)<.001);
+  if(existing){existing.image=image;existing.url=url}else session.frames.push({time,url,image});
+  session.frames.sort((a,b)=>(a.time||0)-(b.time||0));
+  session.enabled=true;
+}
+async function irisSegCreatePayload(action,direction='forward'){
+  const target=irisSegTargetObject();
+  if(!target)throw new Error('No target selected.');
+  const blob=await blobFromTarget(target);
+  const fd=new FormData();
+  fd.append('media',blob,target.name||'target');
+  fd.append('action',action);
+  fd.append('target_id',target.id);
+  fd.append('time',String(masterTime()));
+  fd.append('in',String(+$('#irisSegIn').value||0));
+  fd.append('out',String(+$('#irisSegOut').value||masterDuration()||0));
+  fd.append('direction',direction);
+  fd.append('model',$('#irisSegModel').value);
+  fd.append('matting',$('#irisSegMatte').value);
+  fd.append('points',JSON.stringify(irisSeg.points));
+  fd.append('feather',$('#irisSegFeather').value);
+  fd.append('expand',$('#irisSegExpand').value);
+  return {target,fd};
+}
+async function irisSegRun(action,direction='forward'){
+  if(!irisSeg.connected)throw new Error('Connect IrisSeg first.');
+  const {target,fd}=await irisSegCreatePayload(action,direction);
+  setIrisSegConnection('busy',action==='segment'?'Segmenting current frame…':'Tracking roto mask…');
+  $('#irisSegProgressBar').style.width='18%';
+
+  try{
+    const data=await irisSegRequest(action==='segment'?'/segment':'/track',{method:'POST',body:fd});
+    $('#irisSegProgressBar').style.width='72%';
+
+    if(data?.mask_url){
+      await addMaskFrame(target.id,data.time??masterTime(),data.mask_url);
+    }
+    if(Array.isArray(data?.frames)){
+      for(const f of data.frames){
+        if(f.mask_url)await addMaskFrame(target.id,+f.time||0,f.mask_url);
+      }
+    }
+
+    const session=irisSegSession(target.id);
+    session.points=[...irisSeg.points];
+    session.model=$('#irisSegModel').value;
+    session.matte=$('#irisSegMatte').value;
+    session.feather=+$('#irisSegFeather').value;
+    session.expand=+$('#irisSegExpand').value;
+    session.enabled=true;
+
+    $('#irisSegProgressBar').style.width='100%';
+    setTimeout(()=>$('#irisSegProgressBar').style.width='0%',500);
+    setIrisSegConnection('online',`${action==='segment'?'Frame mask':'Roto track'} ready • ${session.frames.length} mask frame${session.frames.length===1?'':'s'}.`);
+    drawIrisSegFrame();
+  }catch(e){
+    $('#irisSegProgressBar').style.width='0%';
+    setIrisSegConnection('offline',e?.message||String(e));
+  }
+}
+function prepareIrisSeg(){
+  updateIrisSegTargets();
+  const t=irisSegTargetObject();
+  const d=t?.type==='video'?(t.el?.duration||masterDuration()):masterDuration();
+  $('#irisSegIn').value=0;
+  $('#irisSegOut').value=(d||0).toFixed(2);
+  irisSeg.points=[...(rotoForTarget(t?.id)?.points||[])];
+  renderIrisSegPoints();
+  requestAnimationFrame(drawIrisSegFrame);
+}
+
+$('#irisSegTarget')?.addEventListener('change',()=>{
+  state.roto.activeTarget=$('#irisSegTarget').value;
+  irisSeg.points=[...(rotoForTarget(state.roto.activeTarget)?.points||[])];
+  renderIrisSegPoints();drawIrisSegFrame()
+});
+$('#irisSegInclude')?.addEventListener('click',()=>irisSegSetMode('include'));
+$('#irisSegExclude')?.addEventListener('click',()=>irisSegSetMode('exclude'));
+$('#irisSegClearPoints')?.addEventListener('click',()=>{irisSeg.points=[];renderIrisSegPoints();drawIrisSegFrame()});
+$('#irisSegShowMask')?.addEventListener('click',e=>{irisSeg.showMask=!irisSeg.showMask;e.currentTarget.classList.toggle('active',irisSeg.showMask);drawIrisSegFrame()});
+$('#irisSegConnect')?.addEventListener('click',irisSegConnect);
+$('#irisSegSetIn')?.addEventListener('click',()=>$('#irisSegIn').value=masterTime().toFixed(2));
+$('#irisSegSetOut')?.addEventListener('click',()=>$('#irisSegOut').value=masterTime().toFixed(2));
+$('#irisSegFeather')?.addEventListener('input',e=>{$('#irisSegFeatherVal').textContent=e.target.value;const s=irisSegSession($('#irisSegTarget').value);s.feather=+e.target.value});
+$('#irisSegExpand')?.addEventListener('input',e=>{$('#irisSegExpandVal').textContent=e.target.value;const s=irisSegSession($('#irisSegTarget').value);s.expand=+e.target.value});
+$('#irisSegInvert')?.addEventListener('click',()=>{const s=irisSegSession($('#irisSegTarget').value);s.inverted=!s.inverted;drawIrisSegFrame();toast(s.inverted?'Roto inverted':'Roto normal')});
+$('#irisSegDisable')?.addEventListener('click',()=>{const s=irisSegSession($('#irisSegTarget').value);s.enabled=!s.enabled;drawIrisSegFrame();toast(s.enabled?'Roto enabled':'Roto disabled')});
+$('#irisSegPreview')?.addEventListener('click',()=>irisSegRun('segment'));
+$('#irisSegForward')?.addEventListener('click',()=>irisSegRun('track','forward'));
+$('#irisSegBack')?.addEventListener('click',()=>irisSegRun('track','backward'));
+$('#irisSegGenerate')?.addEventListener('click',()=>irisSegRun('track','both'));
+
+$('#irisSegOverlay')?.addEventListener('pointerdown',e=>{
+  const r=e.currentTarget.getBoundingClientRect();
+  const x=clamp((e.clientX-r.left)/r.width,0,1);
+  const y=clamp((e.clientY-r.top)/r.height,0,1);
+  irisSeg.points.push({x,y,label:irisSeg.mode==='include'?1:0});
+  renderIrisSegPoints();drawIrisSegFrame()
+});
 
 let lastRenderedVideoBlob=null;
 let lastRenderedVideoName='crtizer-export.mp4';
