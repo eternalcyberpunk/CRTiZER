@@ -231,6 +231,41 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
+
+<style id="crtizer-mobile-sheet-fix-css">
+@media(max-width:900px){
+  .sheet{
+    display:block!important;
+    position:fixed!important;
+    left:0!important;
+    right:0!important;
+    bottom:calc(var(--dock) + var(--safe))!important;
+    width:100vw!important;
+    height:min(43dvh,390px)!important;
+    max-height:min(43dvh,390px)!important;
+    z-index:999!important;
+    background:#080a0e!important;
+    border:1px solid var(--line)!important;
+    border-bottom:0!important;
+    border-radius:16px 16px 0 0!important;
+    box-shadow:0 -20px 50px rgba(0,0,0,.45)!important;
+    transform:translateY(calc(100% + 16px))!important;
+    transition:transform .22s cubic-bezier(.2,.8,.2,1)!important;
+    pointer-events:none!important;
+    visibility:hidden!important;
+  }
+  .sheet.open{
+    transform:translateY(0)!important;
+    pointer-events:auto!important;
+    visibility:visible!important;
+  }
+  .tool-tabs{
+    position:relative!important;
+    z-index:700!important;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1117,6 +1152,71 @@ window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjec
 
   window.CRTIZER_TIMELINE={render:renderTimelineTracks,setLength:s=>{$('#timelineLengthInput').value=s;$('#timelineLengthInput').dispatchEvent(new Event('change'))}};
   window.CRTIZER_SHADER_CATALOG=shaderCatalog;
+})();
+</script>
+
+
+<script id="crtizer-mobile-sheet-fix-js">
+(function(){
+  const sheet=document.getElementById('sheet');
+  const close=document.getElementById('closeSheet');
+
+  function forceOpenSheet(tool){
+    if(!window.matchMedia('(max-width:900px)').matches)return;
+
+    // Complex tools remain full-screen modals.
+    if(['layers','synth','shader','export'].includes(tool))return;
+
+    // Let the existing openSheet populate content first.
+    requestAnimationFrame(()=>{
+      sheet.style.display='block';
+      sheet.classList.add('open');
+      sheet.style.pointerEvents='auto';
+      sheet.style.visibility='visible';
+    });
+  }
+
+  document.querySelectorAll('.tool').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      forceOpenSheet(btn.dataset.tool);
+    },true);
+  });
+
+  close?.addEventListener('click',()=>{
+    sheet.classList.remove('open');
+    sheet.style.pointerEvents='none';
+    setTimeout(()=>{
+      if(!sheet.classList.contains('open')){
+        sheet.style.visibility='hidden';
+      }
+    },230);
+  },true);
+
+  // Prevent timeline/dock containers from clipping the fixed bottom sheet.
+  let p=sheet.parentElement;
+  while(p && p!==document.body){
+    const cs=getComputedStyle(p);
+    if(cs.overflow==='hidden' || cs.overflowY==='hidden'){
+      if(!p.classList.contains('app') && !p.classList.contains('main')){
+        p.style.overflow='visible';
+      }
+    }
+    p=p.parentElement;
+  }
+
+  // iOS visual viewport changes can otherwise leave the sheet under browser chrome.
+  function refreshSheetPosition(){
+    if(!window.matchMedia('(max-width:900px)').matches)return;
+    document.documentElement.style.setProperty('--mobile-visible-h',(window.visualViewport?.height||window.innerHeight)+'px');
+    if(sheet.classList.contains('open')){
+      sheet.style.bottom='calc(var(--dock) + var(--safe))';
+    }
+  }
+  window.visualViewport?.addEventListener('resize',refreshSheetPosition);
+  window.addEventListener('orientationchange',()=>setTimeout(refreshSheetPosition,80));
+  refreshSheetPosition();
+
+  window.CRTIZER_MOBILE_SHEET_FIX={forceOpenSheet};
 })();
 </script>
 
