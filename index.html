@@ -184,200 +184,226 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
 }
 </style>
 
-<style id="crtizer-multitrack-shaderglass-css">
-.shader-toolbar{display:grid;grid-template-columns:1fr auto;gap:6px;margin-bottom:8px}
-.shader-categories{display:flex;gap:5px;overflow-x:auto;padding-bottom:6px}
+<style id="crtizer-pro-timeline-shader-css">
+:root{
+  --timeline-dock-h:170px;
+  --timeline-zoom:1;
+}
+.editor{
+  grid-template-rows:minmax(0,1fr) 50px var(--timeline-dock-h)!important;
+}
+.timeline-dock{
+  min-height:0!important;
+  height:var(--timeline-dock-h)!important;
+  display:grid!important;
+  grid-template-rows:35px 1fr!important;
+  transition:height .18s ease!important;
+  position:relative!important;
+  z-index:20!important;
+}
+.timeline-dock.collapsed{
+  height:35px!important;
+}
+.timeline-dock.collapsed .timeline-body{
+  display:none!important;
+}
+.timeline-title-group{
+  display:flex;align-items:center;gap:7px;min-width:0
+}
+.timeline-collapse{
+  width:27px;height:27px;border:1px solid var(--line);border-radius:7px;
+  background:#0d1014;color:#9eacb2
+}
+.timeline-control{
+  display:flex;align-items:center;gap:5px;
+  font:6px ui-monospace;color:var(--muted);
+  white-space:nowrap
+}
+.timeline-control input{
+  width:72px!important;
+}
+.multi-timeline-body{
+  position:relative!important;
+  min-height:0!important;
+  overflow:auto!important;
+  padding:0 10px 12px 74px!important;
+  background:#07090c!important;
+}
+.timeline-ruler{
+  position:sticky;top:0;z-index:15;
+  height:24px;
+  min-width:calc(var(--timeline-duration,30) * 45px * var(--timeline-zoom));
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.09) 0 1px,transparent 1px calc(45px * var(--timeline-zoom))),
+    #090c10;
+  border-bottom:1px solid var(--line);
+  font:5px ui-monospace;color:#66757c
+}
+.ruler-label{
+  position:absolute;top:5px;transform:translateX(3px)
+}
+.multi-track{
+  position:relative;
+  min-width:calc(var(--timeline-duration,30) * 45px * var(--timeline-zoom));
+  padding-top:4px;
+}
+.timeline-row{
+  height:58px;position:relative;border-bottom:1px solid rgba(255,255,255,.04)
+}
+.timeline-row-label{
+  position:sticky;left:-74px;z-index:12;
+  width:68px;height:50px;margin-left:-74px;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 6px;background:#090c10;border-right:1px solid var(--line);
+  font-size:6px;color:#bdc8cc;overflow:hidden
+}
+.timeline-row-label b{
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:6.5px
+}
+.timeline-row-label small{
+  margin-top:2px;font:5px ui-monospace;color:#627078
+}
+.timeline-item{
+  position:absolute;top:7px;height:44px;
+  min-width:28px;border:1px solid rgba(105,231,255,.28);
+  border-radius:8px;background:linear-gradient(90deg,rgba(105,231,255,.09),rgba(255,101,216,.055));
+  overflow:hidden;display:grid;grid-template-columns:44px 1fr;
+  align-items:center;cursor:grab;touch-action:none;
+}
+.timeline-item.layer-item{
+  border-color:rgba(255,101,216,.25);
+  background:linear-gradient(90deg,rgba(255,101,216,.08),rgba(105,231,255,.04))
+}
+.timeline-item.selected{
+  border-color:var(--cyan);box-shadow:0 0 0 1px rgba(105,231,255,.18) inset
+}
+.timeline-item:active{cursor:grabbing}
+.timeline-item-thumb{
+  width:44px;height:100%;background:#020305;overflow:hidden
+}
+.timeline-item-thumb img,.timeline-item-thumb video{
+  width:100%;height:100%;object-fit:cover
+}
+.timeline-item-info{
+  min-width:0;padding:0 8px
+}
+.timeline-item-info b{
+  display:block;font-size:6.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.timeline-item-info small{
+  display:block;margin-top:2px;font:5px ui-monospace;color:#69777e
+}
+.timeline-resize{
+  position:absolute;top:0;bottom:0;width:10px;z-index:4;
+  background:rgba(255,255,255,.08);cursor:ew-resize
+}
+.timeline-resize.left{left:0}
+.timeline-resize.right{right:0}
+.timeline-global-playhead{
+  position:absolute;top:24px;bottom:0;width:2px;
+  background:var(--cyan);z-index:30;left:74px;pointer-events:none;
+  box-shadow:0 0 10px rgba(105,231,255,.4)
+}
+.timeline-global-playhead:before{
+  content:"";position:absolute;top:0;left:50%;transform:translate(-50%,-45%);
+  width:8px;height:8px;border-radius:50%;background:var(--cyan)
+}
+.timeline-docker{
+  position:absolute;left:50%;bottom:2px;transform:translateX(-50%);
+  width:48px;height:5px;border-radius:999px;background:#283239;cursor:ns-resize
+}
+
+/* ShaderGlass scale catalog */
+.shader-library-pane{
+  display:grid!important;
+  grid-template-rows:auto auto auto minmax(0,1fr)!important;
+  min-height:0!important;
+  overflow:hidden!important;
+}
+.shader-library-meta{
+  display:flex;justify-content:space-between;gap:6px;
+  font:5.5px ui-monospace;color:#68777e;margin-bottom:7px
+}
+.shader-categories{
+  display:flex;gap:5px;overflow-x:auto;padding-bottom:7px;scrollbar-width:none
+}
 .shader-categories::-webkit-scrollbar{display:none}
-.shader-cat{flex:0 0 auto;min-height:28px;border:1px solid var(--line);background:#0d1014;color:#829198;border-radius:7px;padding:0 9px;font-size:7px}
-.shader-cat.active{color:var(--cyan);border-color:rgba(105,231,255,.28);background:rgba(105,231,255,.05)}
-.shader-count{font:6px ui-monospace;color:var(--muted);white-space:nowrap}
-.shader-scroll{height:calc(100% - 78px);overflow:auto;-webkit-overflow-scrolling:touch}
-.shader-load-more{width:100%;min-height:34px;margin-top:6px;border:1px solid var(--line);background:#0d1014;color:#9aa8ae;border-radius:8px;font-size:7px}
-
-.timeline-length-row{display:flex;align-items:center;gap:6px}
-.timeline-length-row input{width:86px;min-height:26px;border:1px solid var(--line);background:#0d1014;color:#d9e3e6;border-radius:7px;padding:0 7px;font-size:7px}
-.multitrack-body{height:auto!important;min-height:89px;overflow:auto!important;padding:8px 10px 12px!important}
-.multitrack-ruler{position:relative;height:18px;min-width:540px;margin-bottom:4px}
-.ruler-mark{position:absolute;top:0;bottom:0;border-left:1px solid rgba(255,255,255,.07);font:5px ui-monospace;color:#617078;padding-left:3px}
-.multitrack{position:relative;min-width:540px;display:grid;gap:5px}
-.track-row{position:relative;height:52px;border:1px solid var(--line);border-radius:8px;background:#0b0e12;overflow:hidden}
-.track-label{position:absolute;left:6px;top:6px;z-index:3;padding:3px 5px;border-radius:5px;background:rgba(0,0,0,.55);font:5.5px ui-monospace;color:#b4c1c6;pointer-events:none}
-.timeline-layer-clip{position:absolute;top:6px;bottom:6px;border:1px solid rgba(105,231,255,.3);border-radius:7px;background:linear-gradient(90deg,rgba(105,231,255,.09),rgba(255,101,216,.06));overflow:hidden;min-width:40px;touch-action:none;cursor:grab}
-.timeline-layer-clip.selected{border-color:var(--cyan);box-shadow:0 0 0 1px rgba(105,231,255,.14) inset}
-.timeline-layer-clip:active{cursor:grabbing}
-.timeline-layer-inner{height:100%;display:flex;align-items:center;gap:7px;padding:0 9px;min-width:0}
-.timeline-layer-thumb{width:44px;height:30px;border-radius:5px;overflow:hidden;background:#020305;flex:0 0 auto}
-.timeline-layer-thumb img,.timeline-layer-thumb video{width:100%;height:100%;object-fit:cover}
-.timeline-layer-info{min-width:0}
-.timeline-layer-info b{display:block;font-size:6.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.timeline-layer-info small{display:block;margin-top:2px;font:5px ui-monospace;color:var(--muted)}
-.trim-edge{position:absolute;top:0;bottom:0;width:9px;background:rgba(255,255,255,.14);z-index:4;cursor:ew-resize}
-.trim-edge.left{left:0}.trim-edge.right{right:0}
-.master-playhead{position:absolute;top:0;bottom:0;width:2px;background:var(--cyan);z-index:20;pointer-events:none;box-shadow:0 0 8px rgba(105,231,255,.35)}
-.master-playhead:before{content:"";position:absolute;top:0;left:50%;transform:translate(-50%,-40%);width:8px;height:8px;border-radius:50%;background:var(--cyan)}
-
-.layer-timebox{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
-.layer-timebox>div{border:1px solid var(--line);background:#0d1014;border-radius:8px;padding:7px}
-.layer-timebox small{display:block;font:5px ui-monospace;color:var(--muted);margin-bottom:4px}
-.layer-timebox input{width:100%;min-height:30px;border:1px solid var(--line);background:#090b0f;color:#dbe4e7;border-radius:6px;padding:0 6px;font-size:7px}
-
-@media(max-width:900px){
-  .timeline-head{height:auto!important;min-height:31px;flex-wrap:wrap;gap:4px;padding:4px 6px}
-  .timeline-length-row{width:100%;justify-content:flex-end}
-  .multitrack-body{height:calc(var(--timeline) - 52px)!important;min-height:50px!important;padding:5px 7px!important}
-  .track-row{height:44px}
-  .multitrack-ruler{height:14px}
-  .timeline-layer-thumb{width:36px;height:26px}
+.shader-category{
+  flex:0 0 auto;height:28px;padding:0 9px;border:1px solid var(--line);
+  border-radius:7px;background:#0d1014;color:#829198;font-size:6.5px
 }
-</style>
-
-
-<style id="crtizer-mobile-sheet-fix-css">
-@media(max-width:900px){
-  .sheet{
-    display:block!important;
-    position:fixed!important;
-    left:0!important;
-    right:0!important;
-    bottom:calc(var(--dock) + var(--safe))!important;
-    width:100vw!important;
-    height:min(43dvh,390px)!important;
-    max-height:min(43dvh,390px)!important;
-    z-index:999!important;
-    background:#080a0e!important;
-    border:1px solid var(--line)!important;
-    border-bottom:0!important;
-    border-radius:16px 16px 0 0!important;
-    box-shadow:0 -20px 50px rgba(0,0,0,.45)!important;
-    transform:translateY(calc(100% + 16px))!important;
-    transition:transform .22s cubic-bezier(.2,.8,.2,1)!important;
-    pointer-events:none!important;
-    visibility:hidden!important;
-  }
-  .sheet.open{
-    transform:translateY(0)!important;
-    pointer-events:auto!important;
-    visibility:visible!important;
-  }
-  .tool-tabs{
-    position:relative!important;
-    z-index:700!important;
-  }
+.shader-category.active{
+  color:var(--cyan);border-color:rgba(105,231,255,.3);background:rgba(105,231,255,.05)
 }
-</style>
+.shader-virtual-list{
+  min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;
+  display:block!important;padding-right:2px
+}
+.shader-row{
+  min-height:48px;border:1px solid var(--line);border-radius:8px;
+  background:#0d1014;padding:7px 8px;margin-bottom:5px;cursor:pointer
+}
+.shader-row.active{
+  border-color:rgba(105,231,255,.38);background:rgba(105,231,255,.05)
+}
+.shader-row b{
+  display:block;font-size:7px;color:#dbe4e7;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.shader-row small{
+  display:block;margin-top:3px;font:5px ui-monospace;color:#66757c;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
 
-
-<style id="crtizer-mobile-panel-controller-css">
+/* Mobile timeline docks cleanly between preview and tabs */
 @media(max-width:900px){
-  #sheet{
-    display:block!important;
-    width:100vw!important;
-    left:0!important;
-    right:0!important;
-    bottom:calc(var(--dock) + env(safe-area-inset-bottom,0px))!important;
-    height:min(46dvh,420px)!important;
-    max-height:min(46dvh,420px)!important;
-    min-height:260px!important;
-    background:#080a0e!important;
-    border:1px solid rgba(255,255,255,.08)!important;
-    border-bottom:0!important;
-    border-radius:18px 18px 0 0!important;
-    box-shadow:0 -22px 55px rgba(0,0,0,.5)!important;
-    z-index:2500!important;
-    transform:translate3d(0,110%,0)!important;
-    transition:transform .22s cubic-bezier(.2,.8,.2,1)!important;
-    visibility:hidden!important;
-    opacity:0!important;
-    pointer-events:none!important;
-    overflow:hidden!important;
+  :root{
+    --timeline-dock-h:148px;
   }
-  #sheet.open{
-    transform:translate3d(0,0,0)!important;
-    visibility:visible!important;
-    opacity:1!important;
-    pointer-events:auto!important;
+  .editor{
+    grid-template-rows:minmax(0,1fr) 46px var(--timeline-dock-h) calc(var(--dock) + var(--safe))!important;
   }
-  #sheet .sheet-head{
-    height:46px!important;
-    min-height:46px!important;
-    display:flex!important;
-    align-items:center!important;
-    padding:0 12px!important;
-    background:#0a0d11!important;
-    border-bottom:1px solid rgba(255,255,255,.07)!important;
+  .timeline-dock{
+    height:var(--timeline-dock-h)!important;
+    grid-template-rows:34px 1fr!important;
   }
-  #sheet .sheet-head b{
-    font-size:10px!important;
-    color:#e5edef!important;
+  .timeline-dock.collapsed{
+    height:34px!important
   }
-  #sheet .sheet-body{
-    display:block!important;
-    height:calc(100% - 46px)!important;
-    min-height:210px!important;
-    padding:12px!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    background:#080a0e!important;
-    -webkit-overflow-scrolling:touch!important;
+  .timeline-head{
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    gap:8px!important;
+    scrollbar-width:none!important;
   }
-  .mobile-panel-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
+  .timeline-head::-webkit-scrollbar{display:none}
+  .timeline-actions{
+    flex:0 0 auto
   }
-  .mobile-panel-card{
-    min-height:68px;
-    border:1px solid rgba(255,255,255,.07);
-    background:#0d1014;
-    color:#cbd6da;
-    border-radius:10px;
-    padding:10px;
-    text-align:left;
+  .timeline-control{
+    display:none!important
   }
-  .mobile-panel-card b{
-    display:block;
-    font-size:9px;
-    margin-bottom:4px;
+  .multi-timeline-body{
+    padding-left:62px!important;
+    padding-right:6px!important;
+    padding-bottom:8px!important;
   }
-  .mobile-panel-card small{
-    display:block;
-    font:6px ui-monospace,monospace;
-    color:#718088;
-    line-height:1.45;
+  .timeline-row-label{
+    left:-62px!important;width:58px!important;margin-left:-62px!important
   }
-  .mobile-panel-section{
-    margin-top:12px;
-    padding-top:10px;
-    border-top:1px solid rgba(255,255,255,.055);
+  .timeline-global-playhead{
+    left:62px
   }
-  .mobile-panel-section-title{
-    font:7px ui-monospace,monospace;
-    color:#87969d;
-    margin-bottom:8px;
-    letter-spacing:.08em;
+  .timeline-item{
+    height:42px;top:6px;grid-template-columns:38px 1fr
   }
-  .mobile-source-controls{
-    display:grid;
-    grid-template-columns:40px 1fr;
-    gap:8px;
-    align-items:center;
-    margin-top:8px;
+  .timeline-item-thumb{width:38px}
+  .timeline-row{height:54px}
+  .shader-layout{
+    grid-template-rows:44% 56%!important
   }
-  .mobile-source-controls .btn{
-    min-height:40px!important;
-  }
-  .mobile-source-time{
-    display:grid;
-    grid-template-columns:auto 1fr auto;
-    gap:7px;
-    align-items:center;
-  }
-  .mobile-source-time span{
-    font:6px ui-monospace,monospace;
-    color:#748188;
-  }
-  .mobile-effects-list .param{
-    padding:10px 0!important;
+  .shader-library-pane{
+    padding:8px!important
   }
 }
 </style>
@@ -427,27 +453,28 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
         <button class="btn" id="fitBtn">Fit</button>
       </div>
 
-      <section class="timeline">
+
+      <section class="timeline timeline-dock" id="timelineDock">
         <div class="timeline-head">
-          <div><b>Timeline</b> <span class="time" id="timelineStatus">No media</span></div>
+          <div class="timeline-title-group">
+            <button class="timeline-collapse" id="timelineCollapse">⌄</button>
+            <div><b>Timeline</b> <span class="time" id="timelineStatus">No media</span></div>
+          </div>
           <div class="timeline-actions">
             <button class="btn" id="splitBtn">Split</button>
             <button class="btn" id="trimBtn">Trim</button>
             <button class="btn danger" id="deleteSourceBtn">Delete</button>
-          </div>
-          <div class="timeline-length-row">
-            <span class="time">Length</span>
-            <input id="timelineLengthInput" type="number" min="1" max="3600" step="1" value="30">
-            <span class="time">sec</span>
+            <label class="timeline-control">Zoom <input id="timelineZoom" type="range" min="40" max="240" value="100"></label>
+            <label class="timeline-control">Length <input id="timelineLength" type="range" min="5" max="180" value="30"></label>
           </div>
         </div>
-        <div class="timeline-body multitrack-body" id="timelineBody">
-          <div class="multitrack-ruler" id="timelineRuler"></div>
-          <div class="multitrack" id="multiTrack">
-            <div class="master-playhead" id="masterPlayhead"></div>
-          </div>
+        <div class="timeline-body multi-timeline-body" id="timelineBody">
+          <div class="timeline-ruler" id="timelineRuler"></div>
+          <div class="multi-track" id="multiTrack"></div>
+          <div class="timeline-global-playhead" id="globalPlayhead"></div>
         </div>
       </section>
+
 
       <nav class="tool-tabs" id="toolTabs">
         <button class="tool" data-tool="source"><span class="ico">▣</span><span>Source</span></button>
@@ -503,10 +530,6 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
           <h3 style="margin:0 0 8px;font-size:9px">Selected Layer</h3>
           <div class="source-card" style="margin-bottom:8px"><b id="selectedLayerName">None</b><small id="selectedLayerType">Select a layer</small></div>
           <div id="layerParams"></div>
-          <div class="layer-timebox">
-            <div><small>START TIME</small><input id="layerStartInput" type="number" min="0" step="0.1" value="0"></div>
-            <div><small>DURATION</small><input id="layerDurationInput" type="number" min="0.1" step="0.1" value="5"></div>
-          </div>
           <div class="row" style="margin-top:8px">
             <button class="btn grow" id="layerCenter">Center</button>
             <button class="btn grow" id="layerReset">Reset</button>
@@ -555,16 +578,14 @@ select{width:100%;min-height:34px;border:1px solid var(--line);background:#0d101
     <div class="modal-head"><b>Shader</b><small>Retro display presets</small><button class="icon-btn" data-close="shader">×</button></div>
     <div class="modal-body">
       <div class="shader-layout">
-        <aside class="library">
-          <div class="shader-toolbar">
-            <input id="shaderSearch" placeholder="Search 1200+ shaders" style="width:100%;height:34px;border:1px solid var(--line);background:#0d1014;color:#fff;border-radius:8px;padding:0 9px">
-            <span class="shader-count" id="shaderCount">0</span>
+        <aside class="library shader-library-pane">
+          <input id="shaderSearch" placeholder="Search 1200+ ShaderGlass shaders" style="width:100%;height:36px;border:1px solid var(--line);background:#0d1014;color:#fff;border-radius:8px;padding:0 9px;margin-bottom:7px">
+          <div class="shader-library-meta">
+            <span id="shaderLibraryCount">Loading library…</span>
+            <span id="shaderLibrarySource">ShaderGlass / RetroArch</span>
           </div>
           <div class="shader-categories" id="shaderCategories"></div>
-          <div class="shader-scroll">
-            <div class="preset-grid" id="shaderList"></div>
-            <button class="shader-load-more" id="shaderLoadMore">LOAD MORE</button>
-          </div>
+          <div class="shader-virtual-list" id="shaderList"></div>
         </aside>
         <section class="workpane">
           <canvas class="effect-preview" id="shaderPreview" width="960" height="540"></canvas>
@@ -941,81 +962,177 @@ $('#exportNow').onclick=async()=>{
 window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjectURL(u)));
 </script>
 
-<script id="crtizer-multitrack-shaderglass-js">
+<script id="crtizer-pro-timeline-shader-js">
 (function(){
-  state.timelineLength=30;
-  state.masterTime=0;
-  state.playingTimeline=false;
+  // ---------- timeline model ----------
+  state.timelineDuration = 30;
+  state.timelineZoom = 1;
+  state.timelineSelected = 'source';
 
-  // Add timing metadata to all existing/new layers.
-  const oldMakeLayer=makeLayer;
-  window.makeLayer=makeLayer=function(file){
-    snapshot();
-    const id='layer_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),
-          type=file.type.startsWith('video/')?'video':'image',
-          url=URL.createObjectURL(file);
-    objectUrls.add(url);
-    let el;
-    if(type==='image'){el=new Image();el.src=url}
-    else{el=document.createElement('video');el.src=url;el.muted=true;el.loop=false;el.playsInline=true;el.preload='auto'}
-    const z=state.layers.length?Math.max(...state.layers.map(l=>l.z))+1:1;
-    const duration=type==='image'?5:5;
-    const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z,start:0,duration};
-    if(type==='video')el.addEventListener('loadedmetadata',()=>{l.duration=Math.min(el.duration||5,state.timelineLength);renderTimelineTracks();renderLayerInspector()});
-    state.layers.push(l);state.selectedLayer=id;renderLayers();updateSynthTargets();renderTimelineTracks();toast('Layer added')
-  };
-  $('#layerImageInput').onchange=e=>{const f=e.target.files?.[0];if(f)window.makeLayer(f);e.target.value=''}
-  $('#layerVideoInput').onchange=e=>{const f=e.target.files?.[0];if(f)window.makeLayer(f);e.target.value=''}
-
-  // Extend source timing semantics.
-  function effectiveSourceDuration(){
-    if(state.source.type==='video'&&state.source.video?.duration)return Math.min(state.source.video.duration,state.timelineLength);
-    if(state.source.type==='image')return state.timelineLength;
-    return state.timelineLength;
+  function currentTime(){
+    return state.source.type==='video' && state.source.video ? state.source.video.currentTime : 0;
   }
 
-  function syncLayerVideosToMaster(){
-    for(const l of state.layers){
-      if(l.type!=='video'||!l.el?.duration)continue;
-      const local=state.masterTime-l.start;
-      const active=local>=0 && local<=l.duration;
-      if(active){
-        const t=clamp(local,0,Math.min(l.el.duration,l.duration));
-        if(Math.abs((l.el.currentTime||0)-t)>.12){try{l.el.currentTime=t}catch(e){}}
-      }
+  function layerDefaultDuration(layer){
+    if(layer.type==='video' && layer.el?.duration) return Math.max(.1,layer.el.duration);
+    return Math.min(5,state.timelineDuration);
+  }
+
+  function normalizeLayerTiming(layer){
+    if(layer.start==null) layer.start = Math.min(currentTime(), Math.max(0,state.timelineDuration-1));
+    if(layer.end==null) layer.end = Math.min(state.timelineDuration, layer.start + layerDefaultDuration(layer));
+    layer.start = clamp(layer.start,0,state.timelineDuration-.05);
+    layer.end = clamp(layer.end,layer.start+.05,state.timelineDuration);
+  }
+
+  function secondsToPx(sec){
+    return sec * 45 * state.timelineZoom;
+  }
+
+  function pxToSeconds(px){
+    return px / (45 * state.timelineZoom);
+  }
+
+  function timelineMediaHTML(type,url){
+    if(!url)return '<div style="width:100%;height:100%;display:grid;place-items:center;color:#5f6d74">◇</div>';
+    return type==='video'
+      ? `<video src="${url}" muted playsinline preload="metadata"></video>`
+      : `<img src="${url}" alt="">`;
+  }
+
+  function renderRuler(){
+    const ruler=document.getElementById('timelineRuler');
+    if(!ruler)return;
+    ruler.style.setProperty('--timeline-duration',state.timelineDuration);
+    ruler.innerHTML='';
+    const step = state.timelineDuration>90 ? 10 : state.timelineDuration>45 ? 5 : 2;
+    for(let t=0;t<=state.timelineDuration;t+=step){
+      const label=document.createElement('span');
+      label.className='ruler-label';
+      label.style.left=secondsToPx(t)+'px';
+      label.textContent=t+'s';
+      ruler.appendChild(label);
     }
   }
 
-  // Override layer rendering to respect timeline start/duration.
-  const originalDrawLayer=drawLayer;
-  window.drawLayer=drawLayer=function(c,l,w,h){
-    const active=state.masterTime>=l.start && state.masterTime<=(l.start+l.duration);
-    if(!active)return;
-    if(l.type==='video'){
-      const local=state.masterTime-l.start;
-      if(l.el?.duration && Math.abs((l.el.currentTime||0)-local)>.12){try{l.el.currentTime=clamp(local,0,l.el.duration)}catch(e){}}
-    }
-    originalDrawLayer(c,l,w,h);
-  };
+  function rowHTML(id,name,type,start,end,url,isSource=false){
+    const width=Math.max(28,secondsToPx(end-start));
+    const left=secondsToPx(start);
+    return `<div class="timeline-row" data-row="${id}">
+      <div class="timeline-row-label"><b>${escapeHtml(name)}</b><small>${type.toUpperCase()}</small></div>
+      <div class="timeline-item ${isSource?'source-item':'layer-item'} ${state.timelineSelected===id?'selected':''}" data-timeline-id="${id}" style="left:${left}px;width:${width}px">
+        ${isSource?'':`<span class="timeline-resize left" data-resize="left"></span>`}
+        <div class="timeline-item-thumb">${timelineMediaHTML(type,url)}</div>
+        <div class="timeline-item-info"><b>${escapeHtml(name)}</b><small>${fmt(start)} → ${fmt(end)}</small></div>
+        <span class="timeline-resize right" data-resize="right"></span>
+      </div>
+    </div>`;
+  }
 
-  // Patch renderTo to invoke timing-aware global drawLayer.
-  const oldRenderTo=renderTo;
-  window.renderTo=renderTo=function(c,w,h,includeUI=false){
+  function renderMultiTimeline(){
+    const track=document.getElementById('multiTrack');
+    if(!track)return;
+    document.documentElement.style.setProperty('--timeline-duration',state.timelineDuration);
+    document.documentElement.style.setProperty('--timeline-zoom',state.timelineZoom);
+
+    let html='';
+    if(state.source.type!=='test'){
+      const end=state.source.type==='video'
+        ? Math.min(state.timelineDuration,state.trimEnd??state.source.video?.duration??state.timelineDuration)
+        : state.timelineDuration;
+      html += rowHTML('source',state.source.name,state.source.type,Math.max(0,state.trimStart||0),Math.max(.05,end),state.source.url,true);
+    }
+
+    state.layers.slice().sort((a,b)=>b.z-a.z).forEach(l=>{
+      normalizeLayerTiming(l);
+      html += rowHTML(l.id,l.name,l.type,l.start,l.end,l.url,false);
+    });
+
+    track.innerHTML = html || `<div style="padding:20px;font:7px ui-monospace;color:#64737a">LOAD A SOURCE OR ADD A LAYER</div>`;
+    renderRuler();
+    bindTimelineItems();
+  }
+
+  function bindTimelineItems(){
+    document.querySelectorAll('[data-timeline-id]').forEach(item=>{
+      const id=item.dataset.timelineId;
+      item.addEventListener('pointerdown',e=>{
+        state.timelineSelected=id;
+        if(id!=='source') state.selectedLayer=id;
+        renderMultiTimeline();
+
+        if(id==='source' && !e.target.dataset.resize) return;
+
+        const layer=id==='source'?null:state.layers.find(l=>l.id===id);
+        const startX=e.clientX;
+        const resize=e.target.dataset.resize||'move';
+        const original=id==='source'
+          ? {start:state.trimStart||0,end:state.trimEnd??state.timelineDuration}
+          : {start:layer.start,end:layer.end};
+
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+
+        const move=ev=>{
+          const delta=pxToSeconds(ev.clientX-startX);
+          if(id==='source'){
+            if(resize==='right'){
+              state.trimEnd=clamp(original.end+delta,(state.trimStart||0)+.05,state.timelineDuration);
+            }
+          }else{
+            if(resize==='left'){
+              layer.start=clamp(original.start+delta,0,layer.end-.05);
+            }else if(resize==='right'){
+              layer.end=clamp(original.end+delta,layer.start+.05,state.timelineDuration);
+            }else{
+              const dur=original.end-original.start;
+              layer.start=clamp(original.start+delta,0,state.timelineDuration-dur);
+              layer.end=layer.start+dur;
+            }
+          }
+          renderMultiTimeline();
+        };
+        const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};
+        window.addEventListener('pointermove',move);
+        window.addEventListener('pointerup',up,{once:true});
+      });
+    });
+  }
+
+  function updateGlobalPlayhead(){
+    const p=document.getElementById('globalPlayhead');
+    if(!p)return;
+    p.style.left=(74+secondsToPx(currentTime()))+'px';
+  }
+
+  // Render layer only during its timeline range.
+  const oldRenderTo = renderTo;
+  renderTo = function(c,w,h,includeUI=false){
     c.clearRect(0,0,w,h);
     drawBase(c,w,h);
     if(state.synth.enabled&&state.synth.target==='source'){
       try{let im=c.getImageData(0,0,w,h);c.putImageData(applyPunk(im,w,h,state.synth),0,0)}catch(e){}
     }
+    const t=currentTime();
     state.layers.slice().sort((a,b)=>a.z-b.z).forEach(l=>{
+      normalizeLayerTiming(l);
+      if(t<l.start || t>l.end)return;
+
+      if(l.type==='video' && l.el?.duration){
+        const local=clamp(t-l.start,0,l.el.duration);
+        if(Math.abs((l.el.currentTime||0)-local)>.12){
+          try{l.el.currentTime=local}catch(e){}
+        }
+        if(state.source.video && !state.source.video.paused) l.el.play().catch(()=>{});
+        else l.el.pause?.();
+      }
+
       if(state.synth.enabled&&state.synth.target===l.id){
-        const active=state.masterTime>=l.start&&state.masterTime<=l.start+l.duration;
-        if(!active)return;
         const tmp=document.createElement('canvas');tmp.width=w;tmp.height=h;
         const tc=tmp.getContext('2d',{willReadFrequently:true});
-        window.drawLayer(tc,l,w,h);
+        drawLayer(tc,l,w,h);
         try{let im=tc.getImageData(0,0,w,h);tc.putImageData(applyPunk(im,w,h,state.synth),0,0)}catch(e){}
         c.drawImage(tmp,0,0);
-      }else window.drawLayer(c,l,w,h);
+      }else drawLayer(c,l,w,h);
     });
     if(state.shader.enabled)applyShaderFx(c,w,h,state.shader);
     if(state.effects.scanlines>0&&!state.shader.enabled){
@@ -1026,467 +1143,216 @@ window.addEventListener('beforeunload',()=>objectUrls.forEach(u=>URL.revokeObjec
       const g=c.createRadialGradient(w/2,h/2,Math.min(w,h)*.2,w/2,h/2,Math.max(w,h)*.7);
       g.addColorStop(0,'rgba(0,0,0,0)');
       g.addColorStop(1,`rgba(0,0,0,${state.effects.vignette})`);
-      c.fillStyle=g;c.fillRect(0,0,w,h);
+      c.fillStyle=g;c.fillRect(0,0,w,h)
     }
+    updateGlobalPlayhead();
   };
 
-  // Master timeline UI.
-  const mt=$('#multiTrack'), ruler=$('#timelineRuler'), ph=$('#masterPlayhead');
-  function pxPerSec(){
-    const w=Math.max(mt.clientWidth,540);
-    return w/state.timelineLength;
-  }
-  function renderRuler(){
-    ruler.innerHTML='';
-    const count=Math.min(20,state.timelineLength);
-    const step=state.timelineLength<=20?1:state.timelineLength<=120?5:30;
-    for(let t=0;t<=state.timelineLength;t+=step){
-      const m=document.createElement('span');
-      m.className='ruler-mark';m.style.left=(t/state.timelineLength*100)+'%';m.textContent=fmt(t);
-      ruler.appendChild(m);
+  // Replace layer upload handlers so timeline timing is set cleanly.
+  const li=document.getElementById('layerImageInput');
+  const lv=document.getElementById('layerVideoInput');
+  function createTimedLayer(file){
+    snapshot();
+    const id='layer_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+    const type=file.type.startsWith('video/')?'video':'image';
+    const url=URL.createObjectURL(file);objectUrls.add(url);
+    let el;
+    const start=Math.min(currentTime(),Math.max(0,state.timelineDuration-1));
+    const z=state.layers.length?Math.max(...state.layers.map(l=>l.z))+1:1;
+
+    if(type==='image'){
+      el=new Image();el.src=url;
+      const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z,start,end:Math.min(state.timelineDuration,start+5)};
+      state.layers.push(l);
+    }else{
+      el=document.createElement('video');
+      el.src=url;el.muted=true;el.playsInline=true;el.preload='auto';
+      const l={id,name:file.name,type,url,el,x:0,y:0,scale:100,rotation:0,opacity:100,visible:true,z,start,end:Math.min(state.timelineDuration,start+5)};
+      state.layers.push(l);
+      el.addEventListener('loadedmetadata',()=>{
+        l.end=Math.min(state.timelineDuration,l.start+Math.max(.1,el.duration));
+        renderMultiTimeline();renderLayers();
+      },{once:true});
     }
+    state.selectedLayer=id;state.timelineSelected=id;
+    renderLayers();updateSynthTargets();renderMultiTimeline();toast('Layer added to timeline');
   }
-  function clipThumbHTML(type,url){
-    return type==='video'
-      ? `<div class="timeline-layer-thumb"><video src="${url}" muted playsinline preload="metadata"></video></div>`
-      : `<div class="timeline-layer-thumb"><img src="${url}"></div>`;
-  }
-  function renderTimelineTracks(){
-    const existing=[...mt.querySelectorAll('.track-row')];existing.forEach(x=>x.remove());
-    renderRuler();
+  if(li)li.onchange=e=>{const f=e.target.files?.[0];if(f)createTimedLayer(f);e.target.value=''};
+  if(lv)lv.onchange=e=>{const f=e.target.files?.[0];if(f)createTimedLayer(f);e.target.value=''};
 
-    // Source row
-    const srcRow=document.createElement('div');srcRow.className='track-row';srcRow.dataset.track='source';
-    srcRow.innerHTML='<div class="track-label">SOURCE</div>';
-    if(state.source.type!=='test'){
-      const dur=effectiveSourceDuration();
-      const clip=document.createElement('div');clip.className='timeline-layer-clip selected';
-      clip.style.left='0%';clip.style.width=(dur/state.timelineLength*100)+'%';
-      clip.innerHTML=`<div class="timeline-layer-inner">${clipThumbHTML(state.source.type,state.source.url)}<div class="timeline-layer-info"><b>${escapeHtml(state.source.name)}</b><small>${fmt(dur)}</small></div></div>`;
-      srcRow.appendChild(clip);
-    }
-    mt.appendChild(srcRow);
-
-    state.layers.slice().sort((a,b)=>b.z-a.z).forEach(l=>{
-      if(l.start==null)l.start=0;if(l.duration==null)l.duration=l.type==='image'?5:5;
-      const row=document.createElement('div');row.className='track-row';row.dataset.track=l.id;
-      row.innerHTML='<div class="track-label">LAYER</div>';
-      const clip=document.createElement('div');clip.className='timeline-layer-clip'+(state.selectedLayer===l.id?' selected':'');
-      clip.dataset.layerId=l.id;
-      clip.style.left=(l.start/state.timelineLength*100)+'%';
-      clip.style.width=(l.duration/state.timelineLength*100)+'%';
-      clip.innerHTML=`<div class="trim-edge left"></div><div class="timeline-layer-inner">${clipThumbHTML(l.type,l.url)}<div class="timeline-layer-info"><b>${escapeHtml(l.name)}</b><small>${fmt(l.start)} → ${fmt(l.start+l.duration)}</small></div></div><div class="trim-edge right"></div>`;
-      row.appendChild(clip);mt.appendChild(row);
-      bindClipDrag(clip,l);
-    });
-    updateMasterPlayhead();
-  }
-
-  function bindClipDrag(clip,l){
-    let mode='move',startX=0,start=l.start,startDur=l.duration;
-    clip.addEventListener('pointerdown',e=>{
-      state.selectedLayer=l.id;renderLayers();renderLayerInspector();renderTimelineTracks();
-      startX=e.clientX;start=l.start;startDur=l.duration;
-      if(e.target.classList.contains('left'))mode='trim-left';
-      else if(e.target.classList.contains('right'))mode='trim-right';
-      else mode='move';
-      clip.setPointerCapture(e.pointerId);
-      e.preventDefault();
-    });
-    clip.addEventListener('pointermove',e=>{
-      if(!clip.hasPointerCapture(e.pointerId))return;
-      const delta=(e.clientX-startX)/Math.max(mt.clientWidth,540)*state.timelineLength;
-      if(mode==='move'){
-        l.start=clamp(start+delta,0,Math.max(0,state.timelineLength-l.duration));
-      }else if(mode==='trim-right'){
-        l.duration=clamp(startDur+delta,.1,state.timelineLength-l.start);
-        if(l.type==='video'&&l.el?.duration)l.duration=Math.min(l.duration,l.el.duration);
-      }else{
-        const end=start+startDur;
-        const ns=clamp(start+delta,0,end-.1);
-        l.start=ns;l.duration=end-ns;
-      }
-      clip.style.left=(l.start/state.timelineLength*100)+'%';
-      clip.style.width=(l.duration/state.timelineLength*100)+'%';
-      renderLayerInspectorTimeOnly();
-    });
-    clip.addEventListener('pointerup',()=>{renderTimelineTracks()});
-  }
-
-  function updateMasterPlayhead(){
-    ph.style.left=(state.masterTime/state.timelineLength*100)+'%';
-    $('#timeNow').textContent=fmt(state.masterTime);
-    $('#timeDur').textContent=fmt(state.timelineLength);
-    $('#seek').value=Math.round(state.masterTime/state.timelineLength*1000);
-  }
-
-  $('#timelineLengthInput').onchange=e=>{
-    const v=clamp(+e.target.value||30,1,3600);state.timelineLength=v;e.target.value=v;
-    state.masterTime=clamp(state.masterTime,0,v);
-    for(const l of state.layers){
-      l.start=clamp(l.start||0,0,v-.1);
-      l.duration=clamp(l.duration||5,.1,v-l.start);
-    }
-    renderTimelineTracks();updateMasterPlayhead();
-  };
-
-  // Replace transport behavior with master timeline.
-  $('#seek').oninput=e=>{
-    state.masterTime=(+e.target.value/1000)*state.timelineLength;
-    const v=state.source.video;
-    if(v&&v.duration)v.currentTime=clamp(state.masterTime,state.trimStart||0,state.trimEnd??v.duration);
-    syncLayerVideosToMaster();updateMasterPlayhead();
-  };
-  $('#track')?.remove();
-
-  let last=performance.now();
-  function masterClock(now){
-    const dt=(now-last)/1000;last=now;
-    const src=state.source.video;
-    const shouldPlay=src && !src.paused;
-    if(shouldPlay){
-      state.masterTime=src.currentTime;
-    }else if(state.playingTimeline && state.source.type!=='video'){
-      state.masterTime+=dt;
-      if(state.masterTime>=state.timelineLength)state.masterTime=0;
-    }
-    syncLayerVideosToMaster();updateMasterPlayhead();
-    requestAnimationFrame(masterClock)
-  }
-  requestAnimationFrame(masterClock);
-
-  const oldPlay=$('#playBtn').onclick;
-  $('#playBtn').onclick=()=>{
-    const v=state.source.video;
-    if(v){v.paused?v.play().catch(()=>{}):v.pause()}
-    else state.playingTimeline=!state.playingTimeline;
-  };
-
-  // Timeline click seek.
-  $('#timelineBody').addEventListener('pointerdown',e=>{
-    if(e.target.closest('.timeline-layer-clip'))return;
-    const r=mt.getBoundingClientRect();
-    const x=clamp(e.clientX-r.left,0,r.width);
-    state.masterTime=x/r.width*state.timelineLength;
-    if(state.source.video?.duration)state.source.video.currentTime=clamp(state.masterTime,0,state.source.video.duration);
-    updateMasterPlayhead();
+  document.getElementById('timelineZoom')?.addEventListener('input',e=>{
+    state.timelineZoom=+e.target.value/100;
+    renderMultiTimeline();
+  });
+  document.getElementById('timelineLength')?.addEventListener('input',e=>{
+    state.timelineDuration=+e.target.value;
+    state.layers.forEach(normalizeLayerTiming);
+    renderMultiTimeline();
+  });
+  document.getElementById('timelineCollapse')?.addEventListener('click',()=>{
+    const dock=document.getElementById('timelineDock');
+    dock.classList.toggle('collapsed');
+    document.getElementById('timelineCollapse').textContent=dock.classList.contains('collapsed')?'⌃':'⌄';
   });
 
-  // Extend layer inspector with timing.
-  const oldRenderLayerInspector=renderLayerInspector;
-  window.renderLayerInspector=renderLayerInspector=function(){
-    oldRenderLayerInspector();
-    const l=selectedLayer();
-    const s=$('#layerStartInput'),d=$('#layerDurationInput');
-    if(!l){s.value=0;d.value=5;s.disabled=d.disabled=true;return}
-    s.disabled=d.disabled=false;s.value=(l.start||0).toFixed(1);d.value=(l.duration||5).toFixed(1);
-    s.onchange=()=>{l.start=clamp(+s.value||0,0,state.timelineLength-.1);l.duration=clamp(l.duration,.1,state.timelineLength-l.start);renderTimelineTracks();window.renderLayerInspector()}
-    d.onchange=()=>{l.duration=clamp(+d.value||.1,.1,state.timelineLength-l.start);if(l.type==='video'&&l.el?.duration)l.duration=Math.min(l.duration,l.el.duration);renderTimelineTracks();window.renderLayerInspector()}
-  };
-  function renderLayerInspectorTimeOnly(){
-    const l=selectedLayer();if(!l)return;
-    $('#layerStartInput').value=l.start.toFixed(1);$('#layerDurationInput').value=l.duration.toFixed(1);
-  }
-
-  // Patch delete/undo to redraw timeline.
-  const oldDeleteLayer=deleteLayer;
-  window.deleteLayer=deleteLayer=function(id){oldDeleteLayer(id);renderTimelineTracks()};
-  const oldRestore=restoreHistory;
-  window.restoreHistory=restoreHistory=function(){oldRestore();renderTimelineTracks()};
-  $('#undoLayer').onclick=()=>window.restoreHistory();
-  $('#layerDelete').onclick=()=>selectedLayer()&&window.deleteLayer(selectedLayer().id);
-
-  // Keep source changes reflected.
-  const oldUpdateSourceUI=updateSourceUI;
-  window.updateSourceUI=updateSourceUI=function(){oldUpdateSourceUI();renderTimelineTracks()};
-  setTimeout(renderTimelineTracks,20);
-
-  // ---- Scalable ShaderGlass catalog UI ----
-  // ShaderGlass ships 1200+ built-in RetroArch shaders. This browser is intentionally
-  // catalog-sized and searchable; entries preserve family/path identity for later native bridging.
-  const shaderFamilies={
-    CRT:['CRT Classic','CRT Royale','CRT Royale Intel','CRT Guest Advanced','CRT Guest Advanced HD','CRT Geom','CRT Easymode','CRT Lottes','CRT Hyllian','CRT Aperture','CRT Consumer','Newpixie CRT'],
-    TV:['NTSC Adaptive','NTSC 320px','NTSC 256px','PAL Composite','VHS Signal','S-Video'],
-    LCD:['LCD Grid','LCD CGWG','Dot Matrix','GBA Color','GBC Color','NDS Color','Game Boy'],
-    Scale:['Sharp Bilinear','xBR Level 2','xBR Level 3','ScaleFX','Super xBR','Pixellate','Nearest Plus'],
-    Blur:['Gaussian Blur','Fast Blur','Bilateral','Softening','Denoise'],
-    Utility:['Image Adjustment','Anti Aliasing','Deband','Sharpen','Colorimetry','Grade']
-  };
-  const shaderCatalog=[];
-  // Seed real recognizable presets, then generate catalog slots for the full-scale browser.
-  Object.entries(shaderFamilies).forEach(([cat,names])=>names.forEach((name,i)=>shaderCatalog.push({
-    id:(cat+'_'+name).toLowerCase().replace(/[^a-z0-9]+/g,'_'),
-    name,category:cat,path:(cat.toLowerCase()+'/'+name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.slangp')
-  })));
-  const cats=Object.keys(shaderFamilies);
-  for(let i=shaderCatalog.length;i<1250;i++){
-    const cat=cats[i%cats.length];
-    shaderCatalog.push({
-      id:'catalog_'+i,
-      name:`${cat} Library Shader ${String(i+1).padStart(4,'0')}`,
-      category:cat,
-      path:`${cat.toLowerCase()}/shader-${String(i+1).padStart(4,'0')}.slangp`,
-      placeholder:true
-    });
-  }
-
-  let shaderCategory='ALL', shaderLimit=80;
-  function renderShaderCategories(){
-    $('#shaderCategories').innerHTML=['ALL',...cats].map(c=>`<button class="shader-cat ${shaderCategory===c?'active':''}" data-cat="${c}">${c}</button>`).join('');
-    $$('[data-cat]').forEach(b=>b.onclick=()=>{shaderCategory=b.dataset.cat;shaderLimit=80;renderHugeShaderList()});
-  }
-  function renderHugeShaderList(){
-    const q=($('#shaderSearch').value||'').toLowerCase();
-    const filtered=shaderCatalog.filter(s=>(shaderCategory==='ALL'||s.category===shaderCategory)&&(s.name+' '+s.path).toLowerCase().includes(q));
-    $('#shaderCount').textContent=`${filtered.length} shaders`;
-    $('#shaderList').innerHTML=filtered.slice(0,shaderLimit).map(s=>`<button class="preset-card ${shaderSelected===s.id?'active':''}" data-bigshader="${s.id}"><b>${s.name}</b><small>${s.category} • ${s.path}</small></button>`).join('');
-    $('#shaderLoadMore').style.display=filtered.length>shaderLimit?'block':'none';
-    $$('[data-bigshader]').forEach(b=>b.onclick=()=>{
-      const item=shaderCatalog.find(s=>s.id===b.dataset.bigshader);
-      shaderSelected=item.id;
-      $('#shaderName').textContent=item.name;
-      $('#shaderDesc').textContent=item.placeholder?'Catalog slot ready for native ShaderGlass mapping':item.path;
-      // Browser preview maps family to approximated CRT controls.
-      if(item.category==='CRT')Object.assign(state.shader,{scanlines:.32,glow:.18,rgbShift:1.5,noise:.02});
-      else if(item.category==='TV')Object.assign(state.shader,{scanlines:.16,glow:.07,rgbShift:3.5,noise:.06});
-      else if(item.category==='LCD')Object.assign(state.shader,{scanlines:.08,glow:.02,rgbShift:.3,noise:0});
-      else if(item.category==='Blur')Object.assign(state.shader,{scanlines:0,glow:.18,rgbShift:0,noise:0});
-      else Object.assign(state.shader,{scanlines:.08,glow:.06,rgbShift:.4,noise:.01});
-      renderHugeShaderList();
-    });
-  }
-  renderShaderCategories();renderHugeShaderList();
-  $('#shaderSearch').oninput=()=>{shaderLimit=80;renderHugeShaderList()};
-  $('#shaderLoadMore').onclick=()=>{shaderLimit+=80;renderHugeShaderList()};
-
-  // Apply currently selected catalog shader.
-  $('#applyShader').onclick=()=>{
-    state.shader.enabled=true;
-    state.shader.id=shaderSelected;
-    updateFxLabel();toast('Shader applied')
-  };
-
-  window.CRTIZER_TIMELINE={render:renderTimelineTracks,setLength:s=>{$('#timelineLengthInput').value=s;$('#timelineLengthInput').dispatchEvent(new Event('change'))}};
-  window.CRTIZER_SHADER_CATALOG=shaderCatalog;
-})();
-</script>
-
-
-<script id="crtizer-mobile-sheet-fix-js">
-(function(){
-  const sheet=document.getElementById('sheet');
-  const close=document.getElementById('closeSheet');
-
-  function forceOpenSheet(tool){
-    if(!window.matchMedia('(max-width:900px)').matches)return;
-
-    // Complex tools remain full-screen modals.
-    if(['layers','synth','shader','export'].includes(tool))return;
-
-    // Let the existing openSheet populate content first.
-    requestAnimationFrame(()=>{
-      sheet.style.display='block';
-      sheet.classList.add('open');
-      sheet.style.pointerEvents='auto';
-      sheet.style.visibility='visible';
-    });
-  }
-
-  document.querySelectorAll('.tool').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      forceOpenSheet(btn.dataset.tool);
-    },true);
-  });
-
-  close?.addEventListener('click',()=>{
-    sheet.classList.remove('open');
-    sheet.style.pointerEvents='none';
-    setTimeout(()=>{
-      if(!sheet.classList.contains('open')){
-        sheet.style.visibility='hidden';
-      }
-    },230);
-  },true);
-
-  // Prevent timeline/dock containers from clipping the fixed bottom sheet.
-  let p=sheet.parentElement;
-  while(p && p!==document.body){
-    const cs=getComputedStyle(p);
-    if(cs.overflow==='hidden' || cs.overflowY==='hidden'){
-      if(!p.classList.contains('app') && !p.classList.contains('main')){
-        p.style.overflow='visible';
-      }
-    }
-    p=p.parentElement;
-  }
-
-  // iOS visual viewport changes can otherwise leave the sheet under browser chrome.
-  function refreshSheetPosition(){
-    if(!window.matchMedia('(max-width:900px)').matches)return;
-    document.documentElement.style.setProperty('--mobile-visible-h',(window.visualViewport?.height||window.innerHeight)+'px');
-    if(sheet.classList.contains('open')){
-      sheet.style.bottom='calc(var(--dock) + var(--safe))';
-    }
-  }
-  window.visualViewport?.addEventListener('resize',refreshSheetPosition);
-  window.addEventListener('orientationchange',()=>setTimeout(refreshSheetPosition,80));
-  refreshSheetPosition();
-
-  window.CRTIZER_MOBILE_SHEET_FIX={forceOpenSheet};
-})();
-</script>
-
-
-<script id="crtizer-mobile-panel-controller-js">
-(function(){
-  const sheet=document.getElementById('sheet');
-  const body=document.getElementById('sheetBody');
-  const title=document.getElementById('sheetTitle');
-  const close=document.getElementById('closeSheet');
-
-  function closeSheetNow(){
-    sheet.classList.remove('open');
-    document.querySelectorAll('.tool').forEach(b=>b.classList.remove('active'));
-  }
-
-  function showSheet(name, html){
-    document.querySelectorAll('.modal.open').forEach(m=>m.classList.remove('open'));
-    title.textContent=name;
-    body.innerHTML=html;
-    sheet.style.display='block';
-    sheet.style.visibility='visible';
-    requestAnimationFrame(()=>sheet.classList.add('open'));
-  }
-
-  function activate(tool){
-    document.querySelectorAll('.tool').forEach(b=>b.classList.toggle('active',b.dataset.tool===tool));
-  }
-
-  function sourcePanel(){
-    activate('source');
-    const isVid=state.source.type==='video' && state.source.video;
-    showSheet('Source', `
-      <div class="mobile-panel-grid">
-        <button class="mobile-panel-card" id="mpTest"><b>Test Pattern</b><small>Built-in CRTiZER source</small></button>
-        <button class="mobile-panel-card" id="mpPhoto"><b>Photo</b><small>Load an image from this device</small></button>
-        <button class="mobile-panel-card" id="mpVideo"><b>Video</b><small>Load a local video clip</small></button>
-        <div class="mobile-panel-card"><b>${escapeHtml(state.source.name)}</b><small>${state.source.type.toUpperCase()}</small></div>
-      </div>
-      <div class="mobile-panel-section">
-        <div class="mobile-panel-section-title">PLAYBACK</div>
-        <div class="mobile-source-time">
-          <span id="mpNow">${fmt(state.masterTime||0)}</span>
-          <input type="range" id="mpSeek" min="0" max="1000" value="${Math.round((state.masterTime||0)/(state.timelineLength||30)*1000)}">
-          <span id="mpDur">${fmt(state.timelineLength||30)}</span>
-        </div>
-        <div class="mobile-source-controls">
-          <button class="btn accent" id="mpPlay">${isVid && !state.source.video.paused?'Ⅱ':'▶'}</button>
-          <button class="btn" id="mpDelete">Remove Source</button>
-        </div>
-      </div>
-    `);
-
-    body.querySelector('#mpTest').onclick=()=>{setSourceTest();sourcePanel()};
-    body.querySelector('#mpPhoto').onclick=()=>document.getElementById('sourceImageInput').click();
-    body.querySelector('#mpVideo').onclick=()=>document.getElementById('sourceVideoInput').click();
-    body.querySelector('#mpPlay').onclick=()=>document.getElementById('playBtn').click();
-    body.querySelector('#mpDelete').onclick=()=>{setSourceTest();sourcePanel()};
-    body.querySelector('#mpSeek').oninput=e=>{
-      state.masterTime=(+e.target.value/1000)*(state.timelineLength||30);
-      if(state.source.video?.duration){
-        state.source.video.currentTime=Math.min(state.source.video.duration,state.masterTime);
-      }
-      document.getElementById('mpNow').textContent=fmt(state.masterTime);
+  // CapCut-style vertical resize handle for desktop/tablet.
+  const docker=document.createElement('div');
+  docker.className='timeline-docker';
+  document.getElementById('timelineDock')?.appendChild(docker);
+  docker.addEventListener('pointerdown',e=>{
+    const startY=e.clientY;
+    const startH=document.getElementById('timelineDock').getBoundingClientRect().height;
+    const move=ev=>{
+      const h=clamp(startH-(ev.clientY-startY),96,320);
+      document.documentElement.style.setProperty('--timeline-dock-h',h+'px');
     };
+    const up=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',up)};
+    window.addEventListener('pointermove',move);
+    window.addEventListener('pointerup',up,{once:true});
+  });
+
+  // mobile uses unobtrusive collapsed/expanded timeline dock between preview and bottom tabs.
+  function mobileTimelineSizing(){
+    if(window.matchMedia('(max-width:900px)').matches){
+      const dock=document.getElementById('timelineDock');
+      if(!dock.classList.contains('collapsed')){
+        document.documentElement.style.setProperty('--timeline-dock-h','148px');
+      }
+    }
+  }
+  window.addEventListener('resize',mobileTimelineSizing);
+
+  // ---------- ShaderGlass-scale library ----------
+  const FALLBACK_SHADERGLASS = [
+    ['crt/crt-royale.slangp','CRT'],['crt/crt-royale-intel.slangp','CRT'],
+    ['crt/crt-geom.slangp','CRT'],['crt/crt-easymode.slangp','CRT'],
+    ['crt/crt-lottes.slangp','CRT'],['crt/crt-hyllian.slangp','CRT'],
+    ['crt/crt-aperture.slangp','CRT'],['crt/newpixie-crt.slangp','CRT'],
+    ['crt/crt-guest-advanced.slangp','CRT'],['crt/crt-guest-advanced-hd.slangp','CRT'],
+    ['ntsc/ntsc-adaptive.slangp','NTSC'],['ntsc/ntsc-320px.slangp','NTSC'],
+    ['lcd-grid-v2.slangp','LCD'],['handheld/lcd-grid-v2-gba-color.slangp','HANDHELD'],
+    ['handheld/gbc-color.slangp','HANDHELD'],['handheld/gba-color.slangp','HANDHELD'],
+    ['anti-aliasing/fxaa.slangp','ANTI-ALIASING'],['anti-aliasing/smaa.slangp','ANTI-ALIASING'],
+    ['edge-smoothing/xbr/xbr-lv2.slangp','SCALING'],['edge-smoothing/scalefx.slangp','SCALING'],
+    ['sharpen/sharp-bilinear.slangp','SHARPEN'],['blurs/blur9x9.slangp','BLUR']
+  ].map(([path,category])=>({path,category,name:path.split('/').pop().replace('.slangp','').replaceAll('-',' ')}));
+
+  let fullCatalog=[...FALLBACK_SHADERGLASS];
+  let shaderCategory='ALL';
+  let shaderQuery='';
+  let shaderVisibleCount=100;
+  let shaderPathSelected='crt/crt-royale.slangp';
+
+  function categoryFromPath(path){
+    const first=path.split('/')[0]||'OTHER';
+    const map={
+      'crt':'CRT','ntsc':'NTSC','handheld':'HANDHELD','anti-aliasing':'ANTI-ALIASING',
+      'edge-smoothing':'SCALING','sharpen':'SHARPEN','blurs':'BLUR','misc':'UTILITY',
+      'presets':'PRESETS','tvout-tweaks':'TV','vhs':'VHS','anamorphic':'ANAMORPHIC',
+      'denoisers':'DENOISE','film':'FILM','pal':'PAL','stock':'UTILITY'
+    };
+    return map[first]||first.toUpperCase();
   }
 
-  function editPanel(){
-    activate('edit');
-    const layer=selectedLayer?.();
-    showSheet('Edit', `
-      <div class="mobile-panel-grid">
-        <button class="mobile-panel-card" id="mpSplit"><b>Split</b><small>Add a cut marker at the playhead</small></button>
-        <button class="mobile-panel-card" id="mpTrim"><b>Trim</b><small>Set trim start and end points</small></button>
-        <button class="mobile-panel-card" id="mpDeleteClip"><b>Delete Source</b><small>Remove the base source clip</small></button>
-        <button class="mobile-panel-card" id="mpLayers"><b>Edit Layers</b><small>Open the full compositor</small></button>
-      </div>
-      <div class="mobile-panel-section">
-        <div class="mobile-panel-section-title">TIMELINE</div>
-        <div class="source-card">
-          <b>${escapeHtml(state.source.name)}</b>
-          <small>${fmt(state.masterTime||0)} / ${fmt(state.timelineLength||30)}${layer?' • '+escapeHtml(layer.name):''}</small>
-        </div>
-      </div>
-    `);
-    body.querySelector('#mpSplit').onclick=()=>document.getElementById('splitBtn').click();
-    body.querySelector('#mpTrim').onclick=()=>document.getElementById('trimBtn').click();
-    body.querySelector('#mpDeleteClip').onclick=()=>document.getElementById('deleteSourceBtn').click();
-    body.querySelector('#mpLayers').onclick=()=>{closeSheetNow();openModal('layers')};
+  async function loadShaderGlassCatalog(){
+    try{
+      const res=await fetch('https://api.github.com/repos/libretro/slang-shaders/git/trees/master?recursive=1');
+      if(!res.ok)throw new Error('catalog fetch');
+      const json=await res.json();
+      const entries=(json.tree||[])
+        .filter(x=>x.type==='blob'&&x.path.endsWith('.slangp'))
+        .map(x=>({
+          path:x.path,
+          category:categoryFromPath(x.path),
+          name:x.path.split('/').pop().replace('.slangp','').replaceAll('-',' ')
+        }));
+      if(entries.length>500)fullCatalog=entries;
+    }catch(e){
+      // Offline fallback remains functional.
+    }
+    shaderVisibleCount=100;
+    renderShaderGlassLibrary();
   }
 
-  function effectsPanel(){
-    activate('effects');
-    showSheet('Effects', `
-      <div class="mobile-panel-grid">
-        <button class="mobile-panel-card" id="mpDither"><b>Dither</b><small>PunkDither presets and two-color diffusion</small></button>
-        <button class="mobile-panel-card" id="mpShader"><b>Shader</b><small>ShaderGlass-style CRT and display effects</small></button>
-      </div>
-      <div class="mobile-panel-section mobile-effects-list">
-        <div class="mobile-panel-section-title">QUICK ADJUSTMENTS</div>
-        ${quickDefs.map(d=>paramHTML(d[0],d[1],state.effects[d[1]],d[2],d[3],d[4])).join('')}
-      </div>
-    `);
-    body.querySelector('#mpDither').onclick=()=>{closeSheetNow();openModal('synth')};
-    body.querySelector('#mpShader').onclick=()=>{closeSheetNow();openModal('shader')};
-    body.querySelectorAll('[data-fx]').forEach(r=>{
-      r.oninput=()=>{
-        state.effects[r.dataset.fx]=+r.value;
-        r.previousElementSibling.querySelector('b').textContent=(+r.value).toFixed(+r.step<1?2:0);
-      };
+  function filteredShaders(){
+    const q=shaderQuery.toLowerCase();
+    return fullCatalog.filter(s=>
+      (shaderCategory==='ALL'||s.category===shaderCategory) &&
+      (!q||(s.name+' '+s.path+' '+s.category).toLowerCase().includes(q))
+    );
+  }
+
+  function renderShaderCategories(){
+    const el=document.getElementById('shaderCategories');
+    if(!el)return;
+    const cats=['ALL',...new Set(fullCatalog.map(s=>s.category))].slice(0,40);
+    el.innerHTML=cats.map(c=>`<button class="shader-category ${shaderCategory===c?'active':''}" data-cat="${c}">${c}</button>`).join('');
+    el.querySelectorAll('[data-cat]').forEach(b=>b.onclick=()=>{
+      shaderCategory=b.dataset.cat;shaderVisibleCount=100;renderShaderGlassLibrary();
     });
   }
 
-  function route(tool){
-    if(!window.matchMedia('(max-width:900px)').matches)return;
-
-    if(tool==='source'){sourcePanel();return}
-    if(tool==='edit'){editPanel();return}
-    if(tool==='effects'){effectsPanel();return}
-
-    closeSheetNow();
-    activate(tool);
-    if(tool==='layers')openModal('layers');
-    if(tool==='synth')openModal('synth');
-    if(tool==='shader')openModal('shader');
-    if(tool==='export')openModal('export');
+  function renderShaderGlassLibrary(){
+    renderShaderCategories();
+    const list=document.getElementById('shaderList');
+    const found=filteredShaders();
+    document.getElementById('shaderLibraryCount').textContent=`${found.length.toLocaleString()} / ${fullCatalog.length.toLocaleString()} shaders`;
+    const slice=found.slice(0,shaderVisibleCount);
+    list.innerHTML=slice.map(s=>`
+      <div class="shader-row ${shaderPathSelected===s.path?'active':''}" data-sg-path="${s.path}">
+        <b>${escapeHtml(s.name)}</b>
+        <small>${escapeHtml(s.category)} · ${escapeHtml(s.path)}</small>
+      </div>`).join('');
+    list.querySelectorAll('[data-sg-path]').forEach(row=>row.onclick=()=>{
+      const s=fullCatalog.find(x=>x.path===row.dataset.sgPath);
+      shaderPathSelected=s.path;
+      document.getElementById('shaderName').textContent=s.name;
+      document.getElementById('shaderDesc').textContent=s.path;
+      // Browser renderer maps the chosen Slang preset into adjustable CRT parameters.
+      // The exact path remains preserved for the later native ShaderGlass bridge.
+      if(s.category==='CRT')Object.assign(state.shader,{scanlines:.32,glow:.18,rgbShift:1.6,noise:.015});
+      else if(['VHS','NTSC','PAL','TV'].includes(s.category))Object.assign(state.shader,{scanlines:.18,glow:.08,rgbShift:3.2,noise:.07});
+      else if(s.category==='LCD'||s.category==='HANDHELD')Object.assign(state.shader,{scanlines:.08,glow:.02,rgbShift:.5,noise:0});
+      else if(s.category==='SHARPEN'||s.category==='SCALING')Object.assign(state.shader,{scanlines:0,glow:0,rgbShift:0,noise:0});
+      renderShaderGlassLibrary();
+    });
+    if(slice.length<found.length){
+      const more=document.createElement('button');
+      more.className='shader-row';
+      more.innerHTML=`<b>Load more</b><small>${found.length-slice.length} shaders remaining</small>`;
+      more.onclick=()=>{shaderVisibleCount+=100;renderShaderGlassLibrary()};
+      list.appendChild(more);
+    }
   }
 
-  // Neutralize the earlier mobile routing by handling pointer/touch before normal click.
-  document.querySelectorAll('.tool').forEach(btn=>{
-    btn.addEventListener('pointerup',e=>{
-      if(!window.matchMedia('(max-width:900px)').matches)return;
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      route(btn.dataset.tool);
-    },true);
-  });
+  const shaderSearch=document.getElementById('shaderSearch');
+  if(shaderSearch)shaderSearch.oninput=e=>{shaderQuery=e.target.value;shaderVisibleCount=100;renderShaderGlassLibrary()};
 
-  close.addEventListener('pointerup',e=>{
-    if(!window.matchMedia('(max-width:900px)').matches)return;
-    e.preventDefault();
-    e.stopImmediatePropagation();
-    closeSheetNow();
-  },true);
+  const oldOpenModal=openModal;
+  openModal=function(name){
+    oldOpenModal(name);
+    if(name==='shader'&&fullCatalog.length<=FALLBACK_SHADERGLASS.length)loadShaderGlassCatalog();
+    if(name==='shader')renderShaderGlassLibrary();
+  };
 
-  // Keep source panel fresh after a file is actually selected.
-  document.getElementById('sourceImageInput')?.addEventListener('change',()=>{
-    setTimeout(()=>{if(sheet.classList.contains('open')&&title.textContent==='Source')sourcePanel()},80);
-  });
-  document.getElementById('sourceVideoInput')?.addEventListener('change',()=>{
-    setTimeout(()=>{if(sheet.classList.contains('open')&&title.textContent==='Source')sourcePanel()},120);
-  });
+  const applyBtn=document.getElementById('applyShader');
+  if(applyBtn)applyBtn.onclick=()=>{
+    state.shader.enabled=true;
+    state.shader.path=shaderPathSelected;
+    updateFxLabel();
+    toast('Shader selected');
+  };
 
-  window.CRTIZER_MOBILE_PANEL_CONTROLLER={route,sourcePanel,editPanel,effectsPanel,closeSheetNow};
+  // Keep timeline synchronized after all existing source/layer operations.
+  document.addEventListener('change',e=>{
+    if(e.target.matches('input[type=file]'))setTimeout(renderMultiTimeline,120);
+  });
+  setInterval(()=>{
+    if(document.getElementById('timelineDock'))renderMultiTimeline();
+  },900);
+
+  renderMultiTimeline();
+  loadShaderGlassCatalog();
 })();
 </script>
 
