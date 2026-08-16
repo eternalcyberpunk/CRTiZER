@@ -2181,7 +2181,7 @@ function makeIrisBrowserWorker(){
           if(!imageInputs || !imageEmbeddings) throw new Error('No encoded frame');
           const reshaped=imageInputs.reshaped_input_sizes[0];
           const pts=(data.points||[]).map(x=>[x.x*reshaped[1],x.y*reshaped[0]]);
-          if(!pts.length)throw new Error('Add at least one prompt point');
+          if(!pts.length)throw new Error('Enter a text prompt or add an Include / Exclude point');
 
           const labels=(data.points||[]).map(x=>BigInt(x.label));
           const input_points=new Tensor('float32',pts.flat(Infinity),[1,1,pts.length,2]);
@@ -2286,6 +2286,28 @@ function maskBufferToImage(width,height,buffer){
     out.onload=()=>resolve(out);out.onerror=reject;out.src=c.toDataURL('image/png');
   });
 }
+
+function ensureIrisBrowserSeed(){
+  const prompt=commitIrisRegPrompt();
+  if(irisSeg.points.length)return true;
+
+  if(prompt){
+    // SlimSAM browser mode requires at least one spatial point.
+    // When the user supplies only text, seed the center so generation can proceed.
+    irisSeg.points=[{x:.5,y:.5,label:1,auto:true}];
+    const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
+    const session=irisSegSession(targetId);
+    session.points=[...irisSeg.points];
+    renderIrisSegPoints();
+    setIrisSegConnection(
+      irisSeg.connected?'online':'offline',
+      'Text prompt accepted. Browser Local added an automatic center seed for segmentation.'
+    );
+    return true;
+  }
+  return false;
+}
+
 async function irisBrowserSegmentCurrent(){
   if(!irisSeg.points.length)throw new Error('Add at least one Include/Exclude point.');
   await irisBrowserEncodeCurrentFrame(true);
@@ -2311,7 +2333,7 @@ async function irisBrowserSegmentCurrent(){
 async function irisBrowserTrack(direction='forward'){
   const target=irisSegTargetObject();
   if(!target || target.type!=='video')throw new Error('Browser tracking requires a video source or video layer.');
-  if(!irisSeg.points.length)throw new Error('Add prompt points before tracking.');
+  if(!ensureIrisBrowserSeed())throw new Error('Enter a text prompt or add an Include / Exclude point before tracking.');
 
   const v=target.el;
   const start=Math.max(0,+$('#irisSegIn').value||0);
@@ -2445,7 +2467,7 @@ function renderIrisSegPoints(){
     rows.push(
       `<div class="irisseg-point">
         <span>POINT ${i+1}</span>
-        <b class="${p.label===1?'pos':'neg'}">${p.label===1?'INCLUDE':'EXCLUDE'}</b>
+        <b class="${p.label===1?'pos':'neg'}">${p.auto?'AUTO SEED':(p.label===1?'INCLUDE':'EXCLUDE')}</b>
       </div>`
     );
   });
@@ -2725,7 +2747,13 @@ $('#irisSegTarget')?.addEventListener('change',()=>{
 });
 $('#irisSegInclude')?.addEventListener('click',()=>irisSegSetMode('include'));
 $('#irisSegExclude')?.addEventListener('click',()=>irisSegSetMode('exclude'));
-$('#irisSegClearPoints')?.addEventListener('click',()=>{irisSeg.points=[];renderIrisSegPoints();drawIrisSegFrame()});
+$('#irisSegClearPoints')?.addEventListener('click',()=>{
+  irisSeg.points=[];
+  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
+  irisSegSession(targetId).points=[];
+  renderIrisSegPoints();
+  drawIrisSegFrame();
+});
 $('#irisSegShowMask')?.addEventListener('click',e=>{irisSeg.showMask=!irisSeg.showMask;e.currentTarget.classList.toggle('active',irisSeg.showMask);drawIrisSegFrame()});
 $('#irisSegConnect')?.addEventListener('click',irisSegConnect);
 $('#irisSegSetIn')?.addEventListener('click',()=>$('#irisSegIn').value=masterTime().toFixed(2));
@@ -2743,8 +2771,16 @@ $('#irisSegOverlay')?.addEventListener('pointerdown',e=>{
   const r=e.currentTarget.getBoundingClientRect();
   const x=clamp((e.clientX-r.left)/r.width,0,1);
   const y=clamp((e.clientY-r.top)/r.height,0,1);
+
+  // A real user point replaces the automatic text-only seed.
+  irisSeg.points=irisSeg.points.filter(p=>!p.auto);
   irisSeg.points.push({x,y,label:irisSeg.mode==='include'?1:0});
-  renderIrisSegPoints();drawIrisSegFrame()
+
+  const targetId=$('#irisSegTarget')?.value||state.roto.activeTarget||'source';
+  irisSegSession(targetId).points=[...irisSeg.points];
+
+  renderIrisSegPoints();
+  drawIrisSegFrame();
 });
 
 let lastRenderedVideoBlob=null;
